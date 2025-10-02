@@ -1,0 +1,36 @@
+{
+  "name": "create-spec-driven-planning",
+  "version": "1.0.0",
+  "description": "Spec-Driven Planning (SDP) CLI scaffolding tool for Claude Code",
+  "bin": {
+    "create-sdp": "./bin/create-sdp.js"
+  },
+  "files": [
+    "bin/",
+    ".claude/",
+    "CLAUDE.md",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "claude-code",
+    "spec-driven-planning",
+    "sdp",
+    "requirements",
+    "estimation",
+    "pert",
+    "project-planning",
+    "scaffolding"
+  ],
+  "author": "basio0916",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Basio0916/spec-driven-planning"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

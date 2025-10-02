@@ -1,0 +1,27 @@
+# Git files
+.git
+.gitignore
+
+# Development files
+node_modules/
+.sdp/
+steering.md
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test files
+test/
+*.test.js
+
+# Backup files
+*.backup
+*.bak

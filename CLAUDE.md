@@ -4,7 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is a **Spec-Driven Planning** repository that implements a structured workflow for transforming natural-language requirements into refined specifications, task decompositions, estimates, and GitHub Issues. The workflow is entirely orchestrated through Claude Code custom slash commands.
+This is a **Spec-Driven Planning (SDP)** repository that implements a structured workflow for transforming natural-language requirements into refined specifications, task decompositions, estimates, and GitHub Issues. The workflow is entirely orchestrated through Claude Code custom slash commands.
+
+## Installation
+
+Users can scaffold this structure in their project using:
+
+```bash
+npx create-spec-driven-planning
+```
+
+This creates `.claude/`, `.sdp/`, and `CLAUDE.md` in the target directory.
 
 ## Custom Slash Commands
 
