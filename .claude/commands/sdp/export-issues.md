@@ -62,16 +62,66 @@ Read `.claude/config/github.yml`:
   - **Priority**: Use `export.yml` `github.repo` if present, otherwise fall back to `github.yml` `default_repo`
 - `labels`: Default labels to apply to all issues
 
-### Step 3A: Create Individual Task Issues (GitHub Mode)
+### Step 3A: Create Main Requirement Issue (GitHub Mode)
 
-For each task in `.sdp/tasks/REQ-xxx.yml`:
+First, create a single main issue for the requirement:
 
 #### Issue Title
-Format: `[REQ-xxx] <task.title>`
+Format: `[REQ-xxx] <requirement title>`
 
 #### Issue Body
+```markdown
+## Requirement Overview
+<brief summary from .sdp/requirements/REQ-xxx.md Goal section>
+
+## Rollup Estimate
+- Total Tasks: <count>
+- Expected Hours: <expected_hours>h
+- Standard Deviation: <stddev_hours>h
+- Confidence: <confidence>
+
+## Critical Path
+<critical_path from rollup> (e.g., T-001 → T-003 → T-007)
+
+## Task Breakdown
+See sub-issues below for detailed task breakdown.
+
+## Progress Tracking
+- [ ] Requirements finalized
+- [ ] Implementation started
+- [ ] Testing complete
+- [ ] Deployment ready
+```
+
+#### Labels
+- `github.yml` `labels` (default labels)
+- `["REQ-xxx"]` (requirement identifier)
+- `["requirement"]` (issue type marker)
+
+#### Execution
+```bash
+MAIN_ISSUE=$(gh issue create \
+  --title "[REQ-xxx] <requirement title>" \
+  --body "<formatted body>" \
+  --label "REQ-xxx,requirement,<labels>" \
+  --repo <owner/repo> | grep -oE '#[0-9]+' | tr -d '#')
+```
+
+Collect the main issue number for use in sub-issues.
+
+### Step 4A: Create Task Sub-Issues (GitHub Mode)
+
+For each task in `.sdp/tasks/REQ-xxx.yml`, create a sub-issue:
+
+#### Sub-Issue Title
+Format: `[REQ-xxx][T-xxx] <task.title>`
+
+#### Sub-Issue Body
 Include the following sections in markdown:
 ```markdown
+## Parent Issue
+Relates to #<main_issue>
+
 ## Description
 <task.description>
 
@@ -82,7 +132,7 @@ Include the following sections in markdown:
 <checklist from task.dod>
 
 ## Dependencies
-<list of task.depends_on>
+<list of task.depends_on with issue references if available>
 
 ## Estimate
 - Method: PERT
@@ -100,56 +150,54 @@ Combine:
 - `github.yml` `labels` (default labels)
 - `["REQ-xxx"]` (requirement identifier)
 - `task.labels` (from task definition)
+- `["task"]` (sub-issue marker)
 
 #### Execution
 ```bash
 gh issue create \
-  --title "[REQ-xxx] <task.title>" \
-  --body "<formatted body>" \
-  --label "label1,label2,label3" \
-  --repo <owner/repo>  # from export.yml github.repo or github.yml default_repo
+  --title "[REQ-xxx][T-001] <task.title>" \
+  --body "<formatted body with #${MAIN_ISSUE} reference>" \
+  --label "REQ-xxx,task,<labels>" \
+  --repo <owner/repo>
 ```
 
-Collect the returned issue number and URL for each task.
+Collect the returned sub-issue number and URL for each task.
 
-### Step 4A: Create Parent Tracking Issue (GitHub Mode)
+### Step 5A: Update Main Issue with Task Checklist (GitHub Mode)
 
-After all task issues are created, create a parent tracking issue:
+After all sub-issues are created, update the main issue body to include task checklist:
 
-#### Title
-Format: `[REQ-xxx] Tracking: <requirement title>`
+#### Updated Body Section
+Add a "Tasks" section to the main issue:
 
-#### Body
 ```markdown
-## Requirement Overview
-<brief summary from requirement>
-
-## Task Checklist
-- [ ] #<issue1> T-001: <task title> (<estimate>h)
-- [ ] #<issue2> T-002: <task title> (<estimate>h)
+## Tasks
+- [ ] #<sub-issue1> T-001: <task title> (<estimate>h)
+- [ ] #<sub-issue2> T-002: <task title> (<estimate>h)
+- [ ] #<sub-issue3> T-003: <task title> (<estimate>h)
 ...
-
-## Critical Path
-<critical_path from rollup> (e.g., T-001 → T-003 → T-007)
-
-## Rollup Estimate
-- Total Tasks: <count>
-- Expected Hours: <expected_hours>h
-- Standard Deviation: <stddev_hours>h
-- Confidence: <confidence>
-
-## Progress
-- [ ] Requirements finalized
-- [ ] Implementation started
-- [ ] Testing complete
-- [ ] Deployment ready
 ```
 
-#### Labels
-Same as task issues but add `tracking` label.
+#### Execution
+```bash
+# Get current body
+CURRENT_BODY=$(gh issue view ${MAIN_ISSUE} --json body -q .body)
 
-### Step 5A: Collect Results (GitHub Mode)
-Create a mapping table of task ID → issue number/URL.
+# Append task checklist
+NEW_BODY="${CURRENT_BODY}
+
+## Tasks
+- [ ] #${SUB_ISSUE_1} T-001: <task title> (<estimate>h)
+- [ ] #${SUB_ISSUE_2} T-002: <task title> (<estimate>h)
+...
+"
+
+# Update main issue
+gh issue edit ${MAIN_ISSUE} --body "$NEW_BODY" --repo <owner/repo>
+```
+
+### Step 6A: Collect Results (GitHub Mode)
+Create a mapping table of task ID → sub-issue number/URL and main issue.
 
 ## Export Mode: Local
 
@@ -172,26 +220,18 @@ Create a markdown file at `${OUT_DIR}/REQ-xxx-issues.md` with the following stru
 # GitHub Issues Draft for REQ-xxx
 
 This file contains issue drafts for requirement REQ-xxx.
-You can manually create these issues in GitHub or use the `gh` CLI.
+Structure: 1 main issue + N sub-issues (tasks)
 
 ---
 
-## Parent Tracking Issue
+## Main Requirement Issue
 
-**Title**: [REQ-xxx] Tracking: <requirement title>
+**Title**: [REQ-xxx] <requirement title>
 
 **Body**:
 ```markdown
 ## Requirement Overview
-<brief summary from requirement>
-
-## Task Checklist
-- [ ] T-001: <task title> (<estimate>h)
-- [ ] T-002: <task title> (<estimate>h)
-...
-
-## Critical Path
-<critical_path from rollup>
+<brief summary from .sdp/requirements/REQ-xxx.md Goal section>
 
 ## Rollup Estimate
 - Total Tasks: <count>
@@ -199,25 +239,40 @@ You can manually create these issues in GitHub or use the `gh` CLI.
 - Standard Deviation: <stddev_hours>h
 - Confidence: <confidence>
 
-## Progress
+## Critical Path
+<critical_path from rollup> (e.g., T-001 → T-003 → T-007)
+
+## Task Breakdown
+See sub-issues below for detailed task breakdown.
+
+## Progress Tracking
 - [ ] Requirements finalized
 - [ ] Implementation started
 - [ ] Testing complete
 - [ ] Deployment ready
+
+## Tasks
+(This section will be populated after sub-issues are created)
+- [ ] #<sub-issue1> T-001: <task title> (<estimate>h)
+- [ ] #<sub-issue2> T-002: <task title> (<estimate>h)
+...
 ```
 
-**Labels**: `REQ-xxx`, `tracking`, <labels from github.yml>
+**Labels**: `REQ-xxx`, `requirement`, <labels from github.yml>
 
 ---
 
-## Task Issues
+## Task Sub-Issues
 
-### Issue 1: [REQ-xxx] T-001: <task title>
+### Sub-Issue 1: [REQ-xxx][T-001] <task title>
 
-**Title**: [REQ-xxx] <task.title>
+**Title**: [REQ-xxx][T-001] <task.title>
 
 **Body**:
 ```markdown
+## Parent Issue
+Relates to #<main_issue> (create main issue first, then reference here)
+
 ## Description
 <task.description>
 
@@ -230,7 +285,7 @@ You can manually create these issues in GitHub or use the `gh` CLI.
 - [ ] <dod 2>
 
 ## Dependencies
-- <depends_on>
+- <depends_on with issue references>
 
 ## Estimate
 - Method: PERT
@@ -243,7 +298,7 @@ You can manually create these issues in GitHub or use the `gh` CLI.
 <task.risks if present>
 ```
 
-**Labels**: `REQ-xxx`, <task.labels>, <labels from github.yml>
+**Labels**: `REQ-xxx`, `task`, <task.labels>, <labels from github.yml>
 
 ---
 
@@ -253,26 +308,39 @@ You can manually create these issues in GitHub or use the `gh` CLI.
 
 ## Instructions for Manual Issue Creation
 
-If you want to create these issues manually:
+### Step-by-Step Process
 
-1. **Create Parent Tracking Issue**:
+1. **Create Main Requirement Issue First**:
    ```bash
-   gh issue create --title "[REQ-xxx] Tracking: <title>" --body "$(cat tracking-body.md)" --label "REQ-xxx,tracking,..."
+   MAIN_ISSUE=$(gh issue create \
+     --title "[REQ-xxx] <title>" \
+     --body "$(cat main-issue-body.md)" \
+     --label "REQ-xxx,requirement,..." \
+     --repo <owner/repo> | grep -oE '#[0-9]+' | tr -d '#')
+   echo "Main issue created: #${MAIN_ISSUE}"
    ```
 
-2. **Create Each Task Issue**:
+2. **Create Each Task Sub-Issue** (referencing main issue):
    ```bash
-   gh issue create --title "[REQ-xxx] T-001: <title>" --body "$(cat task-001-body.md)" --label "REQ-xxx,backend,..."
+   SUB_ISSUE_1=$(gh issue create \
+     --title "[REQ-xxx][T-001] <task title>" \
+     --body "Relates to #${MAIN_ISSUE}
+
+   $(cat task-001-body.md)" \
+     --label "REQ-xxx,task,backend,..." \
+     --repo <owner/repo> | grep -oE '#[0-9]+' | tr -d '#')
+   echo "Sub-issue T-001 created: #${SUB_ISSUE_1}"
    ```
 
-3. **Update Tracking Issue** with actual issue numbers after all issues are created.
+3. **Update Main Issue** with task checklist:
+   ```bash
+   gh issue edit ${MAIN_ISSUE} --body "$(gh issue view ${MAIN_ISSUE} --json body -q .body)
 
-## Batch Import (if using gh CLI later)
-
-```bash
-# This script can be generated to automate issue creation
-# Save each issue body to separate files and use gh CLI in batch
-```
+## Tasks
+- [ ] #${SUB_ISSUE_1} T-001: <task title> (<estimate>h)
+- [ ] #${SUB_ISSUE_2} T-002: <task title> (<estimate>h)
+..." --repo <owner/repo>
+   ```
 ```
 
 ### Step 4B: Generate Import Script (Local Mode, Optional)
@@ -282,24 +350,75 @@ Create a shell script at `${OUT_DIR}/REQ-xxx-import.sh` to automate issue creati
 ```bash
 #!/bin/bash
 # Auto-generated script to import issues for REQ-xxx
+# Structure: 1 main issue + N task sub-issues
+
+set -e  # Exit on error
 
 REPO="<from export.yml or github.yml>"
 
-# Create task issues
-echo "Creating task issues..."
-ISSUE_T001=$(gh issue create --repo "$REPO" --title "[REQ-xxx] T-001: <title>" --body "..." --label "..." | grep -oP '#\d+' | tr -d '#')
-ISSUE_T002=$(gh issue create --repo "$REPO" --title "[REQ-xxx] T-002: <title>" --body "..." --label "..." | grep -oP '#\d+' | tr -d '#')
-...
+echo "🚀 Starting issue import for REQ-xxx..."
+echo ""
 
-# Create tracking issue
-echo "Creating tracking issue..."
-gh issue create --repo "$REPO" --title "[REQ-xxx] Tracking: <title>" --body "..." --label "tracking,REQ-xxx,..."
+# Step 1: Create main requirement issue
+echo "📋 Creating main requirement issue..."
+MAIN_ISSUE=$(gh issue create --repo "$REPO" \
+  --title "[REQ-xxx] <requirement title>" \
+  --body "<main issue body>" \
+  --label "REQ-xxx,requirement,<labels>" | grep -oE '#[0-9]+' | tr -d '#')
+echo "✅ Main issue created: #${MAIN_ISSUE}"
+echo ""
 
-echo "✅ All issues created successfully"
-echo "Task Mapping:"
-echo "  T-001 → #$ISSUE_T001"
-echo "  T-002 → #$ISSUE_T002"
+# Step 2: Create task sub-issues
+echo "📝 Creating task sub-issues..."
+
+SUB_ISSUE_T001=$(gh issue create --repo "$REPO" \
+  --title "[REQ-xxx][T-001] <task title>" \
+  --body "## Parent Issue
+Relates to #${MAIN_ISSUE}
+
+<task body>" \
+  --label "REQ-xxx,task,<task labels>" | grep -oE '#[0-9]+' | tr -d '#')
+echo "  ✅ T-001 → #${SUB_ISSUE_T001}"
+
+SUB_ISSUE_T002=$(gh issue create --repo "$REPO" \
+  --title "[REQ-xxx][T-002] <task title>" \
+  --body "## Parent Issue
+Relates to #${MAIN_ISSUE}
+
+<task body>" \
+  --label "REQ-xxx,task,<task labels>" | grep -oE '#[0-9]+' | tr -d '#')
+echo "  ✅ T-002 → #${SUB_ISSUE_T002}"
+
+# ... (repeat for each task)
+
+echo ""
+
+# Step 3: Update main issue with task checklist
+echo "🔗 Updating main issue with task checklist..."
+CURRENT_BODY=$(gh issue view ${MAIN_ISSUE} --repo "$REPO" --json body -q .body)
+NEW_BODY="${CURRENT_BODY}
+
+## Tasks
+- [ ] #${SUB_ISSUE_T001} T-001: <task title> (<estimate>h)
+- [ ] #${SUB_ISSUE_T002} T-002: <task title> (<estimate>h)
 ...
+"
+
+gh issue edit ${MAIN_ISSUE} --repo "$REPO" --body "$NEW_BODY"
+echo "✅ Main issue updated with task checklist"
+echo ""
+
+# Summary
+echo "🎉 All issues created successfully!"
+echo ""
+echo "📊 Summary:"
+echo "  Main Issue: #${MAIN_ISSUE}"
+echo "  Sub-Issues:"
+echo "    T-001 → #${SUB_ISSUE_T001}"
+echo "    T-002 → #${SUB_ISSUE_T002}"
+echo "    ..."
+echo ""
+echo "🔗 Main issue URL: https://github.com/${REPO}/issues/${MAIN_ISSUE}"
 ```
 
 Make the script executable:
@@ -317,21 +436,24 @@ Generate console output in **Japanese** based on export mode:
 【GitHub Issues エクスポート完了】
 📋 要件: REQ-xxx
 🎯 モード: GitHub Issues
-🎫 作成されたIssue数: <count + 1>
 📦 リポジトリ: <owner/repo>
 
+作成されたIssue:
+📌 メインIssue: #<main_issue>
+   https://github.com/owner/repo/issues/<main_issue>
+
+🎫 サブIssue (タスク): <count>個
+
 タスクIssueマッピング:
-| Task ID | Issue # | URL                                    |
-|---------|---------|----------------------------------------|
-| T-001   | #123    | https://github.com/owner/repo/issues/123 |
-| T-002   | #124    | https://github.com/owner/repo/issues/124 |
+| Task ID | Sub-Issue # | URL                                    |
+|---------|-------------|----------------------------------------|
+| T-001   | #124        | https://github.com/owner/repo/issues/124 |
+| T-002   | #125        | https://github.com/owner/repo/issues/125 |
+| T-003   | #126        | https://github.com/owner/repo/issues/126 |
 ...
 
-📌 トラッキングIssue: #<parent_issue>
-   https://github.com/owner/repo/issues/<parent_issue>
-
-✅ 全てのタスクがGitHub Issuesとして登録されました
-💡 次のステップ: トラッキングIssueから各タスクの進捗を管理してください
+✅ 1つのメインIssueと<count>個のサブIssueを作成しました
+💡 次のステップ: メインIssue #<main_issue> から各タスクの進捗を管理してください
 ```
 
 ### For Local Mode (to: local)

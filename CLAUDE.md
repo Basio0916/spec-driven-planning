@@ -69,13 +69,17 @@ Exports tasks from `.sdp/tasks/REQ-xxx.yml` to GitHub Issues or local files base
 **GitHub Mode:**
 - Checks for `gh` CLI availability and authentication
 - Repository priority: `export.yml` → `github.yml` → auto-detect
-- Creates individual task issues with full details
-- Creates parent tracking issue with checklist and rollup
-- Returns mapping table of task IDs to issue URLs
+- **Issue Structure**: 1 main requirement issue + N task sub-issues
+  - Main issue: Contains requirement overview, rollup estimate, critical path
+  - Sub-issues: Each task becomes a sub-issue (format: `[REQ-xxx][T-xxx] <task title>`)
+  - Sub-issues reference main issue with "Relates to #<main_issue>"
+  - Main issue updated with task checklist linking all sub-issues
+- Returns mapping table of task IDs to sub-issue URLs
 
 **Local Mode:**
 - Generates `.sdp/out/REQ-xxx-issues.md` with all issue drafts
 - Optionally creates `.sdp/out/REQ-xxx-import.sh` for batch import
+- Script automates: main issue creation → sub-issues → checklist update
 - No GitHub authentication required
 - Supports manual or automated issue creation later
 
