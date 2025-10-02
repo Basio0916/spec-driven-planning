@@ -1,21 +1,84 @@
+# Task Breakdown Schema
+# This file defines the structure for .sdp/tasks/REQ-xxx.yml files
+
+# Requirement identifier (e.g., "REQ-001")
 requirement: string
+
+# Array of tasks for this requirement
 tasks:
-  - id: string   # T-001, T-002...
-    title: string
-    description: string
-    deliverables: [string]
-    dod: [string]
-    labels: [string]
-    depends_on: [string]
+  - id: string              # Task identifier (T-001, T-002, ...)
+    title: string           # Short, descriptive task title
+    description: string     # 1-3 line explanation of the work
+
+    # Files or artifacts to be created/modified
+    deliverables: [string]  # e.g., ["backend/internal/auth/handler.go", "frontend/pages/login.vue"]
+
+    # Definition of Done (testable completion criteria)
+    dod: [string]           # e.g., ["Unit tests pass", "Integration tests added", "Code reviewed"]
+
+    # Task categories/types
+    labels: [string]        # e.g., ["backend", "frontend", "tests", "docs", "infra"]
+
+    # Task dependencies (must complete before this task can start)
+    depends_on: [string]    # e.g., ["T-001", "T-003"]
+
+    # PERT estimation
     estimate:
-      method: pert
-      optimistic: number
-      most_likely: number
-      pessimistic: number
-      unit: h
-critical_path: [string]
+      method: pert          # Always "pert" (Program Evaluation and Review Technique)
+      optimistic: number    # Best-case hours (minimum expected time)
+      most_likely: number   # Most probable hours (realistic estimate)
+      pessimistic: number   # Worst-case hours (maximum expected time)
+      unit: h               # Always "h" (hours)
+
+    # Optional risk notes for this task
+    risks: string           # e.g., "External API may be unstable, requires error handling"
+
+# Critical path: Array of task IDs representing the longest dependency chain
+# This determines the minimum project duration
+critical_path: [string]     # e.g., ["T-001", "T-003", "T-007", "T-010"]
+
+# Rollup: Project-level metrics calculated from all tasks
 rollup:
+  # Sum of PERT expected values: (optimistic + 4*most_likely + pessimistic) / 6
   expected_hours: number
+
+  # Propagated standard deviation: sqrt(sum of variances)
+  # Variance for each task = ((pessimistic - optimistic) / 6)^2
   stddev_hours: number
-  confidence: string  # low|med|high
-  rationale: string
+
+  # Confidence level: low | med | high
+  confidence: string
+
+  # Brief explanation of confidence level
+  rationale: string         # e.g., "High: Well-understood requirements, experienced team, minimal external dependencies"
+
+# Example:
+# requirement: "REQ-001"
+# tasks:
+#   - id: "T-001"
+#     title: "Setup project structure"
+#     description: "Create initial directory structure and configuration files for the authentication module."
+#     deliverables:
+#       - "backend/internal/auth/handler.go"
+#       - "backend/internal/auth/service.go"
+#       - "backend/internal/auth/repository.go"
+#     dod:
+#       - "Directory structure created according to project layout"
+#       - "Basic handler/service/repository interfaces defined"
+#       - "Unit test files created with placeholder tests"
+#     labels: ["backend", "setup"]
+#     depends_on: []
+#     estimate:
+#       method: pert
+#       optimistic: 2
+#       most_likely: 3
+#       pessimistic: 5
+#       unit: h
+#     risks: "None - straightforward setup task"
+#
+# critical_path: ["T-001", "T-003", "T-005"]
+# rollup:
+#   expected_hours: 45.5
+#   stddev_hours: 6.2
+#   confidence: "high"
+#   rationale: "All tasks are well-defined with clear deliverables and experienced team members assigned"
