@@ -56,17 +56,32 @@ Converts a task file into a human-readable project plan at `.sdp/plans/REQ-xxx.m
 - Prompts user to run `/sdp:export-issues REQ-xxx` next
 
 ### `/export-issues <REQ-ID>`
-Exports tasks from `.sdp/tasks/REQ-xxx.yml` to GitHub Issues using the `gh` CLI.
+Exports tasks from `.sdp/tasks/REQ-xxx.yml` to GitHub Issues or local files based on configuration.
+
+**Export Modes:**
+- **GitHub Mode** (`to: github`): Creates issues directly in GitHub via `gh` CLI
+- **Local Mode** (`to: local`): Generates markdown files and import scripts locally
 
 **Behavior:**
-- Reads configuration from `.claude/config/github.yml` (defines `default_repo` and default labels)
-- Checks for `gh` CLI availability and authentication status
-- For each task, creates an issue with:
-  - Title: `[REQ-xxx] <task title>`
-  - Body: Description, Deliverables, DoD, Risks, Depends_on, Estimate
-  - Labels: union of config labels + `["REQ-xxx"]` + task labels
-- Creates a parent tracking issue with checklist, critical path, and rollup estimate
-- **Fallback mode:** Falls back to writing `.sdp/out/REQ-xxx-issues.md` if `gh` CLI is unavailable or not authenticated
+- Reads export destination from `.claude/config/export.yml` (`to` field)
+- Reads GitHub settings from `.claude/config/github.yml` (labels, default_repo)
+
+**GitHub Mode:**
+- Checks for `gh` CLI availability and authentication
+- Repository priority: `export.yml` → `github.yml` → auto-detect
+- Creates individual task issues with full details
+- Creates parent tracking issue with checklist and rollup
+- Returns mapping table of task IDs to issue URLs
+
+**Local Mode:**
+- Generates `.sdp/out/REQ-xxx-issues.md` with all issue drafts
+- Optionally creates `.sdp/out/REQ-xxx-import.sh` for batch import
+- No GitHub authentication required
+- Supports manual or automated issue creation later
+
+**Error Handling:**
+- Clear error messages for missing `gh` CLI or authentication
+- Suggests switching to local mode if GitHub is unavailable
 - Console output in Japanese language
 
 ## Typical Workflow
@@ -80,13 +95,14 @@ Exports tasks from `.sdp/tasks/REQ-xxx.yml` to GitHub Issues using the `gh` CLI.
 ## Key Configuration Files
 
 - `.claude/config/estimate.yml` - T-shirt sizing, PERT constraints, schedule buffers
+- `.claude/config/export.yml` - **Export destination** (GitHub or local), repository settings
 - `.claude/config/github.yml` - Default target repository and labels for GitHub Issues
 - `.claude/settings.local.json` - Permission allowlist for automated commands
-- `.claude/templates/requirement.md` - Requirement document structure
-- `.claude/templates/tasks.schema.yml` - Task YAML schema definition
-- `.claude/templates/product.md` - Product context template
-- `.claude/templates/tech.md` - Technical context template
-- `.claude/templates/structure.md` - Code structure template
+- `.claude/templates/requirement.md` - Requirement document structure (with examples)
+- `.claude/templates/tasks.schema.yml` - Task YAML schema definition (with field descriptions)
+- `.claude/templates/product.md` - Product context template (Vision, KPIs, User Stories)
+- `.claude/templates/tech.md` - Technical context template (Stack, Testing, Risks)
+- `.claude/templates/structure.md` - Code structure template (Architecture, Conventions)
 
 ## Directory Structure
 

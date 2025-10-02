@@ -1,4 +1,0 @@
-default_repo: basio-ysinc/my-task   # "owner/repo" 形式
-labels:
-  - Tasks
-  - AutoGen
