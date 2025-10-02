@@ -1,0 +1,21 @@
+requirement: string
+tasks:
+  - id: string   # T-001, T-002...
+    title: string
+    description: string
+    deliverables: [string]
+    dod: [string]
+    labels: [string]
+    depends_on: [string]
+    estimate:
+      method: pert
+      optimistic: number
+      most_likely: number
+      pessimistic: number
+      unit: h
+critical_path: [string]
+rollup:
+  expected_hours: number
+  stddev_hours: number
+  confidence: string  # low|med|high
+  rationale: string
