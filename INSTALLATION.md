@@ -34,7 +34,7 @@ If you prefer to set up manually:
    cp /path/to/spec-driven-planning/CLAUDE.md /path/to/your/project/
 
    # Create .sdp directory structure
-   mkdir -p /path/to/your/project/.sdp/{requirements,tasks,plans,out}
+   mkdir -p /path/to/your/project/.sdp/{requirements,designs,tasks,plans,out}
 
    # Add .sdp to .gitignore
    echo "" >> /path/to/your/project/.gitignore
@@ -198,17 +198,22 @@ After installation:
    /requirement "Add user authentication feature"
    ```
 
-3. **Generate task breakdown**:
+3. **Create design with alternatives**:
+   ```bash
+   /design REQ-001
+   ```
+
+4. **Generate task breakdown**:
    ```bash
    /estimate REQ-001
    ```
 
-4. **Review the plan**:
+5. **Review the plan**:
    ```bash
    /show-plan REQ-001
    ```
 
-5. **Export to GitHub**:
+6. **Export to GitHub**:
    ```bash
    /export-issues REQ-001
    ```
