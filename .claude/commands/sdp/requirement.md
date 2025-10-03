@@ -62,7 +62,9 @@ After writing the file, print a summary in Japanese:
 📝 タイトル: <要件タイトル>
 📁 ファイル: .sdp/requirements/REQ-xxx.md
 
-💡 次のステップ: /sdp:estimate REQ-xxx でタスク分解と見積もりを実行してください
+💡 次のステップ:
+  - 要件内容を確認し、修正が必要な場合は自然言語で指示してください
+  - 要件が確定したら /sdp:design REQ-xxx で設計を行ってください
 ```
 
 ## Allowed Tools

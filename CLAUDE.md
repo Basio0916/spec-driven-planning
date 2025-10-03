@@ -18,7 +18,9 @@ This creates `.claude/`, `.sdp/`, and `CLAUDE.md` in the target directory.
 
 ## Custom Slash Commands
 
-This repository provides five custom slash commands in `.claude/commands/sdp/`. All commands output files to the `.sdp/` directory and provide console output in Japanese.
+This repository provides six custom slash commands in `.claude/commands/sdp/`. All commands output files to the `.sdp/` directory and provide console output in Japanese.
+
+**Design Philosophy:** The workflow separates requirements (WHAT) from design (HOW) to enable user review and iteration at each stage.
 
 ### `/steering`
 Performs initial project context extraction and generates three foundational documents in `.sdp/`:
@@ -40,15 +42,33 @@ Refines a natural-language requirement (or reads from a file path) and creates/u
 - Assigns sequential REQ-IDs (REQ-001, REQ-002, etc.)
 - Enforces the template structure from `.claude/templates/requirement.md`
 - Aligns with `.sdp/product.md`, `.sdp/tech.md`, and `.sdp/structure.md` context
+- **Focuses on business requirements only** (WHAT needs to be done, not HOW)
 - Includes Done Criteria, Acceptance Scenarios (Gherkin-style), NFRs, Risks, Dependencies
 - Content output in Japanese language
-- Prompts user to run `/sdp:estimate REQ-xxx` next
+- **User can review and request changes in natural language**
+- Prompts user to run `/sdp:design REQ-xxx` next
+
+### `/design <REQ-ID>`
+Generates a detailed design document with decision rationale for a given requirement.
+
+**Behavior:**
+- Reads `.sdp/requirements/REQ-xxx.md`
+- **Proposes 2-4 alternative design approaches** with pros/cons
+- Creates comparison matrix (effort, maintainability, performance, scalability, etc.)
+- **Recommends one solution with clear rationale** explaining trade-offs
+- Includes detailed architecture, data models, API design, and implementation guidelines
+- **Explains WHY the recommended design was chosen** over alternatives
+- Output: `.sdp/designs/REQ-xxx.md` following `.claude/templates/design.md`
+- Content output in Japanese language
+- **User can review and request changes in natural language**
+- Prompts user to run `/sdp:estimate REQ-xxx` next (after design approval)
 
 ### `/estimate <REQ-ID>`
 Generates a task breakdown and PERT-based estimates for a given requirement.
 
 **Behavior:**
 - Reads `.sdp/requirements/REQ-xxx.md`
+- **Reads `.sdp/designs/REQ-xxx.md` if exists** (primary source for task decomposition)
 - Produces `.sdp/tasks/REQ-xxx.yml` following `.claude/templates/tasks.schema.yml`
 - Decomposes into 5–12 tasks with dependencies, labels, deliverables, DoD, and PERT estimates (optimistic, most_likely, pessimistic)
 - Uses estimation config from `.claude/config/estimate.yml`
@@ -101,10 +121,19 @@ Exports tasks from `.sdp/tasks/REQ-xxx.yml` to GitHub Issues or local files base
 ## Typical Workflow
 
 1. **Initialize context:** `/steering`
-2. **Refine requirement:** `/requirement "Add user authentication feature"`
-3. **Generate estimates:** `/estimate REQ-001`
-4. **Review plan:** `/show-plan REQ-001`
-5. **Export to GitHub:** `/export-issues REQ-001`
+2. **Define requirement:** `/requirement "Add user authentication feature"`
+   - Review output, request changes if needed in natural language
+3. **Create design:** `/design REQ-001`
+   - Review alternatives and rationale, request changes if needed
+4. **Generate estimates:** `/estimate REQ-001`
+5. **Review plan:** `/show-plan REQ-001`
+6. **Export to GitHub:** `/export-issues REQ-001`
+
+**Key Benefits:**
+- **Separation of concerns:** Requirements (WHAT) vs Design (HOW)
+- **User control:** Review and iterate at each stage before proceeding
+- **Decision transparency:** Understand WHY each design choice was made
+- **Alternative awareness:** Know what other options were considered
 
 ## Key Configuration Files
 
@@ -112,7 +141,8 @@ Exports tasks from `.sdp/tasks/REQ-xxx.yml` to GitHub Issues or local files base
 - `.claude/config/export.yml` - **Export destination** (GitHub or local), repository settings
 - `.claude/config/github.yml` - Default target repository and labels for GitHub Issues
 - `.claude/settings.local.json` - Permission allowlist for automated commands
-- `.claude/templates/requirement.md` - Requirement document structure (with examples)
+- `.claude/templates/requirement.md` - Requirement document structure (business-focused, with examples)
+- `.claude/templates/design.md` - Design document structure (alternatives, comparison, rationale)
 - `.claude/templates/tasks.schema.yml` - Task YAML schema definition (with field descriptions)
 - `.claude/templates/product.md` - Product context template (Vision, KPIs, User Stories)
 - `.claude/templates/tech.md` - Technical context template (Stack, Testing, Risks)
@@ -130,6 +160,7 @@ Exports tasks from `.sdp/tasks/REQ-xxx.yml` to GitHub Issues or local files base
   tech.md            # Technical context (created by /steering)
   structure.md       # Code structure (created by /steering)
   requirements/      # Refined requirement specs (created by /requirement)
+  designs/           # Design documents with alternatives (created by /design)
   tasks/             # Task decompositions (created by /estimate)
   plans/             # Human-readable plans (created by /show-plan)
   out/               # Fallback output for GitHub Issues (if gh CLI unavailable)

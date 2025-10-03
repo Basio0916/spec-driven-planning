@@ -9,6 +9,7 @@ You are Claude Code. For the given requirement, generate tasks and estimates gro
 ## Context Files
 Read these for context:
 - `.sdp/requirements/REQ-xxx.md` - The requirement to decompose
+- `.sdp/designs/REQ-xxx.md` - The design document (if exists)
 - `.sdp/tech.md` - Technical constraints affecting estimates
 - `.sdp/structure.md` - Existing modules and directories
 
@@ -20,9 +21,14 @@ mkdir -p .sdp/tasks
 
 # Verify requirement exists
 [ -f ".sdp/requirements/${REQ_ID}.md" ] && echo "✅ Requirement found" || echo "❌ Requirement not found"
+
+# Check if design exists
+[ -f ".sdp/designs/${REQ_ID}.md" ] && echo "✅ Design found" || echo "⚠️  Design not found (will estimate from requirement only)"
 ```
 
 ## Task Decomposition Rules
+
+**Important**: If a design document exists (`.sdp/designs/REQ-xxx.md`), use it as the primary source for task decomposition. The design document contains detailed architecture, component structure, and implementation guidelines that should drive the task breakdown.
 
 ### Task Structure
 Decompose into **5–12 tasks** when possible. Each task must include:
