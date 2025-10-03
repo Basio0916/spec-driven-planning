@@ -123,6 +123,7 @@ function setupSDP(targetDir) {
     const sdpDirs = [
       '.sdp',
       '.sdp/requirements',
+      '.sdp/designs',
       '.sdp/tasks',
       '.sdp/plans',
       '.sdp/out'
@@ -173,6 +174,7 @@ function setupSDP(targetDir) {
     log('📖 Available Commands:', colors.bright + colors.cyan);
     log('   /steering              - Generate project context');
     log('   /requirement <text>    - Refine requirement specification');
+    log('   /design <REQ-ID>       - Generate detailed design with alternatives');
     log('   /estimate <REQ-ID>     - Generate task breakdown & estimates');
     log('   /show-plan <REQ-ID>    - Create visual project plan');
     log('   /export-issues <REQ-ID> - Export to GitHub Issues\n');
