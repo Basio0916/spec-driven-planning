@@ -82,7 +82,23 @@ Creates `.sdp/requirements/REQ-001.md` with:
 - Non-Functional Requirements
 - Risks
 
-### 3. Generate Task Breakdown
+### 3. Create Design
+
+Generate a detailed design with alternatives:
+
+```bash
+/design REQ-001
+```
+
+Creates `.sdp/designs/REQ-001.md` with:
+- Design Alternatives (2-4 approaches with pros/cons)
+- Comparison Matrix
+- Recommended Solution with rationale
+- Detailed Design (architecture, data models, APIs)
+- Trade-offs & Risks
+- Implementation Guidelines
+
+### 4. Generate Task Breakdown
 
 Create task decomposition with PERT estimates:
 
@@ -96,7 +112,7 @@ Creates `.sdp/tasks/REQ-001.yml` with:
 - Critical path analysis
 - Rollup metrics (expected hours, standard deviation, confidence)
 
-### 4. Visualize Plan
+### 5. Visualize Plan
 
 Generate human-readable project plan:
 
@@ -110,7 +126,7 @@ Creates `.sdp/plans/REQ-001.md` with:
 - Risk register (top 3)
 - Critical path and buffer recommendations
 
-### 5. Export to GitHub
+### 6. Export to GitHub
 
 Export tasks to GitHub Issues:
 
@@ -156,6 +172,7 @@ All commands are located in `.claude/commands/sdp/`:
 |---------|-------------|
 | `/steering` | Generate project context (product, tech, structure) |
 | `/requirement <text-or-path>` | Refine and normalize requirements |
+| `/design <REQ-ID>` | Generate detailed design with alternatives and rationale |
 | `/estimate <REQ-ID>` | Generate task breakdown with PERT estimates |
 | `/show-plan <REQ-ID>` | Create visual project plan with Gantt chart |
 | `/export-issues <REQ-ID>` | Export to GitHub Issues or local files |
@@ -168,6 +185,7 @@ All templates are in `.claude/templates/`:
 - `tech.md` - Technical stack template
 - `structure.md` - Code structure template
 - `requirement.md` - Requirement specification template
+- `design.md` - Design document template
 - `tasks.schema.yml` - Task YAML schema
 
 Each template includes detailed examples and guidance.
@@ -188,6 +206,7 @@ Each template includes detailed examples and guidance.
 ├── tech.md             # Technical context
 ├── structure.md        # Code structure
 ├── requirements/       # Refined requirements (REQ-xxx.md)
+├── designs/            # Design documents with alternatives (REQ-xxx.md)
 ├── tasks/              # Task breakdowns (REQ-xxx.yml)
 ├── plans/              # Project plans (REQ-xxx.md)
 └── out/                # Issue drafts and import scripts
