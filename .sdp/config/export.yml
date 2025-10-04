@@ -1,23 +1,22 @@
-```yaml
 # Export Configuration for /sdp:export-issues command
 # Determines where task breakdowns should be exported
 
 # Export destination: "github" or "local"
 # - github: Create issues directly in GitHub (requires gh CLI)
 # - local:  Generate markdown files and import scripts locally
-to: github
+destination: github
 
 # GitHub export settings
 github:
   # Target repository in "owner/repo" format
-  # If not specified, will fall back to .sdp/config/github.yml default_repo
-  # If neither is set, gh CLI will auto-detect from current git repository
+  # If not specified, gh CLI will auto-detect from current git repository
   repo: your-org/your-repo
 
-  # Optional: Override default labels from github.yml
-  # labels:
-  #   - custom-label-1
-  #   - custom-label-2
+  # Default labels to apply to all issues
+  # These labels will be added to both main requirement issues and task sub-issues
+  labels:
+    - sdp
+    - enhancement
 
 # Local export settings
 local:
@@ -33,4 +32,3 @@ local:
   # If true, creates separate .md files for each task body
   # Useful for manual review or selective import
   individual_files: false
-```

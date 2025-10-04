@@ -1,13 +1,6 @@
-```yaml
-tshirt_hours:
-  S: 3
-  M: 6
-  L: 12
-  XL: 24
 default_buffers:
   schedule: 0.15   # 15% バッファ
 pert:
   clamp:
     min_h: 1
     max_h: 40
-```

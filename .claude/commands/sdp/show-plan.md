@@ -73,7 +73,11 @@ Based on confidence level and stddev:
 ### 7. Next Steps
 - Suggested actions for project kickoff
 - Dependencies to resolve before starting
-- Recommendation to run `/sdp:export-issues <slug>`
+- **Before exporting**: Review and configure `.sdp/config/export.yml`:
+  - Set `destination` to `github` or `local`
+  - Configure repository and labels (for GitHub)
+  - Configure output directory (for local)
+- Recommendation to run `/sdp:export-issues <slug>` after configuration
 
 ## Output Format
 
@@ -96,7 +100,12 @@ Print a summary in **Japanese**:
 
 ⚠️  主要リスク: <top_risk_summary>
 
-💡 次のステップ: /sdp:export-issues <slug> でGitHub Issuesにエクスポートしてください
+💡 次のステップ:
+   1. .sdp/config/export.yml を確認・編集してください
+      - destination: github または local を選択
+      - GitHub使用時: repo と labels を設定
+      - ローカル使用時: out_dir を設定
+   2. /sdp:export-issues <slug> でタスクをエクスポートしてください
 ```
 
 ## Allowed Tools
