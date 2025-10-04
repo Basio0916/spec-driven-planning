@@ -35,8 +35,8 @@ github:
 # Local export settings
 local:
   # Output directory for generated files (relative to repository root)
-  # Default: out if not specified
-  out_dir: out
+  # Default: .sdp/out if not specified
+  out_dir: .sdp/out
 
   # Generate import script for batch creation
   # If true, creates a bash script to automate issue creation via gh CLI
