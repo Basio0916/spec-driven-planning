@@ -74,7 +74,7 @@ Refine a natural-language requirement:
 /requirement "Add user authentication feature"
 ```
 
-Creates `.sdp/requirements/REQ-001.md` with:
+Creates `.sdp/add-user-authentication/requirement.md` with:
 - 機能概要 (Feature Overview)
 - ユーザーストーリー (User Stories)
 - 機能要件 (Functional Requirements with acceptance criteria)
@@ -85,10 +85,10 @@ Creates `.sdp/requirements/REQ-001.md` with:
 Generate a detailed design with alternatives:
 
 ```bash
-/design REQ-001
+/design add-user-authentication
 ```
 
-Creates `.sdp/designs/REQ-001.md` with:
+Creates `.sdp/add-user-authentication/design.md` with:
 - Design Alternatives (2-4 approaches with pros/cons)
 - Comparison Matrix
 - Recommended Solution with rationale
@@ -101,10 +101,10 @@ Creates `.sdp/designs/REQ-001.md` with:
 Create task decomposition with PERT estimates:
 
 ```bash
-/estimate REQ-001
+/estimate add-user-authentication
 ```
 
-Creates `.sdp/tasks/REQ-001.yml` with:
+Creates `.sdp/add-user-authentication/tasks.yml` with:
 - 5-12 tasks with dependencies
 - PERT estimates (optimistic, most likely, pessimistic)
 - Critical path analysis
@@ -115,10 +115,10 @@ Creates `.sdp/tasks/REQ-001.yml` with:
 Generate human-readable project plan:
 
 ```bash
-/show-plan REQ-001
+/show-plan add-user-authentication
 ```
 
-Creates `.sdp/plans/REQ-001.md` with:
+Creates `.sdp/add-user-authentication/plan.md` with:
 - Overview
 - Gantt-like Mermaid diagram
 - Risk register (top 3)
@@ -129,7 +129,7 @@ Creates `.sdp/plans/REQ-001.md` with:
 Export tasks to GitHub Issues:
 
 ```bash
-/export-issues REQ-001
+/export-issues add-user-authentication
 ```
 
 **GitHub Mode** (requires `gh` CLI):
@@ -139,19 +139,19 @@ Export tasks to GitHub Issues:
 - Main issue updated with task checklist
 
 **Local Mode** (no GitHub required):
-- Generates `.sdp/out/REQ-001-issues.md`
-- Creates `.sdp/out/REQ-001-import.sh` for batch import
+- Generates `.sdp/out/add-user-authentication-issues.md`
+- Creates `.sdp/out/add-user-authentication-import.sh` for batch import
 
 ## Issue Structure
 
 When exporting to GitHub, SDP creates a hierarchical structure:
 
 ```
-📌 Main Issue: [REQ-001] User Authentication Feature
-   ├─ 🎫 Sub-Issue: [REQ-001][T-001] Setup authentication module
-   ├─ 🎫 Sub-Issue: [REQ-001][T-002] Implement JWT token service
-   ├─ 🎫 Sub-Issue: [REQ-001][T-003] Create login/logout endpoints
-   └─ 🎫 Sub-Issue: [REQ-001][T-004] Add authentication tests
+📌 Main Issue: [add-user-authentication] User Authentication Feature
+   ├─ 🎫 Sub-Issue: [add-user-authentication][T-001] Setup authentication module
+   ├─ 🎫 Sub-Issue: [add-user-authentication][T-002] Implement JWT token service
+   ├─ 🎫 Sub-Issue: [add-user-authentication][T-003] Create login/logout endpoints
+   └─ 🎫 Sub-Issue: [add-user-authentication][T-004] Add authentication tests
 ```
 
 Each sub-issue includes:
@@ -170,10 +170,10 @@ All commands are located in `.claude/commands/sdp/`:
 |---------|-------------|
 | `/steering` | Generate project context (product, tech, structure) |
 | `/requirement <text-or-path>` | Refine and normalize requirements |
-| `/design <REQ-ID>` | Generate detailed design with alternatives and rationale |
-| `/estimate <REQ-ID>` | Generate task breakdown with PERT estimates |
-| `/show-plan <REQ-ID>` | Create visual project plan with Gantt chart |
-| `/export-issues <REQ-ID>` | Export to GitHub Issues or local files |
+| `/design <slug>` | Generate detailed design with alternatives and rationale |
+| `/estimate <slug>` | Generate task breakdown with PERT estimates |
+| `/show-plan <slug>` | Create visual project plan with Gantt chart |
+| `/export-issues <slug>` | Export to GitHub Issues or local files |
 
 ## Templates
 
@@ -203,10 +203,11 @@ Each template includes detailed examples and guidance.
 ├── product.md          # Business context
 ├── tech.md             # Technical context
 ├── structure.md        # Code structure
-├── requirements/       # Refined requirements (REQ-xxx.md)
-├── designs/            # Design documents with alternatives (REQ-xxx.md)
-├── tasks/              # Task breakdowns (REQ-xxx.yml)
-├── plans/              # Project plans (REQ-xxx.md)
+├── <slug>/             # Requirement folder (e.g., add-user-authentication/)
+│   ├── requirement.md  # Requirement spec
+│   ├── design.md       # Design document
+│   ├── tasks.yml       # Task breakdown
+│   └── plan.md         # Project plan
 └── out/                # Issue drafts and import scripts
 ```
 
