@@ -1,5 +1,5 @@
 default_buffers:
-  schedule: 0.15   # 15% バッファ
+  schedule: 0.15   # 15% buffer
 pert:
   clamp:
     min_h: 1
