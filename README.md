@@ -14,41 +14,42 @@ A structured workflow system for transforming natural-language requirements into
 
 ### Installation
 
-Use `npx` to scaffold the SDP structure in your project:
+Use `npx` to initialize SDP in your project:
 
 ```bash
-npx create-spec-driven-planning
+npx spec-driven-planning init
 ```
 
 This will create:
-- `.claude/` - Custom commands, configs, and templates
-- `.sdp/` - Output directory for generated documents
+- `.claude/commands/sdp/` - Custom slash commands
+- `.sdp/config/` - Configuration files
+- `.sdp/templates/` - Document templates
+- `.sdp/specs/` - Requirements directory (created on demand)
+- `.sdp/out/` - Output directory for exports
 - `CLAUDE.md` - Guidance for Claude Code
 
 ### Configuration
 
-1. **Update repository settings** in `.claude/config/export.yml`:
+1. **Update export settings** in `.sdp/config/export.yml`:
    ```yaml
-   to: github  # or "local"
+   destination: github  # or "local"
    github:
      repo: your-org/your-repo
+     labels:
+       - sdp
+       - enhancement
+   local:
+     out_dir: out
    ```
 
-2. **Configure default labels** in `.claude/config/github.yml`:
+2. **Adjust estimation parameters** in `.sdp/config/estimate.yml`:
    ```yaml
-   default_repo: your-org/your-repo
-   labels:
-     - Tasks
-     - AutoGen
-   ```
-
-3. **Adjust estimation parameters** in `.claude/config/estimate.yml`:
-   ```yaml
-   tshirt_hours:
-     S: 3
-     M: 6
-     L: 12
-     XL: 24
+   default_buffers:
+      schedule: 0.15   # 15% buffer
+   pert:
+      clamp:
+         min_h: 1
+         max_h: 40
    ```
 
 ## Workflow
@@ -58,7 +59,7 @@ This will create:
 Generate project context documents:
 
 ```bash
-/steering
+/sdp:steering
 ```
 
 This creates:
@@ -71,10 +72,10 @@ This creates:
 Refine a natural-language requirement:
 
 ```bash
-/requirement "Add user authentication feature"
+/sdp:requirement "Add user authentication feature"
 ```
 
-Creates `.sdp/add-user-authentication/requirement.md` with:
+Creates `.sdp/specs/add-user-authentication/requirement.md` with:
 - 機能概要 (Feature Overview)
 - ユーザーストーリー (User Stories)
 - 機能要件 (Functional Requirements with acceptance criteria)
@@ -85,10 +86,10 @@ Creates `.sdp/add-user-authentication/requirement.md` with:
 Generate a detailed design with alternatives:
 
 ```bash
-/design add-user-authentication
+/sdp:design add-user-authentication
 ```
 
-Creates `.sdp/add-user-authentication/design.md` with:
+Creates `.sdp/specs/add-user-authentication/design.md` with:
 - Design Alternatives (2-4 approaches with pros/cons)
 - Comparison Matrix
 - Recommended Solution with rationale
@@ -101,10 +102,10 @@ Creates `.sdp/add-user-authentication/design.md` with:
 Create task decomposition with PERT estimates:
 
 ```bash
-/estimate add-user-authentication
+/sdp:estimate add-user-authentication
 ```
 
-Creates `.sdp/add-user-authentication/tasks.yml` with:
+Creates `.sdp/specs/add-user-authentication/tasks.yml` with:
 - 5-12 tasks with dependencies
 - PERT estimates (optimistic, most likely, pessimistic)
 - Critical path analysis
@@ -115,10 +116,10 @@ Creates `.sdp/add-user-authentication/tasks.yml` with:
 Generate human-readable project plan:
 
 ```bash
-/show-plan add-user-authentication
+/sdp:show-plan add-user-authentication
 ```
 
-Creates `.sdp/add-user-authentication/plan.md` with:
+Creates `.sdp/specs/add-user-authentication/plan.md` with:
 - Overview
 - Gantt-like Mermaid diagram
 - Risk register (top 3)
@@ -129,7 +130,7 @@ Creates `.sdp/add-user-authentication/plan.md` with:
 Export tasks to GitHub Issues:
 
 ```bash
-/export-issues add-user-authentication
+/sdp:export-issues add-user-authentication
 ```
 
 **GitHub Mode** (requires `gh` CLI):
@@ -168,16 +169,16 @@ All commands are located in `.claude/commands/sdp/`:
 
 | Command | Description |
 |---------|-------------|
-| `/steering` | Generate project context (product, tech, structure) |
-| `/requirement <text-or-path>` | Refine and normalize requirements |
-| `/design <slug>` | Generate detailed design with alternatives and rationale |
-| `/estimate <slug>` | Generate task breakdown with PERT estimates |
-| `/show-plan <slug>` | Create visual project plan with Gantt chart |
-| `/export-issues <slug>` | Export to GitHub Issues or local files |
+| `/sdp:steering` | Generate project context (product, tech, structure) |
+| `/sdp:requirement <text-or-path>` | Refine and normalize requirements |
+| `/sdp:design <slug>` | Generate detailed design with alternatives and rationale |
+| `/sdp:estimate <slug>` | Generate task breakdown with PERT estimates |
+| `/sdp:show-plan <slug>` | Create visual project plan with Gantt chart |
+| `/sdp:export-issues <slug>` | Export to GitHub Issues or local files |
 
 ## Templates
 
-All templates are in `.claude/templates/`:
+All templates are in `.sdp/templates/`:
 
 - `product.md` - Product overview template
 - `tech.md` - Technical stack template
@@ -192,22 +193,22 @@ Each template includes detailed examples and guidance.
 
 ```
 .claude/
-├── commands/sdp/       # Custom slash commands
+└── commands/sdp/       # Custom slash commands
+
+.sdp/                   # SDP working directory (gitignored)
 ├── config/             # Configuration files
 │   ├── estimate.yml    # Estimation parameters
-│   ├── export.yml      # Export destination settings
-│   └── github.yml      # GitHub integration config
-└── templates/          # Document templates
-
-.sdp/                   # Output directory (gitignored)
+│   └── export.yml      # Export destination settings
+├── templates/          # Document templates
 ├── product.md          # Business context
 ├── tech.md             # Technical context
 ├── structure.md        # Code structure
-├── <slug>/             # Requirement folder (e.g., add-user-authentication/)
-│   ├── requirement.md  # Requirement spec
-│   ├── design.md       # Design document
-│   ├── tasks.yml       # Task breakdown
-│   └── plan.md         # Project plan
+├── specs/              # Requirements directory
+│   └── <slug>/         # Requirement folder (e.g., add-user-authentication/)
+│       ├── requirement.md  # Requirement spec
+│       ├── design.md       # Design document
+│       ├── tasks.yml       # Task breakdown
+│       └── plan.md         # Project plan
 └── out/                # Issue drafts and import scripts
 ```
 
