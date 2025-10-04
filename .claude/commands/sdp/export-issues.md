@@ -150,13 +150,6 @@ See sub-issues below for detailed task breakdown.
 - [ ] デプロイ準備完了
 ```
 
-#### Labels
-Combine the following (only if set in export.yml):
-- `github.labels` (default labels for all issues)
-- `github.main_issue_labels` (if set, additional labels for main issues)
-
-**Note**: Do NOT add "requirement" or any hardcoded label automatically. Only use labels from export.yml configuration.
-
 #### Execution
 ```bash
 # Combine labels from export.yml (labels + main_issue_labels if set)
@@ -227,13 +220,6 @@ Format: `[<slug>][T-xxx] <task.title>`
 ## リスクメモ
 <task.risks if present>
 ```
-
-#### Labels
-Combine the following (only if set):
-- `github.labels` (default labels for all issues)
-- `github.task_labels` (if set, additional labels for task sub-issues)
-
-**Note**: Do NOT add "task" or any hardcoded label automatically. Only use labels from export.yml configuration.
 
 #### Execution
 Use `gh sub-issue create` to create sub-issues that are automatically linked to the parent:
@@ -312,8 +298,6 @@ See sub-issues below for detailed task breakdown.
 - [ ] Deployment ready
 ```
 
-**Labels**: <labels from export.yml github.labels + github.main_issue_labels (if set)>
-
 ---
 
 ## Task Sub-Issues
@@ -348,8 +332,6 @@ See sub-issues below for detailed task breakdown.
 ## Risk Notes
 <task.risks if present>
 ```
-
-**Labels**: <labels from export.yml github.labels + github.task_labels (if set)>
 
 ---
 
@@ -395,8 +377,6 @@ See sub-issues below for detailed task breakdown.
 - [ ] デプロイ準備完了
 ```
 
-**ラベル**: <labels from export.yml github.labels + github.main_issue_labels (if set)>
-
 ---
 
 ## タスクサブIssue
@@ -431,8 +411,6 @@ See sub-issues below for detailed task breakdown.
 ## リスクメモ
 <task.risks if present>
 ```
-
-**ラベル**: <labels from export.yml github.labels + github.task_labels (if set)>
 
 ---
 
