@@ -3,15 +3,15 @@ You are Claude Code. Convert task breakdown into GitHub Issues or local markdown
 
 ## Inputs
 - **slug**: An existing requirement folder at `.sdp/specs/<slug>/` containing `tasks.yml`
-- **Export Config**: `.claude/config/export.yml` (output destination)
-- **GitHub Config**: `.claude/config/github.yml` (GitHub-specific settings)
+- **Export Config**: `.sdp/config/export.yml` (output destination)
+- **GitHub Config**: `.sdp/config/github.yml` (GitHub-specific settings)
 
 ## Context Files
 Read these for context:
 - `.sdp/specs/<slug>/tasks.yml` - Task breakdown to export
 - `.sdp/specs/<slug>/requirement.md` - Original requirement
-- `.claude/config/export.yml` - Export destination configuration
-- `.claude/config/github.yml` - GitHub integration config (if exporting to GitHub)
+- `.sdp/config/export.yml` - Export destination configuration
+- `.sdp/config/github.yml` - GitHub integration config (if exporting to GitHub)
 
 ## Pre-Check
 
@@ -26,7 +26,7 @@ Read these for context:
 
 ## Step 1: Load Export Configuration
 
-Read `.claude/config/export.yml`:
+Read `.sdp/config/export.yml`:
 
 ```yaml
 to: github | local   # Determines export destination
@@ -58,7 +58,7 @@ gh auth status 2>/dev/null && echo "✅ GitHub authenticated" || echo "⚠️  N
 
 ### Step 2A: Load GitHub Configuration
 
-Read `.claude/config/github.yml`:
+Read `.sdp/config/github.yml`:
 - `default_repo`: Target repository (format: "owner/repo")
   - **Priority**: Use `export.yml` `github.repo` if present, otherwise fall back to `github.yml` `default_repo`
 - `labels`: Default labels to apply to all issues
@@ -206,7 +206,7 @@ Create a mapping table of task ID → sub-issue number/URL and main issue.
 
 ```bash
 # Get output directory from export.yml local.out_dir (default: ./out)
-OUT_DIR=$(grep -A1 "^local:" .claude/config/export.yml | grep "out_dir:" | awk '{print $2}')
+OUT_DIR=$(grep -A1 "^local:" .sdp/config/export.yml | grep "out_dir:" | awk '{print $2}')
 OUT_DIR=${OUT_DIR:-out}  # Fallback to out if not specified
 
 # Create output directory

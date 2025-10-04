@@ -3,8 +3,8 @@ You are Claude Code. For the given requirement, generate tasks and estimates gro
 
 ## Inputs
 - **slug**: An existing requirement folder at `.sdp/specs/<slug>/`
-- **Estimation config**: `.claude/config/estimate.yml` (T-shirt sizing, PERT constraints, buffers)
-- **Schema**: `.claude/templates/tasks.schema.yml` (Task structure definition)
+- **Estimation config**: `.sdp/config/estimate.yml` (T-shirt sizing, PERT constraints, buffers)
+- **Schema**: `.sdp/templates/tasks.schema.yml` (Task structure definition)
 
 ## Context Files
 Read these for context:
@@ -71,7 +71,7 @@ Calculate project-level metrics:
 - `rationale`: Brief explanation of confidence level
 
 ### Estimation Guidelines
-Reference `.claude/config/estimate.yml`:
+Reference `.sdp/config/estimate.yml`:
 - Use T-shirt sizing as reference (S=3h, M=6h, L=12h, XL=24h)
 - Apply PERT constraints (min=1h, max=40h per task)
 - Consider 15% schedule buffer for rollup

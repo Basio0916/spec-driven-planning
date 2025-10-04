@@ -52,7 +52,7 @@ Create a comparison table covering:
 - **Implementation notes**: Key technical decisions and guidelines
 
 ## Deliverable
-Create `.sdp/specs/<slug>/design.md` following `.claude/templates/design.md` structure.
+Create `.sdp/specs/<slug>/design.md` following `.sdp/templates/design.md` structure.
 
 ## Design Document Structure
 

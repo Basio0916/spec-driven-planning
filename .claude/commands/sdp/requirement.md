@@ -34,7 +34,7 @@ ls -d .sdp/specs/*/ 2>/dev/null | sed 's|.sdp/specs/||g' | sed 's|/||g' || echo 
 ## Deliverable
 - Create or update a file at `.sdp/specs/<slug>/requirement.md` with the refined spec.
 - Create the `.sdp/specs/<slug>/` directory if it doesn't exist
-- The file must follow `.claude/templates/requirement.md` sections exactly.
+- The file must follow `.sdp/templates/requirement.md` sections exactly.
 
 ## Refinement Rules
 

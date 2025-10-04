@@ -96,6 +96,8 @@ function setupSDP(targetDir) {
   const sourceDir = path.join(__dirname, '..');
   const claudeSourceDir = path.join(sourceDir, '.claude');
   const claudeTargetDir = path.join(targetDir, '.claude');
+  const sdpSourceDir = path.join(sourceDir, '.sdp');
+  const sdpTargetDir = path.join(targetDir, '.sdp');
 
   info('Setting up Spec-Driven Planning structure...\n');
 
@@ -104,6 +106,11 @@ function setupSDP(targetDir) {
     info('📁 Copying .claude/ directory...');
     copyRecursive(claudeSourceDir, claudeTargetDir);
     success('.claude/ directory created');
+
+    // Copy .sdp directory (config and templates)
+    info('📁 Copying .sdp/ directory...');
+    copyRecursive(sdpSourceDir, sdpTargetDir);
+    success('.sdp/ directory created');
 
     // Copy CLAUDE.md
     info('📄 Copying CLAUDE.md...');
@@ -118,10 +125,10 @@ function setupSDP(targetDir) {
     fs.copyFileSync(claudeMdSource, claudeMdTarget);
     success('CLAUDE.md created');
 
-    // Create .sdp directory structure
-    info('📁 Creating .sdp/ directory structure...');
+    // Create additional .sdp directory structure
+    info('📁 Creating additional .sdp/ subdirectories...');
     const sdpDirs = [
-      '.sdp',
+      '.sdp/specs',
       '.sdp/out'
     ];
 
@@ -156,14 +163,15 @@ function setupSDP(targetDir) {
 
     log('\n📚 What was created:', colors.bright);
     log('   .claude/commands/sdp/    - Custom slash commands');
-    log('   .claude/config/          - Configuration files');
-    log('   .claude/templates/       - Document templates');
-    log('   .sdp/                    - Output directory (gitignored)');
+    log('   .sdp/config/             - Configuration files');
+    log('   .sdp/templates/          - Document templates');
+    log('   .sdp/specs/              - Requirements directory');
+    log('   .sdp/out/                - Output directory (gitignored)');
     log('   CLAUDE.md                - Claude Code guidance\n');
 
     log('🚀 Next Steps:', colors.bright + colors.cyan);
-    log('   1. Review and customize .claude/config/*.yml files');
-    log('   2. Update repository settings in .claude/config/export.yml');
+    log('   1. Review and customize .sdp/config/*.yml files');
+    log('   2. Update repository settings in .sdp/config/export.yml');
     log('   3. Run: /steering to initialize project context');
     log('   4. Start with: /requirement "Your requirement description"\n');
 
