@@ -39,7 +39,6 @@ Generate a comprehensive project plan document with the following sections:
   - Title
   - Estimate (hours)
   - Dependencies
-  - Labels
 
 ### 3. Project Timeline (Mermaid Gantt)
 Generate a Gantt-like Mermaid diagram:
@@ -81,7 +80,7 @@ Based on confidence level and stddev:
 - Dependencies to resolve before starting
 - **Before exporting**: Review and configure `.sdp/config/export.yml`:
   - Set `destination` to `github` or `local`
-  - Configure repository and labels (for GitHub)
+  - Configure repository (for GitHub)
   - Configure output directory (for local)
 - Recommendation to run `/sdp:export-issues <slug>` after configuration
 
@@ -109,7 +108,7 @@ Print a summary in the same language as the content:
 💡 次のステップ:
    1. .sdp/config/export.yml を確認・編集してください
       - destination: github または local を選択
-      - GitHub使用時: repo と labels を設定
+      - GitHub使用時: repo を設定
       - ローカル使用時: out_dir を設定
    2. /sdp:export-issues <slug> でタスクをエクスポートしてください
 ```
