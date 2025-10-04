@@ -1,4 +1,3 @@
-```yaml
 tshirt_hours:
   S: 3
   M: 6
@@ -10,4 +9,3 @@ pert:
   clamp:
     min_h: 1
     max_h: 40
-```

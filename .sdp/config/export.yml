@@ -1,4 +1,3 @@
-```yaml
 # Export Configuration for /sdp:export-issues command
 # Determines where task breakdowns should be exported
 
@@ -33,4 +32,3 @@ local:
   # If true, creates separate .md files for each task body
   # Useful for manual review or selective import
   individual_files: false
-```
