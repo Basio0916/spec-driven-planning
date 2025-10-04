@@ -100,7 +100,9 @@ First, create a single main issue for the requirement:
 #### Issue Title
 Format: `[<slug>] <requirement title>`
 
-#### Issue Body
+#### Issue Body Template
+
+**For English (language: en)**:
 ```markdown
 ## Requirement Overview
 <brief summary from .sdp/<slug>/requirement.md Goal section>
@@ -122,6 +124,30 @@ See sub-issues below for detailed task breakdown.
 - [ ] Implementation started
 - [ ] Testing complete
 - [ ] Deployment ready
+```
+
+**For Japanese (language: ja)**:
+```markdown
+## 要件概要
+<brief summary from .sdp/<slug>/requirement.md Goal section>
+
+## 見積もりサマリー
+- 総タスク数: <count>
+- 予想時間: <expected_hours>h
+- 標準偏差: <stddev_hours>h
+- 信頼度: <confidence>
+
+## クリティカルパス
+<critical_path from rollup> (例: T-001 → T-003 → T-007)
+
+## タスク分解
+詳細なタスク分解はサブIssueを参照してください。
+
+## 進捗管理
+- [ ] 要件確定
+- [ ] 実装開始
+- [ ] テスト完了
+- [ ] デプロイ準備完了
 ```
 
 #### Labels
@@ -150,8 +176,9 @@ For each task in `.sdp/specs/<slug>/tasks.yml`, create a sub-issue using the `gh
 #### Sub-Issue Title
 Format: `[<slug>][T-xxx] <task.title>`
 
-#### Sub-Issue Body
-Include the following sections in markdown:
+#### Sub-Issue Body Template
+
+**For English (language: en)**:
 ```markdown
 ## Description
 <task.description>
@@ -173,6 +200,31 @@ Include the following sections in markdown:
 - Expected: <mean>h
 
 ## Risk Notes
+<task.risks if present>
+```
+
+**For Japanese (language: ja)**:
+```markdown
+## 説明
+<task.description>
+
+## 成果物
+<list of task.deliverables>
+
+## 完了の定義
+<checklist from task.dod>
+
+## 依存関係
+<list of task.depends_on with issue references if available>
+
+## 見積もり
+- 手法: PERT
+- 楽観値: <optimistic>h
+- 最頻値: <most_likely>h
+- 悲観値: <pessimistic>h
+- 期待値: <mean>h
+
+## リスクメモ
 <task.risks if present>
 ```
 
@@ -221,8 +273,9 @@ Create the output directory if it doesn't exist using Claude Code's file operati
 
 ### Step 3B: Generate Issue Drafts (Local Mode)
 
-Create a markdown file at `${OUT_DIR}/<slug>-issues.md` with the following structure:
+Create a markdown file at `${OUT_DIR}/<slug>-issues.md` with localized content based on `.sdp/config/language.yml`.
 
+**For English (language: en)**:
 ```markdown
 # GitHub Issues Draft for <slug>
 
@@ -257,12 +310,6 @@ See sub-issues below for detailed task breakdown.
 - [ ] Implementation started
 - [ ] Testing complete
 - [ ] Deployment ready
-
-## Tasks
-(This section will be populated after sub-issues are created)
-- [ ] #<sub-issue1> T-001: <task title> (<estimate>h)
-- [ ] #<sub-issue2> T-002: <task title> (<estimate>h)
-...
 ```
 
 **Labels**: <labels from export.yml github.labels + github.main_issue_labels (if set)>
@@ -309,6 +356,90 @@ See sub-issues below for detailed task breakdown.
 (Repeat for each task)
 
 ---
+```
+
+**For Japanese (language: ja)**:
+```markdown
+# <slug> GitHub Issues ドラフト
+
+この要件 <slug> のIssueドラフトです。
+構造: 1つのメインIssue + N個のサブIssue (タスク)
+
+---
+
+## メイン要件Issue
+
+**タイトル**: [<slug>] <requirement title>
+
+**本文**:
+```markdown
+## 要件概要
+<brief summary from .sdp/specs/<slug>/requirement.md Goal section>
+
+## 見積もりサマリー
+- 総タスク数: <count>
+- 予想時間: <expected_hours>h
+- 標準偏差: <stddev_hours>h
+- 信頼度: <confidence>
+
+## クリティカルパス
+<critical_path from rollup> (例: T-001 → T-003 → T-007)
+
+## タスク分解
+詳細なタスク分解はサブIssueを参照してください。
+
+## 進捗管理
+- [ ] 要件確定
+- [ ] 実装開始
+- [ ] テスト完了
+- [ ] デプロイ準備完了
+```
+
+**ラベル**: <labels from export.yml github.labels + github.main_issue_labels (if set)>
+
+---
+
+## タスクサブIssue
+
+### サブIssue 1: [T-001] <task title>
+
+**タイトル**: [T-001] <task.title>
+
+**本文**:
+```markdown
+## 説明
+<task.description>
+
+## 成果物
+- <deliverable 1>
+- <deliverable 2>
+
+## 完了の定義
+- [ ] <dod 1>
+- [ ] <dod 2>
+
+## 依存関係
+- <depends_on with issue references>
+
+## 見積もり
+- 手法: PERT
+- 楽観値: <optimistic>h
+- 最頻値: <most_likely>h
+- 悲観値: <pessimistic>h
+- 期待値: <mean>h
+
+## リスクメモ
+<task.risks if present>
+```
+
+**ラベル**: <labels from export.yml github.labels + github.task_labels (if set)>
+
+---
+
+(各タスクについて繰り返し)
+
+---
+```
 
 ## Instructions for Manual Issue Creation
 
