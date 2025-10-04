@@ -9,14 +9,14 @@ to: github
 # GitHub export settings
 github:
   # Target repository in "owner/repo" format
-  # If not specified, will fall back to .sdp/config/github.yml default_repo
-  # If neither is set, gh CLI will auto-detect from current git repository
+  # If not specified, gh CLI will auto-detect from current git repository
   repo: your-org/your-repo
 
-  # Optional: Override default labels from github.yml
-  # labels:
-  #   - custom-label-1
-  #   - custom-label-2
+  # Default labels to apply to all issues
+  # These labels will be added to both main requirement issues and task sub-issues
+  labels:
+    - sdp
+    - enhancement
 
 # Local export settings
 local:

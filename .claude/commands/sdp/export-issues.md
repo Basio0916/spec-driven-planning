@@ -3,15 +3,13 @@ You are Claude Code. Convert task breakdown into GitHub Issues or local markdown
 
 ## Inputs
 - **slug**: An existing requirement folder at `.sdp/specs/<slug>/` containing `tasks.yml`
-- **Export Config**: `.sdp/config/export.yml` (output destination)
-- **GitHub Config**: `.sdp/config/github.yml` (GitHub-specific settings)
+- **Export Config**: `.sdp/config/export.yml` (output destination, repository, labels)
 
 ## Context Files
 Read these for context:
 - `.sdp/specs/<slug>/tasks.yml` - Task breakdown to export
 - `.sdp/specs/<slug>/requirement.md` - Original requirement
-- `.sdp/config/export.yml` - Export destination configuration
-- `.sdp/config/github.yml` - GitHub integration config (if exporting to GitHub)
+- `.sdp/config/export.yml` - Export configuration (destination, repo, labels)
 
 ## Pre-Check
 
@@ -20,9 +18,22 @@ Read these for context:
 [ -d ".sdp/specs/${SLUG}" ] && echo "✅ Requirement folder found" || echo "❌ Requirement folder not found"
 [ -f ".sdp/specs/${SLUG}/tasks.yml" ] && echo "✅ Task file found" || echo "❌ Task file not found"
 
-# Read export configuration to determine output destination
-# Expected: export.yml contains "to: github" or "to: local"
+# Verify export configuration exists
+[ -f ".sdp/config/export.yml" ] && echo "✅ Export config found" || echo "❌ Export config not found"
 ```
+
+## Important: Configure Before Running
+
+**Before running this command, you MUST configure `.sdp/config/export.yml`**:
+
+1. **Set export destination**: Choose `to: github` or `to: local`
+2. **Configure GitHub settings** (if using GitHub mode):
+   - Set `github.repo` to your repository (e.g., "owner/repo")
+   - Customize `github.labels` as needed
+3. **Configure local settings** (if using local mode):
+   - Set `local.out_dir` if different from default
+
+**User should review and edit `.sdp/config/export.yml` before proceeding.**
 
 ## Step 1: Load Export Configuration
 
@@ -33,9 +44,12 @@ to: github | local   # Determines export destination
 
 github:
   repo: owner/repo   # Target GitHub repository
+  labels:            # Default labels for all issues
+    - sdp
+    - enhancement
 
 local:
-  out_dir: ./out     # Local output directory
+  out_dir: out       # Local output directory
 ```
 
 ### Determine Export Mode
@@ -58,10 +72,10 @@ gh auth status 2>/dev/null && echo "✅ GitHub authenticated" || echo "⚠️  N
 
 ### Step 2A: Load GitHub Configuration
 
-Read `.sdp/config/github.yml`:
-- `default_repo`: Target repository (format: "owner/repo")
-  - **Priority**: Use `export.yml` `github.repo` if present, otherwise fall back to `github.yml` `default_repo`
-- `labels`: Default labels to apply to all issues
+Read repository and labels from `.sdp/config/export.yml`:
+- `github.repo`: Target repository (format: "owner/repo")
+  - If not specified, gh CLI will auto-detect from current git repository
+- `github.labels`: Default labels to apply to all issues
 
 ### Step 3A: Create Main Requirement Issue (GitHub Mode)
 
@@ -95,7 +109,7 @@ See sub-issues below for detailed task breakdown.
 ```
 
 #### Labels
-- `github.yml` `labels` (default labels)
+- `export.yml` `github.labels` (default labels from config)
 - `["<slug>"]` (requirement identifier)
 - `["requirement"]` (issue type marker)
 
@@ -148,7 +162,7 @@ Relates to #<main_issue>
 
 #### Labels
 Combine:
-- `github.yml` `labels` (default labels)
+- `export.yml` `github.labels` (default labels from config)
 - `["<slug>"]` (requirement identifier)
 - `task.labels` (from task definition)
 - `["task"]` (sub-issue marker)
@@ -259,7 +273,7 @@ See sub-issues below for detailed task breakdown.
 ...
 ```
 
-**Labels**: `<slug>`, `requirement`, <labels from github.yml>
+**Labels**: `<slug>`, `requirement`, <labels from export.yml github.labels>
 
 ---
 
@@ -299,7 +313,7 @@ Relates to #<main_issue> (create main issue first, then reference here)
 <task.risks if present>
 ```
 
-**Labels**: `<slug>`, `task`, <task.labels>, <labels from github.yml>
+**Labels**: `<slug>`, `task`, <task.labels>, <labels from export.yml github.labels>
 
 ---
 
@@ -355,7 +369,7 @@ Create a shell script at `${OUT_DIR}/<slug>-import.sh` to automate issue creatio
 
 set -e  # Exit on error
 
-REPO="<from export.yml or github.yml>"
+REPO="<from export.yml github.repo>"
 
 echo "🚀 Starting issue import for <slug>..."
 echo ""
@@ -523,18 +537,17 @@ Generate console output in **Japanese** based on export mode:
 When determining the target repository:
 
 1. **First priority**: `export.yml` → `github.repo`
-2. **Fallback**: `github.yml` → `default_repo`
-3. **Final fallback**: Let `gh` auto-detect from current git repository
+2. **Fallback**: Let `gh` auto-detect from current git repository
 
 Example decision tree:
 ```
 IF export.yml has github.repo:
   USE export.yml github.repo
-ELSE IF github.yml has default_repo:
-  USE github.yml default_repo
 ELSE:
-  OMIT --repo flag (gh auto-detects)
+  OMIT --repo flag (gh auto-detects from current git repo)
 ```
+
+**Note**: All configuration is now centralized in `.sdp/config/export.yml`.
 
 ## Allowed Tools
 Bash, Read, Write, Edit, Glob, Grep only
