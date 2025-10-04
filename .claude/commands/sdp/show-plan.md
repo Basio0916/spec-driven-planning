@@ -1,23 +1,21 @@
-# /show-plan <REQ-ID>
+# /show-plan <slug>
 You are Claude Code. Transform a task breakdown into a human-readable project plan.
 
 ## Input
-- **REQ-ID**: An existing file at `.sdp/tasks/REQ-xxx.yml`
+- **slug**: An existing requirement folder at `.sdp/<slug>/` containing `tasks.yml`
 
 ## Context Files
 Read these for context:
-- `.sdp/tasks/REQ-xxx.yml` - Task breakdown and estimates
-- `.sdp/requirements/REQ-xxx.md` - Original requirement
+- `.sdp/<slug>/tasks.yml` - Task breakdown and estimates
+- `.sdp/<slug>/requirement.md` - Original requirement
 - `.sdp/product.md` - Business context
 
 ## Pre-Check
 
 ```bash
-# Create .sdp/plans directory if it doesn't exist
-mkdir -p .sdp/plans
-
-# Verify task file exists
-[ -f ".sdp/tasks/${REQ_ID}.yml" ] && echo "✅ Task file found" || echo "❌ Task file not found"
+# Verify requirement folder and task file exist
+[ -d ".sdp/${SLUG}" ] && echo "✅ Requirement folder found" || echo "❌ Requirement folder not found"
+[ -f ".sdp/${SLUG}/tasks.yml" ] && echo "✅ Task file found" || echo "❌ Task file not found"
 ```
 
 ## Plan Structure
@@ -41,7 +39,7 @@ Generate a comprehensive project plan document with the following sections:
 Generate a Gantt-like Mermaid diagram:
 ```mermaid
 gantt
-    title REQ-xxx Project Timeline
+    title <slug> Project Timeline
     dateFormat YYYY-MM-DD
     section Phase 1
     T-001 Task Title :t001, 2024-01-01, 3d
@@ -75,20 +73,20 @@ Based on confidence level and stddev:
 ### 7. Next Steps
 - Suggested actions for project kickoff
 - Dependencies to resolve before starting
-- Recommendation to run `/sdp:export-issues REQ-xxx`
+- Recommendation to run `/sdp:export-issues <slug>`
 
 ## Output Format
 
 ### 1. Write Plan File
-Create `.sdp/plans/REQ-xxx.md` with all sections above in **Japanese language**.
+Create `.sdp/<slug>/plan.md` with all sections above in **Japanese language**.
 
 ### 2. Console Output
 Print a summary in **Japanese**:
 
 ```
 【プロジェクト計画生成完了】
-📋 要件: REQ-xxx
-📁 ファイル: .sdp/plans/REQ-xxx.md
+📋 要件: <slug>
+📁 ファイル: .sdp/<slug>/plan.md
 
 📊 概要:
 - タスク数: <数>
@@ -98,7 +96,7 @@ Print a summary in **Japanese**:
 
 ⚠️  主要リスク: <top_risk_summary>
 
-💡 次のステップ: /sdp:export-issues REQ-xxx でGitHub Issuesにエクスポートしてください
+💡 次のステップ: /sdp:export-issues <slug> でGitHub Issuesにエクスポートしてください
 ```
 
 ## Allowed Tools

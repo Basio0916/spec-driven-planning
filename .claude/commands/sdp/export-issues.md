@@ -1,23 +1,24 @@
-# /export-issues <REQ-ID>
+# /export-issues <slug>
 You are Claude Code. Convert task breakdown into GitHub Issues or local markdown files.
 
 ## Inputs
-- **REQ-ID**: An existing file at `.sdp/tasks/REQ-xxx.yml`
+- **slug**: An existing requirement folder at `.sdp/<slug>/` containing `tasks.yml`
 - **Export Config**: `.claude/config/export.yml` (output destination)
 - **GitHub Config**: `.claude/config/github.yml` (GitHub-specific settings)
 
 ## Context Files
 Read these for context:
-- `.sdp/tasks/REQ-xxx.yml` - Task breakdown to export
-- `.sdp/requirements/REQ-xxx.md` - Original requirement
+- `.sdp/<slug>/tasks.yml` - Task breakdown to export
+- `.sdp/<slug>/requirement.md` - Original requirement
 - `.claude/config/export.yml` - Export destination configuration
 - `.claude/config/github.yml` - GitHub integration config (if exporting to GitHub)
 
 ## Pre-Check
 
 ```bash
-# Verify task file exists
-[ -f ".sdp/tasks/${REQ_ID}.yml" ] && echo "✅ Task file found" || echo "❌ Task file not found"
+# Verify requirement folder and task file exist
+[ -d ".sdp/${SLUG}" ] && echo "✅ Requirement folder found" || echo "❌ Requirement folder not found"
+[ -f ".sdp/${SLUG}/tasks.yml" ] && echo "✅ Task file found" || echo "❌ Task file not found"
 
 # Read export configuration to determine output destination
 # Expected: export.yml contains "to: github" or "to: local"
@@ -67,12 +68,12 @@ Read `.claude/config/github.yml`:
 First, create a single main issue for the requirement:
 
 #### Issue Title
-Format: `[REQ-xxx] <requirement title>`
+Format: `[<slug>] <requirement title>`
 
 #### Issue Body
 ```markdown
 ## Requirement Overview
-<brief summary from .sdp/requirements/REQ-xxx.md Goal section>
+<brief summary from .sdp/<slug>/requirement.md Goal section>
 
 ## Rollup Estimate
 - Total Tasks: <count>
@@ -95,15 +96,15 @@ See sub-issues below for detailed task breakdown.
 
 #### Labels
 - `github.yml` `labels` (default labels)
-- `["REQ-xxx"]` (requirement identifier)
+- `["<slug>"]` (requirement identifier)
 - `["requirement"]` (issue type marker)
 
 #### Execution
 ```bash
 MAIN_ISSUE=$(gh issue create \
-  --title "[REQ-xxx] <requirement title>" \
+  --title "[<slug>] <requirement title>" \
   --body "<formatted body>" \
-  --label "REQ-xxx,requirement,<labels>" \
+  --label "<slug>,requirement,<labels>" \
   --repo <owner/repo> | grep -oE '#[0-9]+' | tr -d '#')
 ```
 
@@ -111,10 +112,10 @@ Collect the main issue number for use in sub-issues.
 
 ### Step 4A: Create Task Sub-Issues (GitHub Mode)
 
-For each task in `.sdp/tasks/REQ-xxx.yml`, create a sub-issue:
+For each task in `.sdp/<slug>/tasks.yml`, create a sub-issue:
 
 #### Sub-Issue Title
-Format: `[REQ-xxx][T-xxx] <task.title>`
+Format: `[<slug>][T-xxx] <task.title>`
 
 #### Sub-Issue Body
 Include the following sections in markdown:
@@ -148,16 +149,16 @@ Relates to #<main_issue>
 #### Labels
 Combine:
 - `github.yml` `labels` (default labels)
-- `["REQ-xxx"]` (requirement identifier)
+- `["<slug>"]` (requirement identifier)
 - `task.labels` (from task definition)
 - `["task"]` (sub-issue marker)
 
 #### Execution
 ```bash
 gh issue create \
-  --title "[REQ-xxx][T-001] <task.title>" \
+  --title "[<slug>][T-001] <task.title>" \
   --body "<formatted body with #${MAIN_ISSUE} reference>" \
-  --label "REQ-xxx,task,<labels>" \
+  --label "<slug>,task,<labels>" \
   --repo <owner/repo>
 ```
 
@@ -214,24 +215,24 @@ mkdir -p "$OUT_DIR"
 
 ### Step 3B: Generate Issue Drafts (Local Mode)
 
-Create a markdown file at `${OUT_DIR}/REQ-xxx-issues.md` with the following structure:
+Create a markdown file at `${OUT_DIR}/<slug>-issues.md` with the following structure:
 
 ```markdown
-# GitHub Issues Draft for REQ-xxx
+# GitHub Issues Draft for <slug>
 
-This file contains issue drafts for requirement REQ-xxx.
+This file contains issue drafts for requirement <slug>.
 Structure: 1 main issue + N sub-issues (tasks)
 
 ---
 
 ## Main Requirement Issue
 
-**Title**: [REQ-xxx] <requirement title>
+**Title**: [<slug>] <requirement title>
 
 **Body**:
 ```markdown
 ## Requirement Overview
-<brief summary from .sdp/requirements/REQ-xxx.md Goal section>
+<brief summary from .sdp/<slug>/requirement.md Goal section>
 
 ## Rollup Estimate
 - Total Tasks: <count>
@@ -258,15 +259,15 @@ See sub-issues below for detailed task breakdown.
 ...
 ```
 
-**Labels**: `REQ-xxx`, `requirement`, <labels from github.yml>
+**Labels**: `<slug>`, `requirement`, <labels from github.yml>
 
 ---
 
 ## Task Sub-Issues
 
-### Sub-Issue 1: [REQ-xxx][T-001] <task title>
+### Sub-Issue 1: [<slug>][T-001] <task title>
 
-**Title**: [REQ-xxx][T-001] <task.title>
+**Title**: [<slug>][T-001] <task.title>
 
 **Body**:
 ```markdown
@@ -298,7 +299,7 @@ Relates to #<main_issue> (create main issue first, then reference here)
 <task.risks if present>
 ```
 
-**Labels**: `REQ-xxx`, `task`, <task.labels>, <labels from github.yml>
+**Labels**: `<slug>`, `task`, <task.labels>, <labels from github.yml>
 
 ---
 
@@ -313,9 +314,9 @@ Relates to #<main_issue> (create main issue first, then reference here)
 1. **Create Main Requirement Issue First**:
    ```bash
    MAIN_ISSUE=$(gh issue create \
-     --title "[REQ-xxx] <title>" \
+     --title "[<slug>] <title>" \
      --body "$(cat main-issue-body.md)" \
-     --label "REQ-xxx,requirement,..." \
+     --label "<slug>,requirement,..." \
      --repo <owner/repo> | grep -oE '#[0-9]+' | tr -d '#')
    echo "Main issue created: #${MAIN_ISSUE}"
    ```
@@ -323,11 +324,11 @@ Relates to #<main_issue> (create main issue first, then reference here)
 2. **Create Each Task Sub-Issue** (referencing main issue):
    ```bash
    SUB_ISSUE_1=$(gh issue create \
-     --title "[REQ-xxx][T-001] <task title>" \
+     --title "[<slug>][T-001] <task title>" \
      --body "Relates to #${MAIN_ISSUE}
 
    $(cat task-001-body.md)" \
-     --label "REQ-xxx,task,backend,..." \
+     --label "<slug>,task,backend,..." \
      --repo <owner/repo> | grep -oE '#[0-9]+' | tr -d '#')
    echo "Sub-issue T-001 created: #${SUB_ISSUE_1}"
    ```
@@ -345,26 +346,26 @@ Relates to #<main_issue> (create main issue first, then reference here)
 
 ### Step 4B: Generate Import Script (Local Mode, Optional)
 
-Create a shell script at `${OUT_DIR}/REQ-xxx-import.sh` to automate issue creation:
+Create a shell script at `${OUT_DIR}/<slug>-import.sh` to automate issue creation:
 
 ```bash
 #!/bin/bash
-# Auto-generated script to import issues for REQ-xxx
+# Auto-generated script to import issues for <slug>
 # Structure: 1 main issue + N task sub-issues
 
 set -e  # Exit on error
 
 REPO="<from export.yml or github.yml>"
 
-echo "🚀 Starting issue import for REQ-xxx..."
+echo "🚀 Starting issue import for <slug>..."
 echo ""
 
 # Step 1: Create main requirement issue
 echo "📋 Creating main requirement issue..."
 MAIN_ISSUE=$(gh issue create --repo "$REPO" \
-  --title "[REQ-xxx] <requirement title>" \
+  --title "[<slug>] <requirement title>" \
   --body "<main issue body>" \
-  --label "REQ-xxx,requirement,<labels>" | grep -oE '#[0-9]+' | tr -d '#')
+  --label "<slug>,requirement,<labels>" | grep -oE '#[0-9]+' | tr -d '#')
 echo "✅ Main issue created: #${MAIN_ISSUE}"
 echo ""
 
@@ -372,21 +373,21 @@ echo ""
 echo "📝 Creating task sub-issues..."
 
 SUB_ISSUE_T001=$(gh issue create --repo "$REPO" \
-  --title "[REQ-xxx][T-001] <task title>" \
+  --title "[<slug>][T-001] <task title>" \
   --body "## Parent Issue
 Relates to #${MAIN_ISSUE}
 
 <task body>" \
-  --label "REQ-xxx,task,<task labels>" | grep -oE '#[0-9]+' | tr -d '#')
+  --label "<slug>,task,<task labels>" | grep -oE '#[0-9]+' | tr -d '#')
 echo "  ✅ T-001 → #${SUB_ISSUE_T001}"
 
 SUB_ISSUE_T002=$(gh issue create --repo "$REPO" \
-  --title "[REQ-xxx][T-002] <task title>" \
+  --title "[<slug>][T-002] <task title>" \
   --body "## Parent Issue
 Relates to #${MAIN_ISSUE}
 
 <task body>" \
-  --label "REQ-xxx,task,<task labels>" | grep -oE '#[0-9]+' | tr -d '#')
+  --label "<slug>,task,<task labels>" | grep -oE '#[0-9]+' | tr -d '#')
 echo "  ✅ T-002 → #${SUB_ISSUE_T002}"
 
 # ... (repeat for each task)
@@ -423,7 +424,7 @@ echo "🔗 Main issue URL: https://github.com/${REPO}/issues/${MAIN_ISSUE}"
 
 Make the script executable:
 ```bash
-chmod +x ${OUT_DIR}/REQ-xxx-import.sh
+chmod +x ${OUT_DIR}/<slug>-import.sh
 ```
 
 ## Output Format
@@ -434,7 +435,7 @@ Generate console output in **Japanese** based on export mode:
 
 ```
 【GitHub Issues エクスポート完了】
-📋 要件: REQ-xxx
+📋 要件: <slug>
 🎯 モード: GitHub Issues
 📦 リポジトリ: <owner/repo>
 
@@ -460,20 +461,20 @@ Generate console output in **Japanese** based on export mode:
 
 ```
 【GitHub Issues エクスポート（ローカル出力）】
-📋 要件: REQ-xxx
+📋 要件: <slug>
 🎯 モード: ローカルファイル
 📁 出力ディレクトリ: <out_dir>
 
 生成ファイル:
-✅ <out_dir>/REQ-xxx-issues.md   - Issue ドラフト (マニュアル用)
-✅ <out_dir>/REQ-xxx-import.sh   - 自動インポートスクリプト (gh CLI用)
+✅ <out_dir>/<slug>-issues.md   - Issue ドラフト (マニュアル用)
+✅ <out_dir>/<slug>-import.sh   - 自動インポートスクリプト (gh CLI用)
 
 📊 タスク数: <count>
 ⏱️  総見積時間: <expected_hours>h
 
 💡 次のステップ:
-   1. Issueドラフトをレビュー: cat <out_dir>/REQ-xxx-issues.md
-   2. GitHub CLI を使ってインポート: bash <out_dir>/REQ-xxx-import.sh
+   1. Issueドラフトをレビュー: cat <out_dir>/<slug>-issues.md
+   2. GitHub CLI を使ってインポート: bash <out_dir>/<slug>-import.sh
    3. または手動でGitHubにIssueを作成してください
 ```
 
@@ -482,39 +483,39 @@ Generate console output in **Japanese** based on export mode:
 #### GitHub Mode: gh CLI not available
 ```
 【エラー: GitHub CLI 未検出】
-📋 要件: REQ-xxx
+📋 要件: <slug>
 🎯 設定モード: GitHub Issues
 ❌ GitHub CLI (gh) がインストールされていません
 
 💡 対処方法:
    1. GitHub CLI をインストール: https://cli.github.com/
    2. または export.yml の "to" を "local" に変更してローカル出力を使用
-   3. コマンド実行: /sdp:export-issues REQ-xxx
+   3. コマンド実行: /sdp:export-issues <slug>
 ```
 
 #### GitHub Mode: Not authenticated
 ```
 【エラー: GitHub 認証未完了】
-📋 要件: REQ-xxx
+📋 要件: <slug>
 🎯 設定モード: GitHub Issues
 ⚠️  GitHub CLI は利用可能ですが、認証されていません
 
 💡 対処方法:
    1. GitHub認証を実行: gh auth login
    2. または export.yml の "to" を "local" に変更してローカル出力を使用
-   3. コマンド実行: /sdp:export-issues REQ-xxx
+   3. コマンド実行: /sdp:export-issues <slug>
 ```
 
 #### Task file not found
 ```
 【エラー: タスクファイル未検出】
-📋 要件: REQ-xxx
-❌ .sdp/tasks/REQ-xxx.yml が見つかりません
+📋 要件: <slug>
+❌ .sdp/<slug>/tasks.yml が見つかりません
 
 💡 対処方法:
-   1. 要件が存在するか確認: ls .sdp/requirements/
-   2. タスク分解を実行: /sdp:estimate REQ-xxx
-   3. その後再実行: /sdp:export-issues REQ-xxx
+   1. 要件が存在するか確認: ls -d .sdp/*/
+   2. タスク分解を実行: /sdp:estimate <slug>
+   3. その後再実行: /sdp:export-issues <slug>
 ```
 
 ## Configuration Priority

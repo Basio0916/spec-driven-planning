@@ -1,12 +1,12 @@
-# /design <REQ-ID>
+# /design <slug>
 You are Claude Code. Generate a detailed design document with decision rationale for a given requirement.
 
 ## Input
-- **REQ-ID**: An existing requirement file at `.sdp/requirements/REQ-xxx.md`
+- **slug**: An existing requirement folder at `.sdp/<slug>/` containing `requirement.md`
 
 ## Context Files
 Read these for context:
-- `.sdp/requirements/REQ-xxx.md` - The requirement to design
+- `.sdp/<slug>/requirement.md` - The requirement to design
 - `.sdp/tech.md` - Technical stack and constraints
 - `.sdp/structure.md` - Code structure and architecture
 - `.sdp/product.md` - Business context and goals
@@ -14,11 +14,9 @@ Read these for context:
 ## Pre-Check
 
 ```bash
-# Create .sdp/designs directory if it doesn't exist
-mkdir -p .sdp/designs
-
-# Verify requirement exists
-[ -f ".sdp/requirements/${REQ_ID}.md" ] && echo "✅ Requirement found" || echo "❌ Requirement not found"
+# Verify requirement folder and file exist
+[ -d ".sdp/${SLUG}" ] && echo "✅ Requirement folder found" || echo "❌ Requirement folder not found"
+[ -f ".sdp/${SLUG}/requirement.md" ] && echo "✅ Requirement found" || echo "❌ Requirement not found"
 ```
 
 ## Design Process
@@ -54,7 +52,7 @@ Create a comparison table covering:
 - **Implementation notes**: Key technical decisions and guidelines
 
 ## Deliverable
-Create `.sdp/designs/REQ-xxx.md` following `.claude/templates/design.md` structure.
+Create `.sdp/<slug>/design.md` following `.claude/templates/design.md` structure.
 
 ## Design Document Structure
 
@@ -77,9 +75,9 @@ After writing the file, print a summary in Japanese:
 
 ```
 【設計完了】
-📐 REQ-ID: REQ-xxx
+📐 Slug: <slug>
 📝 タイトル: <設計タイトル>
-📁 ファイル: .sdp/designs/REQ-xxx.md
+📁 ファイル: .sdp/<slug>/design.md
 
 📊 検討した代替案: <数>
 ✅ 採用案: <採用した設計名>
@@ -87,7 +85,7 @@ After writing the file, print a summary in Japanese:
 
 💡 次のステップ:
   - 設計内容を確認し、修正が必要な場合は自然言語で指示してください
-  - 設計が確定したら /sdp:estimate REQ-xxx でタスク分解を実行してください
+  - 設計が確定したら /sdp:estimate <slug> でタスク分解を実行してください
 ```
 
 ## User Iteration Support
