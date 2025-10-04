@@ -75,12 +75,10 @@ Refine a natural-language requirement:
 ```
 
 Creates `.sdp/requirements/REQ-001.md` with:
-- Goal
-- Done Criteria
-- Acceptance Scenarios (Gherkin)
-- Dependencies
-- Non-Functional Requirements
-- Risks
+- 機能概要 (Feature Overview)
+- ユーザーストーリー (User Stories)
+- 機能要件 (Functional Requirements with acceptance criteria)
+- 非機能要件 (Non-Functional Requirements)
 
 ### 3. Create Design
 

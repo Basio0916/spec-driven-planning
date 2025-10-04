@@ -43,7 +43,7 @@ Refines a natural-language requirement (or reads from a file path) and creates/u
 - Enforces the template structure from `.claude/templates/requirement.md`
 - Aligns with `.sdp/product.md`, `.sdp/tech.md`, and `.sdp/structure.md` context
 - **Focuses on business requirements only** (WHAT needs to be done, not HOW)
-- Includes Done Criteria, Acceptance Scenarios (Gherkin-style), NFRs, Risks, Dependencies
+- Includes 機能概要 (Feature Overview), ユーザーストーリー (User Stories), 機能要件 (Functional Requirements with acceptance criteria), and 非機能要件 (Non-Functional Requirements)
 - Content output in Japanese language
 - **User can review and request changes in natural language**
 - Prompts user to run `/sdp:design REQ-xxx` next
