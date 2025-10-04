@@ -13,11 +13,11 @@ Read these for context:
 
 ## Pre-Check
 
-```bash
-# Verify requirement folder and file exist
-[ -d ".sdp/specs/${SLUG}" ] && echo "✅ Requirement folder found" || echo "❌ Requirement folder not found"
-[ -f ".sdp/specs/${SLUG}/requirement.md" ] && echo "✅ Requirement found" || echo "❌ Requirement not found"
-```
+Before starting, verify that:
+- `.sdp/specs/<slug>/` directory exists
+- `.sdp/specs/<slug>/requirement.md` file exists
+
+Claude Code will automatically check these conditions and report errors if requirements are missing.
 
 ## Design Process
 
@@ -96,5 +96,9 @@ After generating the design:
 - Maintain version notes in the document
 - Re-evaluate alternatives if requested
 
+## Cross-Platform Compatibility
+
+This command works on all platforms (Windows, macOS, Linux) as it uses Claude Code's native file operations instead of shell-specific commands.
+
 ## Allowed Tools
-Bash, Read, Write, Edit, Glob, Grep only
+Read, Write, Edit, File Search, Grep only

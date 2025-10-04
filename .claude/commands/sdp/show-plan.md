@@ -12,11 +12,11 @@ Read these for context:
 
 ## Pre-Check
 
-```bash
-# Verify requirement folder and task file exist
-[ -d ".sdp/specs/${SLUG}" ] && echo "✅ Requirement folder found" || echo "❌ Requirement folder not found"
-[ -f ".sdp/specs/${SLUG}/tasks.yml" ] && echo "✅ Task file found" || echo "❌ Task file not found"
-```
+Before starting, verify that:
+- `.sdp/specs/<slug>/` directory exists
+- `.sdp/specs/<slug>/tasks.yml` file exists
+
+Claude Code will automatically check these conditions and report errors if files are missing.
 
 ## Plan Structure
 
@@ -108,5 +108,9 @@ Print a summary in **Japanese**:
    2. /sdp:export-issues <slug> でタスクをエクスポートしてください
 ```
 
+## Cross-Platform Compatibility
+
+This command works on all platforms (Windows, macOS, Linux) as it uses Claude Code's native file operations instead of shell-specific commands.
+
 ## Allowed Tools
-Bash, Read, Write, Edit, Glob, Grep only
+Read, Write, Edit, File Search, Grep only

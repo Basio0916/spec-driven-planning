@@ -148,7 +148,8 @@ PERT見積もり付きのタスク分解を作成:
 
 **ローカルモード**（GitHub CLIは不要）:
 - `.sdp/out/add-user-authentication-issues.md` を生成
-- バッチインポート用の `.sdp/out/add-user-authentication-import.sh` を作成
+- `.sdp/out/add-user-authentication-import.sh` を作成（macOS/Linux/Git Bash用Bashスクリプト）
+- `.sdp/out/add-user-authentication-import.ps1` を作成（Windows用PowerShellスクリプト）
 - インポートスクリプトは、後で `gh` CLIが利用可能になった際に実行可能
 
 ## Issue構造
@@ -233,6 +234,15 @@ GitHubへのエクスポート時、SDPは階層構造を作成します:
 - **GitHub CLI** (`gh`): オプション、直接GitHub Issueへのエクスポートにのみ必要
   - インストール: https://cli.github.com/
   - ローカルモード（`.sdp/config/export.yml`で`destination: local`を設定）を使用する場合は不要
+
+## プラットフォームサポート
+
+SDPは主要なすべてのプラットフォームで動作します:
+- ✅ **Windows**: 完全サポート（PowerShellスクリプト対応）
+- ✅ **macOS**: 完全サポート（Bashスクリプト）
+- ✅ **Linux**: 完全サポート（Bashスクリプト）
+
+すべてのコマンドは、プラットフォーム固有のシェルコマンドではなく、Claude Codeのネイティブなファイル操作を使用しているため、すべてのプラットフォームで一貫した動作を保証します。
 
 ## ライセンス
 

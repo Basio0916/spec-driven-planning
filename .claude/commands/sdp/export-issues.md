@@ -13,14 +13,12 @@ Read these for context:
 
 ## Pre-Check
 
-```bash
-# Verify requirement folder and task file exist
-[ -d ".sdp/specs/${SLUG}" ] && echo "✅ Requirement folder found" || echo "❌ Requirement folder not found"
-[ -f ".sdp/specs/${SLUG}/tasks.yml" ] && echo "✅ Task file found" || echo "❌ Task file not found"
+Before starting, verify that:
+- `.sdp/specs/<slug>/` directory exists
+- `.sdp/specs/<slug>/tasks.yml` file exists
+- `.sdp/config/export.yml` file exists
 
-# Verify export configuration exists
-[ -f ".sdp/config/export.yml" ] && echo "✅ Export config found" || echo "❌ Export config not found"
-```
+Claude Code will automatically check these conditions and report errors if files are missing.
 
 ## Important: Configure Before Running
 
@@ -62,13 +60,11 @@ Based on `destination` field:
 
 ### Pre-Check for GitHub Mode
 
-```bash
-# Check if gh CLI is available
-command -v gh >/dev/null 2>&1 && echo "✅ GitHub CLI available" || echo "❌ GitHub CLI not found - cannot use GitHub mode"
+Claude Code will check:
+- If `gh` CLI is available in the system
+- If GitHub authentication is valid (if `gh` is available)
 
-# Verify GitHub authentication (if gh available)
-gh auth status 2>/dev/null && echo "✅ GitHub authenticated" || echo "⚠️  Not authenticated"
-```
+If `gh` CLI is not found or not authenticated, provide appropriate error messages to guide the user.
 
 ### Step 2A: Load GitHub Configuration
 
@@ -218,14 +214,8 @@ Create a mapping table of task ID → sub-issue number/URL and main issue.
 
 ### Step 2B: Prepare Local Output Directory
 
-```bash
-# Get output directory from export.yml local.out_dir (default: ./out)
-OUT_DIR=$(grep -A1 "^local:" .sdp/config/export.yml | grep "out_dir:" | awk '{print $2}')
-OUT_DIR=${OUT_DIR:-out}  # Fallback to out if not specified
-
-# Create output directory
-mkdir -p "$OUT_DIR"
-```
+Read the output directory from `.sdp/config/export.yml` under `local.out_dir` (default: `out`).
+Create the output directory if it doesn't exist using Claude Code's file operations.
 
 ### Step 3B: Generate Issue Drafts (Local Mode)
 
@@ -358,7 +348,11 @@ Relates to #<main_issue> (create main issue first, then reference here)
    ```
 ```
 
-### Step 4B: Generate Import Script (Local Mode, Optional)
+### Step 4B: Generate Import Scripts (Local Mode, Optional)
+
+Create both Bash and PowerShell scripts to support all platforms:
+
+#### Bash Script (for macOS/Linux/Git Bash)
 
 Create a shell script at `${OUT_DIR}/<slug>-import.sh` to automate issue creation:
 
@@ -441,6 +435,81 @@ Make the script executable:
 chmod +x ${OUT_DIR}/<slug>-import.sh
 ```
 
+#### PowerShell Script (for Windows)
+
+Create a PowerShell script at `${OUT_DIR}/<slug>-import.ps1` with the same functionality:
+
+```powershell
+# Auto-generated script to import issues for <slug>
+# Structure: 1 main issue + N task sub-issues
+
+$ErrorActionPreference = "Stop"  # Exit on error
+
+$REPO = "<from export.yml github.repo>"
+
+Write-Host "🚀 Starting issue import for <slug>..." -ForegroundColor Green
+Write-Host ""
+
+# Step 1: Create main requirement issue
+Write-Host "📋 Creating main requirement issue..." -ForegroundColor Cyan
+$mainIssueOutput = gh issue create --repo $REPO `
+  --title "[<slug>] <requirement title>" `
+  --body "<main issue body>" `
+  --label "<slug>,requirement,<labels>"
+$MAIN_ISSUE = [regex]::Match($mainIssueOutput, '#(\d+)').Groups[1].Value
+Write-Host "✅ Main issue created: #$MAIN_ISSUE" -ForegroundColor Green
+Write-Host ""
+
+# Step 2: Create task sub-issues
+Write-Host "📝 Creating task sub-issues..." -ForegroundColor Cyan
+
+$subIssueT001Output = gh issue create --repo $REPO `
+  --title "[<slug>][T-001] <task title>" `
+  --body "## Parent Issue`nRelates to #$MAIN_ISSUE`n`n<task body>" `
+  --label "<slug>,task,<task labels>"
+$SUB_ISSUE_T001 = [regex]::Match($subIssueT001Output, '#(\d+)').Groups[1].Value
+Write-Host "  ✅ T-001 → #$SUB_ISSUE_T001" -ForegroundColor Green
+
+$subIssueT002Output = gh issue create --repo $REPO `
+  --title "[<slug>][T-002] <task title>" `
+  --body "## Parent Issue`nRelates to #$MAIN_ISSUE`n`n<task body>" `
+  --label "<slug>,task,<task labels>"
+$SUB_ISSUE_T002 = [regex]::Match($subIssueT002Output, '#(\d+)').Groups[1].Value
+Write-Host "  ✅ T-002 → #$SUB_ISSUE_T002" -ForegroundColor Green
+
+# ... (repeat for each task)
+
+Write-Host ""
+
+# Step 3: Update main issue with task checklist
+Write-Host "🔗 Updating main issue with task checklist..." -ForegroundColor Cyan
+$currentBody = gh issue view $MAIN_ISSUE --repo $REPO --json body -q .body
+$newBody = @"
+$currentBody
+
+## Tasks
+- [ ] #$SUB_ISSUE_T001 T-001: <task title> (<estimate>h)
+- [ ] #$SUB_ISSUE_T002 T-002: <task title> (<estimate>h)
+...
+"@
+
+gh issue edit $MAIN_ISSUE --repo $REPO --body $newBody
+Write-Host "✅ Main issue updated with task checklist" -ForegroundColor Green
+Write-Host ""
+
+# Summary
+Write-Host "🎉 All issues created successfully!" -ForegroundColor Green
+Write-Host ""
+Write-Host "📊 Summary:" -ForegroundColor Yellow
+Write-Host "  Main Issue: #$MAIN_ISSUE"
+Write-Host "  Sub-Issues:"
+Write-Host "    T-001 → #$SUB_ISSUE_T001"
+Write-Host "    T-002 → #$SUB_ISSUE_T002"
+Write-Host "    ..."
+Write-Host ""
+Write-Host "🔗 Main issue URL: https://github.com/$REPO/issues/$MAIN_ISSUE" -ForegroundColor Cyan
+```
+
 ## Output Format
 
 Generate console output in **Japanese** based on export mode:
@@ -480,15 +549,18 @@ Generate console output in **Japanese** based on export mode:
 📁 出力ディレクトリ: <out_dir>
 
 生成ファイル:
-✅ <out_dir>/<slug>-issues.md   - Issue ドラフト (マニュアル用)
-✅ <out_dir>/<slug>-import.sh   - 自動インポートスクリプト (gh CLI用)
+✅ <out_dir>/<slug>-issues.md     - Issue ドラフト (マニュアル用)
+✅ <out_dir>/<slug>-import.sh     - 自動インポートスクリプト (Bash: macOS/Linux/Git Bash)
+✅ <out_dir>/<slug>-import.ps1    - 自動インポートスクリプト (PowerShell: Windows)
 
 📊 タスク数: <count>
 ⏱️  総見積時間: <expected_hours>h
 
 💡 次のステップ:
    1. Issueドラフトをレビュー: cat <out_dir>/<slug>-issues.md
-   2. GitHub CLI を使ってインポート: bash <out_dir>/<slug>-import.sh
+   2. GitHub CLI を使ってインポート:
+      - macOS/Linux/Git Bash: bash <out_dir>/<slug>-import.sh
+      - Windows PowerShell: ./<out_dir>/<slug>-import.ps1
    3. または手動でGitHubにIssueを作成してください
 ```
 
@@ -549,5 +621,13 @@ ELSE:
 
 **Note**: All configuration is now centralized in `.sdp/config/export.yml`.
 
+## Cross-Platform Compatibility
+
+This command works on all platforms (Windows, macOS, Linux):
+- Uses Claude Code's native file operations instead of shell-specific commands
+- Generates both Bash (.sh) and PowerShell (.ps1) scripts for local mode
+- Windows users can use PowerShell scripts or Git Bash
+- macOS/Linux users can use Bash scripts
+
 ## Allowed Tools
-Bash, Read, Write, Edit, Glob, Grep only
+Read, Write, Terminal (for gh CLI commands in GitHub mode), File Search, Grep only

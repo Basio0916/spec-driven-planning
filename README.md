@@ -150,8 +150,9 @@ Export tasks to GitHub Issues:
 
 **Local Mode** (no GitHub CLI required):
 - Generates `.sdp/out/add-user-authentication-issues.md`
-- Creates `.sdp/out/add-user-authentication-import.sh` for batch import
-- Import script can be run later when `gh` CLI is available
+- Creates `.sdp/out/add-user-authentication-import.sh` (Bash script for macOS/Linux/Git Bash)
+- Creates `.sdp/out/add-user-authentication-import.ps1` (PowerShell script for Windows)
+- Import scripts can be run later when `gh` CLI is available
 
 ## Issue Structure
 
@@ -235,6 +236,15 @@ Each template includes detailed examples and guidance.
 - **GitHub CLI** (`gh`): Optional, required only for direct GitHub Issues export
   - Install: https://cli.github.com/
   - Not needed if using Local Mode (`.sdp/config/export.yml` with `destination: local`)
+
+## Platform Support
+
+SDP works on all major platforms:
+- ✅ **Windows**: Full support (PowerShell scripts included)
+- ✅ **macOS**: Full support (Bash scripts)
+- ✅ **Linux**: Full support (Bash scripts)
+
+All commands use Claude Code's native file operations instead of platform-specific shell commands, ensuring consistent behavior across all platforms.
 
 ## License
 
