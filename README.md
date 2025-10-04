@@ -132,15 +132,24 @@ Export tasks to GitHub Issues:
 /sdp:export-issues add-user-authentication
 ```
 
-**GitHub Mode** (requires `gh` CLI):
+**GitHub Mode** (requires GitHub CLI):
+- **Prerequisites**: Install and authenticate [GitHub CLI (`gh`)](https://cli.github.com/)
+  ```bash
+  # Install GitHub CLI (macOS)
+  brew install gh
+  
+  # Authenticate
+  gh auth login
+  ```
 - Creates 1 main requirement issue
 - Creates N task sub-issues
 - Sub-issues reference main issue
 - Main issue updated with task checklist
 
-**Local Mode** (no GitHub required):
+**Local Mode** (no GitHub CLI required):
 - Generates `.sdp/out/add-user-authentication-issues.md`
 - Creates `.sdp/out/add-user-authentication-import.sh` for batch import
+- Import script can be run later when `gh` CLI is available
 
 ## Issue Structure
 
@@ -221,7 +230,9 @@ Each template includes detailed examples and guidance.
 
 - **Node.js**: 14.0.0 or higher (for `npx` installation)
 - **Claude Code**: Required to run custom commands
-- **GitHub CLI** (`gh`): Optional, only needed for GitHub Mode export
+- **GitHub CLI** (`gh`): Optional, required only for direct GitHub Issues export
+  - Install: https://cli.github.com/
+  - Not needed if using Local Mode (`.sdp/config/export.yml` with `destination: local`)
 
 ## License
 
