@@ -189,21 +189,6 @@ language: ${lang}
     });
     success('.sdp/ directory structure created');
 
-    // Add .gitignore for .sdp if it doesn't exist
-    const gitignorePath = path.join(targetDir, '.gitignore');
-    let gitignoreContent = '';
-
-    if (fs.existsSync(gitignorePath)) {
-      gitignoreContent = fs.readFileSync(gitignorePath, 'utf8');
-    }
-
-    if (!gitignoreContent.includes('.sdp/')) {
-      info('📝 Updating .gitignore...');
-      const sdpIgnore = '\n# Spec-Driven Planning outputs\n.sdp/\n';
-      fs.appendFileSync(gitignorePath, sdpIgnore);
-      success('.gitignore updated');
-    }
-
     log('\n╔═══════════════════════════════════════════════════════════╗', colors.bright + colors.green);
     log('║                                                           ║', colors.bright + colors.green);
     log('║   🎉 Setup Complete!                                     ║', colors.bright + colors.green);
