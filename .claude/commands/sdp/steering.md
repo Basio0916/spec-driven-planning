@@ -3,24 +3,19 @@ You are Claude Code operating on this repository. Perform an intelligent "projec
 
 ## Pre-Analysis: Detect Existing Files
 
-Before starting, check which steering documents already exist:
+Before starting, check which steering documents already exist by reading the filesystem. Claude Code will automatically:
+- Check if `.sdp/product.md`, `.sdp/tech.md`, and `.sdp/structure.md` exist
+- Determine CREATE mode (if file doesn't exist) or UPDATE mode (if file exists)
+- Create the `.sdp/` directory if it doesn't exist
+- Check recent git commits if this is an update (optional)
 
-```bash
-# Create .sdp directory if it doesn't exist
-mkdir -p .sdp
+## Language Configuration
 
-# Check for existing steering documents
-[ -f ".sdp/product.md" ] && echo "✅ product.md exists - UPDATE mode" || echo "📝 product.md not found - CREATE mode"
-[ -f ".sdp/tech.md" ] && echo "✅ tech.md exists - UPDATE mode" || echo "📝 tech.md not found - CREATE mode"
-[ -f ".sdp/structure.md" ] && echo "✅ structure.md exists - UPDATE mode" || echo "📝 structure.md not found - CREATE mode"
-```
+Read `.sdp/config/language.yml` to determine the output language:
+- If `language: en`, generate all content in **English**
+- If `language: ja`, generate all content in **Japanese**
 
-Also check recent changes if this is an update:
-```bash
-# If git repository, check commits since last steering update
-git log -1 --oneline -- .sdp/product.md .sdp/tech.md .sdp/structure.md 2>/dev/null || echo "First time creation"
-git log --oneline $(git log -1 --format=%H -- .sdp/product.md .sdp/tech.md .sdp/structure.md 2>/dev/null)..HEAD --max-count=10 2>/dev/null || echo "No change history"
-```
+Use templates from `.sdp/templates/<lang>/` directory based on the configured language.
 
 ## Goals
 
@@ -46,27 +41,14 @@ Generate comprehensive initial content covering all aspects of the project.
 
 ### 1. Project Analysis
 
-Use native tools to scan the codebase:
-
-```bash
-# Find source files
-find . -path ./node_modules -prune -o -path ./.git -prune -o -type f \( -name "*.py" -o -name "*.js" -o -name "*.ts" -o -name "*.go" \) -print
-
-# Find configuration files
-find . -maxdepth 3 \( -name "package.json" -o -name "requirements.txt" -o -name "go.mod" -o -name "Cargo.toml" \)
-
-# Find documentation
-find . -maxdepth 3 -name "README*" -o -name "CHANGELOG*" -o -name "*.md"
-```
-
-Extract information from:
+Use available tools (file search, grep, read file) to scan the codebase and extract information from:
 - **Product signals**: README, docs/, package.json, go.mod, etc.
 - **Tech/infra**: Dockerfile, docker-compose, Terraform, CI files, Makefile, schema (OpenAPI/GraphQL)
 - **Structure**: Directories, domains, entrypoints, major modules
 
 ### 2. Generate/Update Each File
 
-Use templates at `.sdp/templates/*.md` as the structural guide. Keep sections even if empty.
+Use templates at `.sdp/templates/<lang>/*.md` as the structural guide (based on configured language). Keep sections even if empty.
 
 #### product.md Content (if CREATE mode):
 - **Vision**: Product's raison d'être (1-2 sentences)
@@ -166,7 +148,11 @@ Generate a concise summary in **Japanese**:
 - **Explain changes**: Brief notes on why something was updated
 
 ## Output Language
-Generate all console output in **Japanese**.
+Generate all console output in the configured language (`.sdp/config/language.yml`).
+
+## Cross-Platform Compatibility
+
+This command works on all platforms (Windows, macOS, Linux) as it uses Claude Code's native file operations instead of shell-specific commands.
 
 ## Allowed Tools
-Bash, Read, Write, Edit, Glob, Grep only
+Read, Write, Edit, File Search, Grep only

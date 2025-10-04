@@ -15,8 +15,8 @@ github:
   # Default labels to apply to all issues
   # These labels will be added to both main requirement issues and task sub-issues
   labels:
-    - sdp
-    - enhancement
+  #  - sdp
+  #  - enhancement
 
 # Local export settings
 local:
