@@ -55,40 +55,75 @@ function copyRecursive(src, dest) {
   }
 }
 
+function showHelp() {
+  log('\n📋 Spec-Driven Planning (SDP) CLI', colors.bright + colors.cyan);
+  log(`Version: ${VERSION}\n`, colors.cyan);
+  log('Usage:', colors.bright);
+  log('  npx spec-driven-planning init    Initialize SDP in current directory\n');
+  log('  npx spec-driven-planning --help  Show this help message\n');
+  log('  npx spec-driven-planning -v      Show version\n');
+}
+
+function showVersion() {
+  log(`spec-driven-planning version ${VERSION}`);
+}
+
 function main() {
-  log('\n╔═══════════════════════════════════════════════════════════╗', colors.bright + colors.cyan);
-  log('║                                                           ║', colors.bright + colors.cyan);
-  log('║   📋 Spec-Driven Planning (SDP) Setup                    ║', colors.bright + colors.cyan);
-  log('║   Claude Code custom commands for requirements planning  ║', colors.bright + colors.cyan);
-  log('║                                                           ║', colors.bright + colors.cyan);
-  log('╚═══════════════════════════════════════════════════════════╝', colors.bright + colors.cyan);
-  log(`   Version: ${VERSION}\n`, colors.cyan);
+  const args = process.argv.slice(2);
+  const command = args[0];
 
-  const targetDir = process.cwd();
-  const claudeDir = path.join(targetDir, '.claude');
+  // Handle version flag
+  if (command === '-v' || command === '--version') {
+    showVersion();
+    process.exit(0);
+  }
 
-  // Check if .claude already exists
-  if (fs.existsSync(claudeDir)) {
-    warn('.claude directory already exists in the current directory.');
-    const readline = require('readline').createInterface({
-      input: process.stdin,
-      output: process.stdout
-    });
+  // Handle help flag
+  if (command === '-h' || command === '--help' || !command) {
+    showHelp();
+    process.exit(0);
+  }
 
-    readline.question('Do you want to overwrite it? (y/N): ', (answer) => {
-      readline.close();
+  // Handle init command
+  if (command === 'init') {
+    log('\n╔═══════════════════════════════════════════════════════════╗', colors.bright + colors.cyan);
+    log('║                                                           ║', colors.bright + colors.cyan);
+    log('║   📋 Spec-Driven Planning (SDP) Setup                    ║', colors.bright + colors.cyan);
+    log('║   Claude Code custom commands for requirements planning  ║', colors.bright + colors.cyan);
+    log('║                                                           ║', colors.bright + colors.cyan);
+    log('╚═══════════════════════════════════════════════════════════╝', colors.bright + colors.cyan);
+    log(`   Version: ${VERSION}\n`, colors.cyan);
 
-      if (answer.toLowerCase() === 'y' || answer.toLowerCase() === 'yes') {
-        info('Removing existing .claude directory...');
-        fs.rmSync(claudeDir, { recursive: true, force: true });
-        setupSDP(targetDir);
-      } else {
-        info('Setup cancelled. No changes were made.');
-        process.exit(0);
-      }
-    });
+    const targetDir = process.cwd();
+    const claudeDir = path.join(targetDir, '.claude');
+
+    // Check if .claude already exists
+    if (fs.existsSync(claudeDir)) {
+      warn('.claude directory already exists in the current directory.');
+      const readline = require('readline').createInterface({
+        input: process.stdin,
+        output: process.stdout
+      });
+
+      readline.question('Do you want to overwrite it? (y/N): ', (answer) => {
+        readline.close();
+
+        if (answer.toLowerCase() === 'y' || answer.toLowerCase() === 'yes') {
+          info('Removing existing .claude directory...');
+          fs.rmSync(claudeDir, { recursive: true, force: true });
+          setupSDP(targetDir);
+        } else {
+          info('Setup cancelled. No changes were made.');
+          process.exit(0);
+        }
+      });
+    } else {
+      setupSDP(targetDir);
+    }
   } else {
-    setupSDP(targetDir);
+    error(`Unknown command: ${command}`);
+    log('Run "npx spec-driven-planning --help" for usage information.\n');
+    process.exit(1);
   }
 }
 
@@ -176,12 +211,12 @@ function setupSDP(targetDir) {
     log('   4. Start with: /requirement "Your requirement description"\n');
 
     log('📖 Available Commands:', colors.bright + colors.cyan);
-    log('   /steering              - Generate project context');
-    log('   /requirement <text>    - Refine requirement specification');
-    log('   /design <slug>         - Generate detailed design with alternatives');
-    log('   /estimate <slug>       - Generate task breakdown & estimates');
-    log('   /show-plan <slug>      - Create visual project plan');
-    log('   /export-issues <slug>  - Export to GitHub Issues\n');
+    log('   /sdp:steering              - Generate project context');
+    log('   /sdp:requirement <text>    - Refine requirement specification');
+    log('   /sdp:design <slug>         - Generate detailed design with alternatives');
+    log('   /sdp:estimate <slug>       - Generate task breakdown & estimates');
+    log('   /sdp:show-plan <slug>      - Create visual project plan');
+    log('   /sdp:export-issues <slug>  - Export to GitHub Issues\n');
 
     log('📚 Documentation:', colors.bright + colors.cyan);
     log('   Read CLAUDE.md for detailed usage instructions\n');
