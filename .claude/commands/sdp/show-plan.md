@@ -4,6 +4,12 @@ You are Claude Code. Transform a task breakdown into a human-readable project pl
 ## Input
 - **slug**: An existing requirement folder at `.sdp/specs/<slug>/` containing `tasks.yml`
 
+## Language Configuration
+
+Read `.sdp/config/language.yml` to determine the output language:
+- If `language: en`, generate all content in **English**
+- If `language: ja`, generate all content in **Japanese**
+
 ## Context Files
 Read these for context:
 - `.sdp/specs/<slug>/tasks.yml` - Task breakdown and estimates
@@ -12,11 +18,11 @@ Read these for context:
 
 ## Pre-Check
 
-```bash
-# Verify requirement folder and task file exist
-[ -d ".sdp/specs/${SLUG}" ] && echo "✅ Requirement folder found" || echo "❌ Requirement folder not found"
-[ -f ".sdp/specs/${SLUG}/tasks.yml" ] && echo "✅ Task file found" || echo "❌ Task file not found"
-```
+Before starting, verify that:
+- `.sdp/specs/<slug>/` directory exists
+- `.sdp/specs/<slug>/tasks.yml` file exists
+
+Claude Code will automatically check these conditions and report errors if files are missing.
 
 ## Plan Structure
 
@@ -82,10 +88,10 @@ Based on confidence level and stddev:
 ## Output Format
 
 ### 1. Write Plan File
-Create `.sdp/specs/<slug>/plan.md` with all sections above in **Japanese language**.
+Create `.sdp/specs/<slug>/plan.md` with all sections above in the configured language (`.sdp/config/language.yml`).
 
 ### 2. Console Output
-Print a summary in **Japanese**:
+Print a summary in the same language as the content:
 
 ```
 【プロジェクト計画生成完了】
@@ -108,5 +114,9 @@ Print a summary in **Japanese**:
    2. /sdp:export-issues <slug> でタスクをエクスポートしてください
 ```
 
+## Cross-Platform Compatibility
+
+This command works on all platforms (Windows, macOS, Linux) as it uses Claude Code's native file operations instead of shell-specific commands.
+
 ## Allowed Tools
-Bash, Read, Write, Edit, Glob, Grep only
+Read, Write, Edit, File Search, Grep only

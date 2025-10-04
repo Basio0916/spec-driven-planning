@@ -4,6 +4,14 @@ You are Claude Code. Generate a detailed design document with decision rationale
 ## Input
 - **slug**: An existing requirement folder at `.sdp/specs/<slug>/` containing `requirement.md`
 
+## Language Configuration
+
+Read `.sdp/config/language.yml` to determine the output language:
+- If `language: en`, generate all content in **English**
+- If `language: ja`, generate all content in **Japanese**
+
+Use templates from `.sdp/templates/<lang>/` directory based on the configured language.
+
 ## Context Files
 Read these for context:
 - `.sdp/specs/<slug>/requirement.md` - The requirement to design
@@ -13,11 +21,11 @@ Read these for context:
 
 ## Pre-Check
 
-```bash
-# Verify requirement folder and file exist
-[ -d ".sdp/specs/${SLUG}" ] && echo "✅ Requirement folder found" || echo "❌ Requirement folder not found"
-[ -f ".sdp/specs/${SLUG}/requirement.md" ] && echo "✅ Requirement found" || echo "❌ Requirement not found"
-```
+Before starting, verify that:
+- `.sdp/specs/<slug>/` directory exists
+- `.sdp/specs/<slug>/requirement.md` file exists
+
+Claude Code will automatically check these conditions and report errors if requirements are missing.
 
 ## Design Process
 
@@ -52,7 +60,7 @@ Create a comparison table covering:
 - **Implementation notes**: Key technical decisions and guidelines
 
 ## Deliverable
-Create `.sdp/specs/<slug>/design.md` following `.sdp/templates/design.md` structure.
+Create `.sdp/specs/<slug>/design.md` following `.sdp/templates/<lang>/design.md` structure (use the language-specific template).
 
 ## Design Document Structure
 
@@ -69,9 +77,9 @@ The output must include:
 
 ## Output Format
 
-Generate all content in **Japanese language**.
+Generate all content based on the configured language (`.sdp/config/language.yml`).
 
-After writing the file, print a summary in Japanese:
+After writing the file, print a summary in the same language as the content:
 
 ```
 【設計完了】
@@ -96,5 +104,9 @@ After generating the design:
 - Maintain version notes in the document
 - Re-evaluate alternatives if requested
 
+## Cross-Platform Compatibility
+
+This command works on all platforms (Windows, macOS, Linux) as it uses Claude Code's native file operations instead of shell-specific commands.
+
 ## Allowed Tools
-Bash, Read, Write, Edit, Glob, Grep only
+Read, Write, Edit, File Search, Grep only

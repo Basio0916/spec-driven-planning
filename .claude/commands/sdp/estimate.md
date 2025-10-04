@@ -4,7 +4,13 @@ You are Claude Code. For the given requirement, generate tasks and estimates gro
 ## Inputs
 - **slug**: An existing requirement folder at `.sdp/specs/<slug>/`
 - **Estimation config**: `.sdp/config/estimate.yml` (T-shirt sizing, PERT constraints, buffers)
-- **Schema**: `.sdp/templates/tasks.schema.yml` (Task structure definition)
+- **Schema**: `.sdp/templates/<lang>/tasks.schema.yml` (Task structure definition)
+
+## Language Configuration
+
+Read `.sdp/config/language.yml` to determine the output language:
+- If `language: en`, generate all content in **English**
+- If `language: ja`, generate all content in **Japanese**
 
 ## Context Files
 Read these for context:
@@ -15,14 +21,12 @@ Read these for context:
 
 ## Pre-Check
 
-```bash
-# Verify requirement folder and file exist
-[ -d ".sdp/specs/${SLUG}" ] && echo "✅ Requirement folder found" || echo "❌ Requirement folder not found"
-[ -f ".sdp/specs/${SLUG}/requirement.md" ] && echo "✅ Requirement found" || echo "❌ Requirement not found"
+Before starting, verify that:
+- `.sdp/specs/<slug>/` directory exists
+- `.sdp/specs/<slug>/requirement.md` file exists
+- `.sdp/specs/<slug>/design.md` file exists (optional, but recommended)
 
-# Check if design exists
-[ -f ".sdp/specs/${SLUG}/design.md" ] && echo "✅ Design found" || echo "⚠️  Design not found (will estimate from requirement only)"
-```
+Claude Code will automatically check these conditions and report errors if requirements are missing.
 
 ## Task Decomposition Rules
 
@@ -82,7 +86,7 @@ Reference `.sdp/config/estimate.yml`:
 Create `.sdp/specs/<slug>/tasks.yml` following the schema exactly.
 
 ### 2. Console Output
-Print a summary in **Japanese**:
+Print a summary in the configured language (`.sdp/config/language.yml`):
 
 ```
 【タスク分解完了】
@@ -103,5 +107,9 @@ Print a summary in **Japanese**:
 💡 次のステップ: /sdp:show-plan <slug> でプロジェクト計画を生成してください
 ```
 
+## Cross-Platform Compatibility
+
+This command works on all platforms (Windows, macOS, Linux) as it uses Claude Code's native file operations instead of shell-specific commands.
+
 ## Allowed Tools
-Bash, Read, Write, Edit, Glob, Grep only
+Read, Write, Edit, File Search, Grep only

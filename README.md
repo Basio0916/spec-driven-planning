@@ -1,5 +1,7 @@
 # Spec-Driven Planning (SDP)
 
+[日本語版はこちら / Japanese version](./README.ja.md)
+
 A structured workflow system for transforming natural-language requirements into refined specifications, task decompositions, estimates, and GitHub Issues using Claude Code custom commands.
 
 ## Features
@@ -17,19 +19,37 @@ A structured workflow system for transforming natural-language requirements into
 Use `npx` to initialize SDP in your project:
 
 ```bash
+# Initialize with English (default)
 npx spec-driven-planning init
+
+# Initialize with Japanese
+npx spec-driven-planning init --lang ja
 ```
 
 This will create:
 - `.claude/commands/sdp/` - Custom slash commands
-- `.sdp/config/` - Configuration files
-- `.sdp/templates/` - Document templates
+- `.sdp/config/` - Configuration files (including language settings)
+- `.sdp/templates/en/` - English document templates
+- `.sdp/templates/ja/` - Japanese document templates
 - `.sdp/specs/` - Requirements directory (created on demand)
 - `.sdp/out/` - Output directory for exports
 
 ### Configuration
 
-1. **Update export settings** in `.sdp/config/export.yml`:
+#### Language Settings
+
+Set the output language in `.sdp/config/language.yml`:
+
+```yaml
+# Supported languages: en (English), ja (Japanese)
+language: en  # or ja
+```
+
+All generated documents (requirement.md, design.md, plan.md, etc.) will be created in the specified language.
+
+#### Export Settings
+
+**Update export settings** in `.sdp/config/export.yml`:
    ```yaml
    destination: github  # or "local"
    github:
@@ -41,7 +61,9 @@ This will create:
      out_dir: out
    ```
 
-2. **Adjust estimation parameters** in `.sdp/config/estimate.yml`:
+#### Estimation Settings
+
+**Adjust estimation parameters** in `.sdp/config/estimate.yml`:
    ```yaml
    default_buffers:
       schedule: 0.15   # 15% buffer
@@ -75,10 +97,10 @@ Refine a natural-language requirement:
 ```
 
 Creates `.sdp/specs/add-user-authentication/requirement.md` with:
-- 機能概要 (Feature Overview)
-- ユーザーストーリー (User Stories)
-- 機能要件 (Functional Requirements with acceptance criteria)
-- 非機能要件 (Non-Functional Requirements)
+- Feature Overview
+- User Stories
+- Functional Requirements with acceptance criteria
+- Non-Functional Requirements
 
 ### 3. Create Design
 
@@ -132,15 +154,25 @@ Export tasks to GitHub Issues:
 /sdp:export-issues add-user-authentication
 ```
 
-**GitHub Mode** (requires `gh` CLI):
+**GitHub Mode** (requires GitHub CLI):
+- **Prerequisites**: Install and authenticate [GitHub CLI (`gh`)](https://cli.github.com/)
+  ```bash
+  # Install GitHub CLI (macOS)
+  brew install gh
+  
+  # Authenticate
+  gh auth login
+  ```
 - Creates 1 main requirement issue
 - Creates N task sub-issues
 - Sub-issues reference main issue
 - Main issue updated with task checklist
 
-**Local Mode** (no GitHub required):
+**Local Mode** (no GitHub CLI required):
 - Generates `.sdp/out/add-user-authentication-issues.md`
-- Creates `.sdp/out/add-user-authentication-import.sh` for batch import
+- Creates `.sdp/out/add-user-authentication-import.sh` (Bash script for macOS/Linux/Git Bash)
+- Creates `.sdp/out/add-user-authentication-import.ps1` (PowerShell script for Windows)
+- Import scripts can be run later when `gh` CLI is available
 
 ## Issue Structure
 
@@ -211,17 +243,43 @@ Each template includes detailed examples and guidance.
 └── out/                # Issue drafts and import scripts
 ```
 
-## Language
+## Language Support
 
-- **Command definitions**: English
-- **Generated content**: Japanese (requirements, plans, descriptions)
-- **Console output**: Japanese
+SDP supports multiple languages for generated content:
+
+- **Supported Languages**: English (en), Japanese (ja)
+- **Configuration**: Set in `.sdp/config/language.yml`
+- **Default**: English
+- **Command definitions**: English (always)
+- **Generated content**: Based on language configuration (requirements, plans, descriptions)
+- **Console output**: Based on language configuration
+
+### Changing Language
+
+To change the output language after initialization, edit `.sdp/config/language.yml`:
+
+```yaml
+language: ja  # Change to 'en' for English or 'ja' for Japanese
+```
+
+All subsequent commands will generate content in the specified language.
 
 ## Requirements
 
 - **Node.js**: 14.0.0 or higher (for `npx` installation)
 - **Claude Code**: Required to run custom commands
-- **GitHub CLI** (`gh`): Optional, only needed for GitHub Mode export
+- **GitHub CLI** (`gh`): Optional, required only for direct GitHub Issues export
+  - Install: https://cli.github.com/
+  - Not needed if using Local Mode (`.sdp/config/export.yml` with `destination: local`)
+
+## Platform Support
+
+SDP works on all major platforms:
+- ✅ **Windows**: Full support (PowerShell scripts included)
+- ✅ **macOS**: Full support (Bash scripts)
+- ✅ **Linux**: Full support (Bash scripts)
+
+All commands use Claude Code's native file operations instead of platform-specific shell commands, ensuring consistent behavior across all platforms.
 
 ## License
 
