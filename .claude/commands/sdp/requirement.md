@@ -34,17 +34,10 @@ ls .sdp/requirements/REQ-*.md 2>/dev/null | tail -1 || echo "No existing require
 - **Structure awareness**: Reference existing modules from `.sdp/structure.md`
 
 ### Required Sections (from template)
-1. **Goal**: Business/user goal statement
-2. **Done Criteria**: Granular, testable completion criteria (checklist format)
-3. **Acceptance Scenarios**: Gherkin-style scenarios (Given/When/Then)
-4. **Dependencies**: Other requirements, external services, or prerequisites
-5. **Non-Functional Requirements**:
-   - Security considerations
-   - Observability requirements
-   - Performance targets
-   - Accessibility standards
-6. **Risks**: Probability/Impact/Mitigation strategy
-7. **Notes**: Additional context or supplementary information
+1. **機能概要**: Business goal and feature purpose statement
+2. **ユーザーストーリー**: User stories in "Who/What/Why" format
+3. **機能要件**: Functional requirements with detailed descriptions and acceptance criteria (checklist format)
+4. **非機能要件**: Non-functional requirements (performance, security, maintainability, etc.) as needed
 
 ### Scoping Guidelines
 - **MVP focus**: Constrain scope to MVP if ambiguous
