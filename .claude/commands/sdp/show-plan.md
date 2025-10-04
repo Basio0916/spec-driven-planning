@@ -4,6 +4,12 @@ You are Claude Code. Transform a task breakdown into a human-readable project pl
 ## Input
 - **slug**: An existing requirement folder at `.sdp/specs/<slug>/` containing `tasks.yml`
 
+## Language Configuration
+
+Read `.sdp/config/language.yml` to determine the output language:
+- If `language: en`, generate all content in **English**
+- If `language: ja`, generate all content in **Japanese**
+
 ## Context Files
 Read these for context:
 - `.sdp/specs/<slug>/tasks.yml` - Task breakdown and estimates
@@ -82,10 +88,10 @@ Based on confidence level and stddev:
 ## Output Format
 
 ### 1. Write Plan File
-Create `.sdp/specs/<slug>/plan.md` with all sections above in **Japanese language**.
+Create `.sdp/specs/<slug>/plan.md` with all sections above in the configured language (`.sdp/config/language.yml`).
 
 ### 2. Console Output
-Print a summary in **Japanese**:
+Print a summary in the same language as the content:
 
 ```
 【プロジェクト計画生成完了】

@@ -5,6 +5,14 @@ You are Claude Code. Convert task breakdown into GitHub Issues or local markdown
 - **slug**: An existing requirement folder at `.sdp/specs/<slug>/` containing `tasks.yml`
 - **Export Config**: `.sdp/config/export.yml` (output destination, repository, labels)
 
+## Language Configuration
+
+Read `.sdp/config/language.yml` to determine the output language:
+- If `language: en`, generate all content in **English**
+- If `language: ja`, generate all content in **Japanese**
+
+Console output should also be in the configured language.
+
 ## Context Files
 Read these for context:
 - `.sdp/specs/<slug>/tasks.yml` - Task breakdown to export
@@ -512,7 +520,7 @@ Write-Host "🔗 Main issue URL: https://github.com/$REPO/issues/$MAIN_ISSUE" -F
 
 ## Output Format
 
-Generate console output in **Japanese** based on export mode:
+Generate console output in the configured language (`.sdp/config/language.yml`) based on export mode:
 
 ### For GitHub Mode (destination: github)
 

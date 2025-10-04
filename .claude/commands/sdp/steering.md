@@ -9,6 +9,14 @@ Before starting, check which steering documents already exist by reading the fil
 - Create the `.sdp/` directory if it doesn't exist
 - Check recent git commits if this is an update (optional)
 
+## Language Configuration
+
+Read `.sdp/config/language.yml` to determine the output language:
+- If `language: en`, generate all content in **English**
+- If `language: ja`, generate all content in **Japanese**
+
+Use templates from `.sdp/templates/<lang>/` directory based on the configured language.
+
 ## Goals
 
 Create or update three steering documents in `.sdp/` directory:
@@ -40,7 +48,7 @@ Use available tools (file search, grep, read file) to scan the codebase and extr
 
 ### 2. Generate/Update Each File
 
-Use templates at `.sdp/templates/*.md` as the structural guide. Keep sections even if empty.
+Use templates at `.sdp/templates/<lang>/*.md` as the structural guide (based on configured language). Keep sections even if empty.
 
 #### product.md Content (if CREATE mode):
 - **Vision**: Product's raison d'être (1-2 sentences)
@@ -140,7 +148,7 @@ Generate a concise summary in **Japanese**:
 - **Explain changes**: Brief notes on why something was updated
 
 ## Output Language
-Generate all console output in **Japanese**.
+Generate all console output in the configured language (`.sdp/config/language.yml`).
 
 ## Cross-Platform Compatibility
 

@@ -4,7 +4,13 @@ You are Claude Code. For the given requirement, generate tasks and estimates gro
 ## Inputs
 - **slug**: An existing requirement folder at `.sdp/specs/<slug>/`
 - **Estimation config**: `.sdp/config/estimate.yml` (T-shirt sizing, PERT constraints, buffers)
-- **Schema**: `.sdp/templates/tasks.schema.yml` (Task structure definition)
+- **Schema**: `.sdp/templates/<lang>/tasks.schema.yml` (Task structure definition)
+
+## Language Configuration
+
+Read `.sdp/config/language.yml` to determine the output language:
+- If `language: en`, generate all content in **English**
+- If `language: ja`, generate all content in **Japanese**
 
 ## Context Files
 Read these for context:
@@ -80,7 +86,7 @@ Reference `.sdp/config/estimate.yml`:
 Create `.sdp/specs/<slug>/tasks.yml` following the schema exactly.
 
 ### 2. Console Output
-Print a summary in **Japanese**:
+Print a summary in the configured language (`.sdp/config/language.yml`):
 
 ```
 【タスク分解完了】

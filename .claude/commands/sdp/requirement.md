@@ -5,8 +5,16 @@ You are Claude Code. Refine a requirement and normalize it for task generation.
 - Argument: Either (A) a short natural-language requirement string, or (B) a file path to a markdown requirement.
 - If a path is given, read it. Otherwise, take the argument string as the base requirement.
 
+## Language Configuration
+
+Read `.sdp/config/language.yml` to determine the output language:
+- If `language: en`, generate all content in **English**
+- If `language: ja`, generate all content in **Japanese**
+
+Use templates from `.sdp/templates/<lang>/` directory based on the configured language.
+
 ## Context Files
-Read these steering documents for context:
+Read these for context:
 - `.sdp/product.md` - Business context and goals
 - `.sdp/tech.md` - Technical stack and constraints
 - `.sdp/structure.md` - Code structure and organization
@@ -25,7 +33,7 @@ Read these steering documents for context:
 ## Deliverable
 - Create or update a file at `.sdp/specs/<slug>/requirement.md` with the refined spec.
 - Create the `.sdp/specs/<slug>/` directory if it doesn't exist
-- The file must follow `.sdp/templates/requirement.md` sections exactly.
+- The file must follow `.sdp/templates/<lang>/requirement.md` sections exactly (use the language-specific template).
 
 ## Refinement Rules
 
@@ -47,9 +55,9 @@ Read these steering documents for context:
 
 ## Output Format
 
-Generate all content in **Japanese language**.
+Generate all content based on the configured language (`.sdp/config/language.yml`).
 
-After writing the file, print a summary in Japanese:
+After writing the file, print a summary in the same language as the content:
 ```
 【要件定義完了】
 📋 Slug: <slug>

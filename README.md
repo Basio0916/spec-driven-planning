@@ -19,19 +19,37 @@ A structured workflow system for transforming natural-language requirements into
 Use `npx` to initialize SDP in your project:
 
 ```bash
+# Initialize with English (default)
 npx spec-driven-planning init
+
+# Initialize with Japanese
+npx spec-driven-planning init --lang ja
 ```
 
 This will create:
 - `.claude/commands/sdp/` - Custom slash commands
-- `.sdp/config/` - Configuration files
-- `.sdp/templates/` - Document templates
+- `.sdp/config/` - Configuration files (including language settings)
+- `.sdp/templates/en/` - English document templates
+- `.sdp/templates/ja/` - Japanese document templates
 - `.sdp/specs/` - Requirements directory (created on demand)
 - `.sdp/out/` - Output directory for exports
 
 ### Configuration
 
-1. **Update export settings** in `.sdp/config/export.yml`:
+#### Language Settings
+
+Set the output language in `.sdp/config/language.yml`:
+
+```yaml
+# Supported languages: en (English), ja (Japanese)
+language: en  # or ja
+```
+
+All generated documents (requirement.md, design.md, plan.md, etc.) will be created in the specified language.
+
+#### Export Settings
+
+**Update export settings** in `.sdp/config/export.yml`:
    ```yaml
    destination: github  # or "local"
    github:
@@ -43,7 +61,9 @@ This will create:
      out_dir: out
    ```
 
-2. **Adjust estimation parameters** in `.sdp/config/estimate.yml`:
+#### Estimation Settings
+
+**Adjust estimation parameters** in `.sdp/config/estimate.yml`:
    ```yaml
    default_buffers:
       schedule: 0.15   # 15% buffer
@@ -223,11 +243,26 @@ Each template includes detailed examples and guidance.
 └── out/                # Issue drafts and import scripts
 ```
 
-## Language
+## Language Support
 
-- **Command definitions**: English
-- **Generated content**: Japanese (requirements, plans, descriptions)
-- **Console output**: Japanese
+SDP supports multiple languages for generated content:
+
+- **Supported Languages**: English (en), Japanese (ja)
+- **Configuration**: Set in `.sdp/config/language.yml`
+- **Default**: English
+- **Command definitions**: English (always)
+- **Generated content**: Based on language configuration (requirements, plans, descriptions)
+- **Console output**: Based on language configuration
+
+### Changing Language
+
+To change the output language after initialization, edit `.sdp/config/language.yml`:
+
+```yaml
+language: ja  # Change to 'en' for English or 'ja' for Japanese
+```
+
+All subsequent commands will generate content in the specified language.
 
 ## Requirements
 

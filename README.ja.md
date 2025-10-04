@@ -17,19 +17,37 @@
 `npx`を使用してプロジェクトにSDPを初期化します:
 
 ```bash
+# 英語で初期化（デフォルト）
 npx spec-driven-planning init
+
+# 日本語で初期化
+npx spec-driven-planning init --lang ja
 ```
 
 以下のファイル・ディレクトリが作成されます:
 - `.claude/commands/sdp/` - カスタムスラッシュコマンド
-- `.sdp/config/` - 設定ファイル
-- `.sdp/templates/` - ドキュメントテンプレート
+- `.sdp/config/` - 設定ファイル（言語設定を含む）
+- `.sdp/templates/en/` - 英語ドキュメントテンプレート
+- `.sdp/templates/ja/` - 日本語ドキュメントテンプレート
 - `.sdp/specs/` - 要件ディレクトリ（オンデマンドで作成）
 - `.sdp/out/` - エクスポート用の出力ディレクトリ
 
 ### 設定
 
-1. **エクスポート設定の更新** (`.sdp/config/export.yml`):
+#### 言語設定
+
+`.sdp/config/language.yml`で出力言語を設定します:
+
+```yaml
+# サポートされている言語: en (英語), ja (日本語)
+language: en  # または ja
+```
+
+生成されるすべてのドキュメント（requirement.md、design.md、plan.mdなど）が指定された言語で作成されます。
+
+#### エクスポート設定
+
+**エクスポート設定の更新** (`.sdp/config/export.yml`):
    ```yaml
    destination: github  # または "local"
    github:
@@ -41,7 +59,9 @@ npx spec-driven-planning init
      out_dir: out
    ```
 
-2. **見積もりパラメータの調整** (`.sdp/config/estimate.yml`):
+#### 見積もり設定
+
+**見積もりパラメータの調整** (`.sdp/config/estimate.yml`):
    ```yaml
    default_buffers:
       schedule: 0.15   # 15%のバッファ
@@ -221,11 +241,26 @@ GitHubへのエクスポート時、SDPは階層構造を作成します:
 └── out/                # Issue下書きとインポートスクリプト
 ```
 
-## 言語設定
+## 言語サポート
 
-- **コマンド定義**: 英語
-- **生成コンテンツ**: 日本語（要件、計画、説明）
-- **コンソール出力**: 日本語
+SDPは生成コンテンツの多言語対応をサポートしています:
+
+- **サポート言語**: 英語 (en)、日本語 (ja)
+- **設定方法**: `.sdp/config/language.yml`で設定
+- **デフォルト**: 英語
+- **コマンド定義**: 英語（常に）
+- **生成コンテンツ**: 言語設定に基づく（要件、計画、説明）
+- **コンソール出力**: 言語設定に基づく
+
+### 言語の変更
+
+初期化後に出力言語を変更するには、`.sdp/config/language.yml`を編集します:
+
+```yaml
+language: ja  # 英語の場合は 'en'、日本語の場合は 'ja' に変更
+```
+
+その後のすべてのコマンドは指定された言語でコンテンツを生成します。
 
 ## 必要要件
 

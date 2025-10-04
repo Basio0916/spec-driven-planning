@@ -59,9 +59,11 @@ function showHelp() {
   log('\n📋 Spec-Driven Planning (SDP) CLI', colors.bright + colors.cyan);
   log(`Version: ${VERSION}\n`, colors.cyan);
   log('Usage:', colors.bright);
-  log('  npx spec-driven-planning init    Initialize SDP in current directory\n');
-  log('  npx spec-driven-planning --help  Show this help message\n');
-  log('  npx spec-driven-planning -v      Show version\n');
+  log('  npx spec-driven-planning init [--lang <en|ja>]    Initialize SDP in current directory\n');
+  log('  npx spec-driven-planning --help                    Show this help message\n');
+  log('  npx spec-driven-planning -v                        Show version\n');
+  log('Options:', colors.bright);
+  log('  --lang <en|ja>    Set output language (default: en)\n');
 }
 
 function showVersion() {
@@ -86,13 +88,27 @@ function main() {
 
   // Handle init command
   if (command === 'init') {
+    // Parse language option
+    let lang = 'en'; // Default language
+    const langIndex = args.indexOf('--lang');
+    if (langIndex !== -1 && args[langIndex + 1]) {
+      const specifiedLang = args[langIndex + 1].toLowerCase();
+      if (specifiedLang === 'en' || specifiedLang === 'ja') {
+        lang = specifiedLang;
+      } else {
+        error(`Invalid language: ${args[langIndex + 1]}. Supported languages: en, ja`);
+        process.exit(1);
+      }
+    }
+
     log('\n╔═══════════════════════════════════════════════════════════╗', colors.bright + colors.cyan);
     log('║                                                           ║', colors.bright + colors.cyan);
     log('║   📋 Spec-Driven Planning (SDP) Setup                    ║', colors.bright + colors.cyan);
     log('║   Claude Code custom commands for requirements planning  ║', colors.bright + colors.cyan);
     log('║                                                           ║', colors.bright + colors.cyan);
     log('╚═══════════════════════════════════════════════════════════╝', colors.bright + colors.cyan);
-    log(`   Version: ${VERSION}\n`, colors.cyan);
+    log(`   Version: ${VERSION}`, colors.cyan);
+    log(`   Language: ${lang === 'en' ? 'English' : '日本語'}\n`, colors.cyan);
 
     const targetDir = process.cwd();
     const sdpCommandsDir = path.join(targetDir, '.claude', 'commands', 'sdp');
@@ -111,14 +127,14 @@ function main() {
         if (answer.toLowerCase() === 'y' || answer.toLowerCase() === 'yes') {
           info('Removing existing .claude/commands/sdp/ directory...');
           fs.rmSync(sdpCommandsDir, { recursive: true, force: true });
-          setupSDP(targetDir);
+          setupSDP(targetDir, lang);
         } else {
           info('Setup cancelled. No changes were made.');
           process.exit(0);
         }
       });
     } else {
-      setupSDP(targetDir);
+      setupSDP(targetDir, lang);
     }
   } else {
     error(`Unknown command: ${command}`);
@@ -127,7 +143,7 @@ function main() {
   }
 }
 
-function setupSDP(targetDir) {
+function setupSDP(targetDir, lang = 'en') {
   const sourceDir = path.join(__dirname, '..');
   const claudeCommandsSdpSource = path.join(sourceDir, '.claude', 'commands', 'sdp');
   const claudeCommandsSdpTarget = path.join(targetDir, '.claude', 'commands', 'sdp');
@@ -146,6 +162,17 @@ function setupSDP(targetDir) {
     info('📁 Copying .sdp/ directory...');
     copyRecursive(sdpSourceDir, sdpTargetDir);
     success('.sdp/ directory created');
+
+    // Create language configuration file
+    info('📝 Creating language configuration...');
+    const languageConfigPath = path.join(targetDir, '.sdp', 'config', 'language.yml');
+    const languageConfig = `# Language Configuration for Spec-Driven Planning
+# Supported languages: en (English), ja (Japanese)
+
+language: ${lang}
+`;
+    fs.writeFileSync(languageConfigPath, languageConfig, 'utf8');
+    success(`Language configuration created (${lang})`);
 
     // Create additional .sdp directory structure
     info('📁 Creating additional .sdp/ subdirectories...');
