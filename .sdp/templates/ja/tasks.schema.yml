@@ -16,9 +16,6 @@ tasks:
     # 完了の定義（テスト可能な完了基準）
     dod: [string]           # 例: ["Unit tests pass", "Integration tests added", "Code reviewed"]
 
-    # タスクのカテゴリ・種別
-    labels: [string]        # 例: ["backend", "frontend", "tests", "docs", "infra"]
-
     # タスク依存関係（このタスクを開始する前に完了が必要なタスク）
     depends_on: [string]    # 例: ["T-001", "T-003"]
 
@@ -66,7 +63,6 @@ rollup:
 #       - "Directory structure created according to project layout"
 #       - "Basic handler/service/repository interfaces defined"
 #       - "Unit test files created with placeholder tests"
-#     labels: ["backend", "setup"]
 #     depends_on: []
 #     estimate:
 #       method: pert

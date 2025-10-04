@@ -50,17 +50,14 @@ Decompose into **5–12 tasks** when possible. Each task must include:
 4. **Dependencies**:
    - `depends_on`: Array of task IDs that must complete first
 
-5. **Labels**:
-   - Examples: `backend`, `frontend`, `infra`, `tests`, `docs`, `database`, `api`
-
-6. **Estimate** (PERT method):
+5. **Estimate** (PERT method):
    - `method`: "pert"
    - `optimistic`: Best-case hours
    - `most_likely`: Most probable hours
    - `pessimistic`: Worst-case hours
    - `unit`: "h" (hours)
 
-7. **Risk Notes** (optional):
+6. **Risk Notes** (optional):
    - Highlight technical risks or uncertainties
 
 ### Critical Path Analysis
