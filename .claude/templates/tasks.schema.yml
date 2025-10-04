@@ -1,7 +1,7 @@
 # Task Breakdown Schema
-# This file defines the structure for .sdp/tasks/REQ-xxx.yml files
+# This file defines the structure for .sdp/<slug>/tasks.yml files
 
-# Requirement identifier (e.g., "REQ-001")
+# Requirement identifier slug (e.g., "add-user-authentication")
 requirement: string
 
 # Array of tasks for this requirement
@@ -53,7 +53,7 @@ rollup:
   rationale: string         # e.g., "High: Well-understood requirements, experienced team, minimal external dependencies"
 
 # Example:
-# requirement: "REQ-001"
+# requirement: "add-user-authentication"
 # tasks:
 #   - id: "T-001"
 #     title: "Setup project structure"
