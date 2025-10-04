@@ -26,7 +26,7 @@ Read these for context:
 
 **Before running this command, you MUST configure `.sdp/config/export.yml`**:
 
-1. **Set export destination**: Choose `to: github` or `to: local`
+1. **Set export destination**: Choose `destination: github` or `destination: local`
 2. **Configure GitHub settings** (if using GitHub mode):
    - Set `github.repo` to your repository (e.g., "owner/repo")
    - Customize `github.labels` as needed
@@ -40,7 +40,7 @@ Read these for context:
 Read `.sdp/config/export.yml`:
 
 ```yaml
-to: github | local   # Determines export destination
+destination: github | local   # Determines export destination
 
 github:
   repo: owner/repo   # Target GitHub repository
@@ -54,7 +54,7 @@ local:
 
 ### Determine Export Mode
 
-Based on `to` field:
+Based on `destination` field:
 - **`github`**: Export to GitHub Issues (requires `gh` CLI)
 - **`local`**: Export to local markdown files (no GitHub required)
 
@@ -445,7 +445,7 @@ chmod +x ${OUT_DIR}/<slug>-import.sh
 
 Generate console output in **Japanese** based on export mode:
 
-### For GitHub Mode (to: github)
+### For GitHub Mode (destination: github)
 
 ```
 【GitHub Issues エクスポート完了】
@@ -471,7 +471,7 @@ Generate console output in **Japanese** based on export mode:
 💡 次のステップ: メインIssue #<main_issue> から各タスクの進捗を管理してください
 ```
 
-### For Local Mode (to: local)
+### For Local Mode (destination: local)
 
 ```
 【GitHub Issues エクスポート（ローカル出力）】
@@ -503,7 +503,7 @@ Generate console output in **Japanese** based on export mode:
 
 💡 対処方法:
    1. GitHub CLI をインストール: https://cli.github.com/
-   2. または export.yml の "to" を "local" に変更してローカル出力を使用
+   2. または export.yml の "destination" を "local" に変更してローカル出力を使用
    3. コマンド実行: /sdp:export-issues <slug>
 ```
 
@@ -516,7 +516,7 @@ Generate console output in **Japanese** based on export mode:
 
 💡 対処方法:
    1. GitHub認証を実行: gh auth login
-   2. または export.yml の "to" を "local" に変更してローカル出力を使用
+   2. または export.yml の "destination" を "local" に変更してローカル出力を使用
    3. コマンド実行: /sdp:export-issues <slug>
 ```
 

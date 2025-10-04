@@ -4,7 +4,7 @@
 # Export destination: "github" or "local"
 # - github: Create issues directly in GitHub (requires gh CLI)
 # - local:  Generate markdown files and import scripts locally
-to: github
+destination: github
 
 # GitHub export settings
 github:
