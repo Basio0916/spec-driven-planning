@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const VERSION = '1.2.0';
+const VERSION = '1.3.0';
 
 // ANSI color codes
 const colors = {
