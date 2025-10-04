@@ -211,12 +211,12 @@ function setupSDP(targetDir) {
     log('   4. Start with: /requirement "Your requirement description"\n');
 
     log('📖 Available Commands:', colors.bright + colors.cyan);
-    log('   /steering              - Generate project context');
-    log('   /requirement <text>    - Refine requirement specification');
-    log('   /design <slug>         - Generate detailed design with alternatives');
-    log('   /estimate <slug>       - Generate task breakdown & estimates');
-    log('   /show-plan <slug>      - Create visual project plan');
-    log('   /export-issues <slug>  - Export to GitHub Issues\n');
+    log('   /sdp:steering              - Generate project context');
+    log('   /sdp:requirement <text>    - Refine requirement specification');
+    log('   /sdp:design <slug>         - Generate detailed design with alternatives');
+    log('   /sdp:estimate <slug>       - Generate task breakdown & estimates');
+    log('   /sdp:show-plan <slug>      - Create visual project plan');
+    log('   /sdp:export-issues <slug>  - Export to GitHub Issues\n');
 
     log('📚 Documentation:', colors.bright + colors.cyan);
     log('   Read CLAUDE.md for detailed usage instructions\n');
