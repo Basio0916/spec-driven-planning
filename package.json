@@ -9,7 +9,6 @@
     "bin/",
     ".claude/",
     ".sdp/",
-    "CLAUDE.md",
     "README.md"
   ],
   "scripts": {

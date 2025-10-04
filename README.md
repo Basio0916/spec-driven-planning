@@ -26,7 +26,6 @@ This will create:
 - `.sdp/templates/` - Document templates
 - `.sdp/specs/` - Requirements directory (created on demand)
 - `.sdp/out/` - Output directory for exports
-- `CLAUDE.md` - Guidance for Claude Code
 
 ### Configuration
 
@@ -234,7 +233,6 @@ Contributions are welcome! Please feel free to submit issues or pull requests.
 
 ## Support
 
-- **Documentation**: See `CLAUDE.md` for detailed usage
 - **Issues**: Report bugs or request features via GitHub Issues
 - **Claude Code Docs**: https://docs.claude.com/claude-code
 

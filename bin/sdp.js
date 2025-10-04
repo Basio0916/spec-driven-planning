@@ -95,22 +95,22 @@ function main() {
     log(`   Version: ${VERSION}\n`, colors.cyan);
 
     const targetDir = process.cwd();
-    const claudeDir = path.join(targetDir, '.claude');
+    const sdpCommandsDir = path.join(targetDir, '.claude', 'commands', 'sdp');
 
-    // Check if .claude already exists
-    if (fs.existsSync(claudeDir)) {
-      warn('.claude directory already exists in the current directory.');
+    // Check if .claude/commands/sdp already exists
+    if (fs.existsSync(sdpCommandsDir)) {
+      warn('.claude/commands/sdp/ directory already exists.');
       const readline = require('readline').createInterface({
         input: process.stdin,
         output: process.stdout
       });
 
-      readline.question('Do you want to overwrite it? (y/N): ', (answer) => {
+      readline.question('Do you want to overwrite SDP commands? (y/N): ', (answer) => {
         readline.close();
 
         if (answer.toLowerCase() === 'y' || answer.toLowerCase() === 'yes') {
-          info('Removing existing .claude directory...');
-          fs.rmSync(claudeDir, { recursive: true, force: true });
+          info('Removing existing .claude/commands/sdp/ directory...');
+          fs.rmSync(sdpCommandsDir, { recursive: true, force: true });
           setupSDP(targetDir);
         } else {
           info('Setup cancelled. No changes were made.');
@@ -129,36 +129,23 @@ function main() {
 
 function setupSDP(targetDir) {
   const sourceDir = path.join(__dirname, '..');
-  const claudeSourceDir = path.join(sourceDir, '.claude');
-  const claudeTargetDir = path.join(targetDir, '.claude');
+  const claudeCommandsSdpSource = path.join(sourceDir, '.claude', 'commands', 'sdp');
+  const claudeCommandsSdpTarget = path.join(targetDir, '.claude', 'commands', 'sdp');
   const sdpSourceDir = path.join(sourceDir, '.sdp');
   const sdpTargetDir = path.join(targetDir, '.sdp');
 
   info('Setting up Spec-Driven Planning structure...\n');
 
   try {
-    // Copy .claude directory
-    info('📁 Copying .claude/ directory...');
-    copyRecursive(claudeSourceDir, claudeTargetDir);
-    success('.claude/ directory created');
+    // Copy .claude/commands/sdp directory only
+    info('📁 Copying .claude/commands/sdp/ directory...');
+    copyRecursive(claudeCommandsSdpSource, claudeCommandsSdpTarget);
+    success('.claude/commands/sdp/ directory created');
 
     // Copy .sdp directory (config and templates)
     info('📁 Copying .sdp/ directory...');
     copyRecursive(sdpSourceDir, sdpTargetDir);
     success('.sdp/ directory created');
-
-    // Copy CLAUDE.md
-    info('📄 Copying CLAUDE.md...');
-    const claudeMdSource = path.join(sourceDir, 'CLAUDE.md');
-    const claudeMdTarget = path.join(targetDir, 'CLAUDE.md');
-
-    if (fs.existsSync(claudeMdTarget)) {
-      warn('CLAUDE.md already exists, backing up to CLAUDE.md.backup');
-      fs.copyFileSync(claudeMdTarget, path.join(targetDir, 'CLAUDE.md.backup'));
-    }
-
-    fs.copyFileSync(claudeMdSource, claudeMdTarget);
-    success('CLAUDE.md created');
 
     // Create additional .sdp directory structure
     info('📁 Creating additional .sdp/ subdirectories...');
@@ -201,14 +188,13 @@ function setupSDP(targetDir) {
     log('   .sdp/config/             - Configuration files');
     log('   .sdp/templates/          - Document templates');
     log('   .sdp/specs/              - Requirements directory');
-    log('   .sdp/out/                - Output directory (gitignored)');
-    log('   CLAUDE.md                - Claude Code guidance\n');
+    log('   .sdp/out/                - Output directory (gitignored)\n');
 
     log('🚀 Next Steps:', colors.bright + colors.cyan);
     log('   1. Review and customize .sdp/config/*.yml files');
     log('   2. Update repository settings in .sdp/config/export.yml');
-    log('   3. Run: /steering to initialize project context');
-    log('   4. Start with: /requirement "Your requirement description"\n');
+    log('   3. Run: /sdp:steering to initialize project context');
+    log('   4. Start with: /sdp:requirement "Your requirement description"\n');
 
     log('📖 Available Commands:', colors.bright + colors.cyan);
     log('   /sdp:steering              - Generate project context');
@@ -219,7 +205,7 @@ function setupSDP(targetDir) {
     log('   /sdp:export-issues <slug>  - Export to GitHub Issues\n');
 
     log('📚 Documentation:', colors.bright + colors.cyan);
-    log('   Read CLAUDE.md for detailed usage instructions\n');
+    log('   For detailed usage, see: https://github.com/Basio0916/spec-driven-planning\n');
 
   } catch (err) {
     error(`Failed to setup SDP: ${err.message}`);
