@@ -66,7 +66,7 @@ Extract information from:
 
 ### 2. Generate/Update Each File
 
-Use templates at `.claude/templates/*.md` as the structural guide. Keep sections even if empty.
+Use templates at `.sdp/templates/*.md` as the structural guide. Keep sections even if empty.
 
 #### product.md Content (if CREATE mode):
 - **Vision**: Product's raison d'être (1-2 sentences)
@@ -124,7 +124,7 @@ Check for these changes:
 
 - **Location**: `.sdp/` directory (.sdp/product.md, .sdp/tech.md, .sdp/structure.md)
 - **Overwrite**: In UPDATE mode, respect existing content but allow overwrite
-- **Template compliance**: Follow `.claude/templates/*.md` structure
+- **Template compliance**: Follow `.sdp/templates/*.md` structure
 
 ### 4. Console Summary
 

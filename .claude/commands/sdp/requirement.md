@@ -14,11 +14,11 @@ Read these steering documents for context:
 ## Pre-Check: Detect Existing Requirements
 
 ```bash
-# Create .sdp directory if it doesn't exist
-mkdir -p .sdp
+# Create .sdp/specs directory if it doesn't exist
+mkdir -p .sdp/specs
 
 # List existing requirement folders
-ls -d .sdp/*/ 2>/dev/null | grep -v "out/$" | sed 's|.sdp/||g' | sed 's|/||g' || echo "No existing requirements"
+ls -d .sdp/specs/*/ 2>/dev/null | sed 's|.sdp/specs/||g' | sed 's|/||g' || echo "No existing requirements"
 ```
 
 ## Slug Generation
@@ -28,13 +28,13 @@ ls -d .sdp/*/ 2>/dev/null | grep -v "out/$" | sed 's|.sdp/||g' | sed 's|/||g' ||
   - Remove consecutive hyphens
   - Limit to 50 characters
   - Examples: "Add user authentication" → "add-user-authentication", "RESTful API for products" → "restful-api-for-products"
-- Check for duplicate slugs in `.sdp/` directory
+- Check for duplicate slugs in `.sdp/specs/` directory
 - If duplicate exists, append `-2`, `-3`, etc.
 
 ## Deliverable
-- Create or update a file at `.sdp/<slug>/requirement.md` with the refined spec.
-- Create the `.sdp/<slug>/` directory if it doesn't exist
-- The file must follow `.claude/templates/requirement.md` sections exactly.
+- Create or update a file at `.sdp/specs/<slug>/requirement.md` with the refined spec.
+- Create the `.sdp/specs/<slug>/` directory if it doesn't exist
+- The file must follow `.sdp/templates/requirement.md` sections exactly.
 
 ## Refinement Rules
 
@@ -63,7 +63,7 @@ After writing the file, print a summary in Japanese:
 【要件定義完了】
 📋 Slug: <slug>
 📝 タイトル: <要件タイトル>
-📁 ファイル: .sdp/<slug>/requirement.md
+📁 ファイル: .sdp/specs/<slug>/requirement.md
 
 💡 次のステップ:
   - 要件内容を確認し、修正が必要な場合は自然言語で指示してください

@@ -2,14 +2,14 @@
 You are Claude Code. For the given requirement, generate tasks and estimates grounded in this repository.
 
 ## Inputs
-- **slug**: An existing requirement folder at `.sdp/<slug>/`
-- **Estimation config**: `.claude/config/estimate.yml` (T-shirt sizing, PERT constraints, buffers)
-- **Schema**: `.claude/templates/tasks.schema.yml` (Task structure definition)
+- **slug**: An existing requirement folder at `.sdp/specs/<slug>/`
+- **Estimation config**: `.sdp/config/estimate.yml` (T-shirt sizing, PERT constraints, buffers)
+- **Schema**: `.sdp/templates/tasks.schema.yml` (Task structure definition)
 
 ## Context Files
 Read these for context:
-- `.sdp/<slug>/requirement.md` - The requirement to decompose
-- `.sdp/<slug>/design.md` - The design document (if exists)
+- `.sdp/specs/<slug>/requirement.md` - The requirement to decompose
+- `.sdp/specs/<slug>/design.md` - The design document (if exists)
 - `.sdp/tech.md` - Technical constraints affecting estimates
 - `.sdp/structure.md` - Existing modules and directories
 
@@ -17,16 +17,16 @@ Read these for context:
 
 ```bash
 # Verify requirement folder and file exist
-[ -d ".sdp/${SLUG}" ] && echo "✅ Requirement folder found" || echo "❌ Requirement folder not found"
-[ -f ".sdp/${SLUG}/requirement.md" ] && echo "✅ Requirement found" || echo "❌ Requirement not found"
+[ -d ".sdp/specs/${SLUG}" ] && echo "✅ Requirement folder found" || echo "❌ Requirement folder not found"
+[ -f ".sdp/specs/${SLUG}/requirement.md" ] && echo "✅ Requirement found" || echo "❌ Requirement not found"
 
 # Check if design exists
-[ -f ".sdp/${SLUG}/design.md" ] && echo "✅ Design found" || echo "⚠️  Design not found (will estimate from requirement only)"
+[ -f ".sdp/specs/${SLUG}/design.md" ] && echo "✅ Design found" || echo "⚠️  Design not found (will estimate from requirement only)"
 ```
 
 ## Task Decomposition Rules
 
-**Important**: If a design document exists (`.sdp/<slug>/design.md`), use it as the primary source for task decomposition. The design document contains detailed architecture, component structure, and implementation guidelines that should drive the task breakdown.
+**Important**: If a design document exists (`.sdp/specs/<slug>/design.md`), use it as the primary source for task decomposition. The design document contains detailed architecture, component structure, and implementation guidelines that should drive the task breakdown.
 
 ### Task Structure
 Decompose into **5–12 tasks** when possible. Each task must include:
@@ -71,7 +71,7 @@ Calculate project-level metrics:
 - `rationale`: Brief explanation of confidence level
 
 ### Estimation Guidelines
-Reference `.claude/config/estimate.yml`:
+Reference `.sdp/config/estimate.yml`:
 - Use T-shirt sizing as reference (S=3h, M=6h, L=12h, XL=24h)
 - Apply PERT constraints (min=1h, max=40h per task)
 - Consider 15% schedule buffer for rollup
@@ -79,7 +79,7 @@ Reference `.claude/config/estimate.yml`:
 ## Output Format
 
 ### 1. Write YAML File
-Create `.sdp/<slug>/tasks.yml` following the schema exactly.
+Create `.sdp/specs/<slug>/tasks.yml` following the schema exactly.
 
 ### 2. Console Output
 Print a summary in **Japanese**:
