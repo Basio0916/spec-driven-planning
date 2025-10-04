@@ -1,34 +1,32 @@
-# /estimate <REQ-ID>
+# /estimate <slug>
 You are Claude Code. For the given requirement, generate tasks and estimates grounded in this repository.
 
 ## Inputs
-- **REQ-ID**: An existing file at `.sdp/requirements/REQ-xxx.md`
+- **slug**: An existing requirement folder at `.sdp/<slug>/`
 - **Estimation config**: `.claude/config/estimate.yml` (T-shirt sizing, PERT constraints, buffers)
 - **Schema**: `.claude/templates/tasks.schema.yml` (Task structure definition)
 
 ## Context Files
 Read these for context:
-- `.sdp/requirements/REQ-xxx.md` - The requirement to decompose
-- `.sdp/designs/REQ-xxx.md` - The design document (if exists)
+- `.sdp/<slug>/requirement.md` - The requirement to decompose
+- `.sdp/<slug>/design.md` - The design document (if exists)
 - `.sdp/tech.md` - Technical constraints affecting estimates
 - `.sdp/structure.md` - Existing modules and directories
 
 ## Pre-Check
 
 ```bash
-# Create .sdp/tasks directory if it doesn't exist
-mkdir -p .sdp/tasks
-
-# Verify requirement exists
-[ -f ".sdp/requirements/${REQ_ID}.md" ] && echo "✅ Requirement found" || echo "❌ Requirement not found"
+# Verify requirement folder and file exist
+[ -d ".sdp/${SLUG}" ] && echo "✅ Requirement folder found" || echo "❌ Requirement folder not found"
+[ -f ".sdp/${SLUG}/requirement.md" ] && echo "✅ Requirement found" || echo "❌ Requirement not found"
 
 # Check if design exists
-[ -f ".sdp/designs/${REQ_ID}.md" ] && echo "✅ Design found" || echo "⚠️  Design not found (will estimate from requirement only)"
+[ -f ".sdp/${SLUG}/design.md" ] && echo "✅ Design found" || echo "⚠️  Design not found (will estimate from requirement only)"
 ```
 
 ## Task Decomposition Rules
 
-**Important**: If a design document exists (`.sdp/designs/REQ-xxx.md`), use it as the primary source for task decomposition. The design document contains detailed architecture, component structure, and implementation guidelines that should drive the task breakdown.
+**Important**: If a design document exists (`.sdp/<slug>/design.md`), use it as the primary source for task decomposition. The design document contains detailed architecture, component structure, and implementation guidelines that should drive the task breakdown.
 
 ### Task Structure
 Decompose into **5–12 tasks** when possible. Each task must include:
@@ -81,14 +79,14 @@ Reference `.claude/config/estimate.yml`:
 ## Output Format
 
 ### 1. Write YAML File
-Create `.sdp/tasks/REQ-xxx.yml` following the schema exactly.
+Create `.sdp/<slug>/tasks.yml` following the schema exactly.
 
 ### 2. Console Output
 Print a summary in **Japanese**:
 
 ```
 【タスク分解完了】
-📋 要件: REQ-xxx
+📋 要件: <slug>
 📊 タスク数: <数>
 ⏱️  予想時間: <expected_hours>h (標準偏差: <stddev_hours>h)
 🎯 信頼度: <confidence>
@@ -102,7 +100,7 @@ Print a summary in **Japanese**:
 
 🔗 クリティカルパス: T-001 → T-003 → T-007
 
-💡 次のステップ: /sdp:show-plan REQ-xxx でプロジェクト計画を生成してください
+💡 次のステップ: /sdp:show-plan <slug> でプロジェクト計画を生成してください
 ```
 
 ## Allowed Tools

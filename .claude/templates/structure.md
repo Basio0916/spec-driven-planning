@@ -66,16 +66,16 @@
    User Input (natural language)
    → /sdp:requirement command
    → Claude API (refinement)
-   → .sdp/requirements/REQ-xxx.md
+   → .sdp/<slug>/requirement.md
 
 2. Estimation Flow:
-   Requirement (REQ-xxx.md)
+   Requirement (<slug>/requirement.md)
    → /sdp:estimate command
    → PERT calculation engine
-   → .sdp/tasks/REQ-xxx.yml
+   → .sdp/<slug>/tasks.yml
 
 3. Export Flow:
-   Tasks (REQ-xxx.yml)
+   Tasks (<slug>/tasks.yml)
    → /sdp:export-issues command
    → GitHub API (gh CLI)
    → GitHub Issues
@@ -126,17 +126,13 @@
 │   ├── product.md              # Business context (from /steering)
 │   ├── tech.md                 # Technical context (from /steering)
 │   ├── structure.md            # Code structure (from /steering)
-│   ├── requirements/           # Refined requirements
-│   │   ├── REQ-001.md
-│   │   └── REQ-002.md
-│   ├── tasks/                  # Task breakdowns
-│   │   ├── REQ-001.yml
-│   │   └── REQ-002.yml
-│   ├── plans/                  # Project plans
-│   │   ├── REQ-001.md
-│   │   └── REQ-002.md
+│   ├── <slug>/                 # Requirement folder (e.g., add-user-auth/)
+│   │   ├── requirement.md      # Requirement spec
+│   │   ├── design.md           # Design document
+│   │   ├── tasks.yml           # Task breakdown
+│   │   └── plan.md             # Project plan
 │   └── out/                    # Fallback outputs
-│       └── REQ-001-issues.md   # Issue drafts (if gh unavailable)
+│       └── <slug>-issues.md    # Issue drafts (if gh unavailable)
 │
 ├── backend/                    # Backend application (if any)
 │   ├── cmd/                    # Executable commands
@@ -202,9 +198,11 @@
 <ファイルやディレクトリの命名規則>
 
 例：
-- **Requirements**: `REQ-XXX.md` (sequential numbering)
-- **Tasks**: `REQ-XXX.yml` (matches requirement ID)
-- **Plans**: `REQ-XXX.md` (matches requirement ID)
+- **Requirements**: Organized by slug folders (e.g., `add-user-auth/`)
+- **Requirement files**: `<slug>/requirement.md`
+- **Design files**: `<slug>/design.md`
+- **Tasks**: `<slug>/tasks.yml`
+- **Plans**: `<slug>/plan.md`
 - **Go files**: `snake_case.go` (Go convention)
 - **Vue components**: `PascalCase.vue` (Vue convention)
 - **TypeScript files**: `camelCase.ts` (TypeScript convention)
