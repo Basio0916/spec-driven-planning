@@ -1,5 +1,7 @@
 # Spec-Driven Planning (SDP)
 
+[日本語版はこちら / Japanese version](./README.ja.md)
+
 A structured workflow system for transforming natural-language requirements into refined specifications, task decompositions, estimates, and GitHub Issues using Claude Code custom commands.
 
 ## Features
