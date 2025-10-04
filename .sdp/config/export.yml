@@ -37,12 +37,3 @@ local:
   # Output directory for generated files (relative to repository root)
   # Default: .sdp/out if not specified
   out_dir: .sdp/out
-
-  # Generate import script for batch creation
-  # If true, creates a bash script to automate issue creation via gh CLI
-  generate_import_script: true
-
-  # Include individual task body files
-  # If true, creates separate .md files for each task body
-  # Useful for manual review or selective import
-  individual_files: false
