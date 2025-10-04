@@ -75,10 +75,10 @@ Refine a natural-language requirement:
 ```
 
 Creates `.sdp/specs/add-user-authentication/requirement.md` with:
-- 機能概要 (Feature Overview)
-- ユーザーストーリー (User Stories)
-- 機能要件 (Functional Requirements with acceptance criteria)
-- 非機能要件 (Non-Functional Requirements)
+- Feature Overview
+- User Stories
+- Functional Requirements with acceptance criteria
+- Non-Functional Requirements
 
 ### 3. Create Design
 
