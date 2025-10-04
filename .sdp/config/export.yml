@@ -18,6 +18,20 @@ github:
   #  - sdp
   #  - enhancement
 
+  # Labels specific to main requirement issues
+  # If not specified, only "requirement" will be added automatically
+  # Uncomment and customize as needed:
+  # main_issue_labels:
+  #   - epic
+  #   - planning
+
+  # Labels specific to task sub-issues
+  # If not specified, only "task" will be added automatically
+  # Uncomment and customize as needed:
+  # task_labels:
+  #   - implementation
+  #   - subtask
+
 # Local export settings
 local:
   # Output directory for generated files (relative to repository root)

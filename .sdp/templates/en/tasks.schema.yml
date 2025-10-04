@@ -16,9 +16,6 @@ tasks:
     # 完了の定義（テスト可能な完了基準）
     dod: [string]           # 例: ["Unit tests pass", "Integration tests added", "Code reviewed"]
 
-    # タスクのカテゴリ・種別
-    labels: [string]        # 例: ["backend", "frontend", "tests", "docs", "infra"]
-
     # タスク依存関係（このタスクを開始する前に完了が必要なタスク）
     depends_on: [string]    # 例: ["T-001", "T-003"]
 
@@ -52,33 +49,8 @@ rollup:
   # 信頼度レベルの簡潔な説明
   rationale: string         # 例: "高: 要件が十分理解されており、経験豊富なチーム、外部依存が最小限"
 
-# Example:
-# requirement: "add-user-authentication"
-# tasks:
-#   - id: "T-001"
-#     title: "Setup project structure"
-#     description: "Create initial directory structure and configuration files for the authentication module."
-#     deliverables:
-#       - "backend/internal/auth/handler.go"
-#       - "backend/internal/auth/service.go"
-#       - "backend/internal/auth/repository.go"
-#     dod:
-#       - "Directory structure created according to project layout"
-#       - "Basic handler/service/repository interfaces defined"
-#       - "Unit test files created with placeholder tests"
-#     labels: ["backend", "setup"]
-#     depends_on: []
-#     estimate:
-#       method: pert
-#       optimistic: 2
-#       most_likely: 3
-#       pessimistic: 5
-#       unit: h
-#     risks: "None - straightforward setup task"
-#
-# critical_path: ["T-001", "T-003", "T-005"]
-# rollup:
-#   expected_hours: 45.5
-#   stddev_hours: 6.2
-#   confidence: "high"
-#   rationale: "All tasks are well-defined with clear deliverables and experienced team members assigned"
+    dod:
+      - "Directory structure created according to project layout"
+      - "Basic handler/service/repository interfaces defined"
+      - "Unit test files created with placeholder tests"
+    depends_on: []

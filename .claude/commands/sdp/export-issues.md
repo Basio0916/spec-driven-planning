@@ -49,10 +49,14 @@ Read `.sdp/config/export.yml`:
 destination: github | local   # Determines export destination
 
 github:
-  repo: owner/repo   # Target GitHub repository
-  labels:            # Default labels for all issues
+  repo: owner/repo          # Target GitHub repository
+  labels:                   # Default labels for all issues
     - sdp
     - enhancement
+  main_issue_labels:        # Optional: Additional labels for main requirement issues
+    - epic                  # (if not set, no additional labels beyond "labels")
+  task_labels:              # Optional: Additional labels for task sub-issues
+    - implementation        # (if not set, no additional labels beyond "labels")
 
 local:
   out_dir: out       # Local output directory
@@ -80,6 +84,8 @@ Read repository and labels from `.sdp/config/export.yml`:
 - `github.repo`: Target repository (format: "owner/repo")
   - If not specified, gh CLI will auto-detect from current git repository
 - `github.labels`: Default labels to apply to all issues
+- `github.main_issue_labels`: Optional labels specifically for main requirement issues (if not set, omit)
+- `github.task_labels`: Optional labels specifically for task sub-issues (if not set, omit)
 
 ### Step 3A: Create Main Requirement Issue (GitHub Mode)
 
@@ -113,16 +119,19 @@ See sub-issues below for detailed task breakdown.
 ```
 
 #### Labels
-- `export.yml` `github.labels` (default labels from config)
-- `["<slug>"]` (requirement identifier)
-- `["requirement"]` (issue type marker)
+Combine the following (only if set in export.yml):
+- `github.labels` (default labels for all issues)
+- `github.main_issue_labels` (if set, additional labels for main issues)
+
+**Note**: Do NOT add "requirement" or any hardcoded label automatically. Only use labels from export.yml configuration.
 
 #### Execution
 ```bash
+# Combine labels from export.yml (labels + main_issue_labels if set)
 MAIN_ISSUE=$(gh issue create \
   --title "[<slug>] <requirement title>" \
   --body "<formatted body>" \
-  --label "<slug>,requirement,<labels>" \
+  --label "<combined_labels_from_config>" \
   --repo <owner/repo> | grep -oE '#[0-9]+' | tr -d '#')
 ```
 
@@ -165,18 +174,19 @@ Relates to #<main_issue>
 ```
 
 #### Labels
-Combine:
-- `export.yml` `github.labels` (default labels from config)
-- `["<slug>"]` (requirement identifier)
-- `task.labels` (from task definition)
-- `["task"]` (sub-issue marker)
+Combine the following (only if set):
+- `github.labels` (default labels for all issues)
+- `github.task_labels` (if set, additional labels for task sub-issues)
+
+**Note**: Do NOT add "task" or any hardcoded label automatically. Only use labels from export.yml configuration.
 
 #### Execution
 ```bash
+# Combine labels from export.yml (labels + task_labels if set)
 gh issue create \
   --title "[<slug>][T-001] <task.title>" \
   --body "<formatted body with #${MAIN_ISSUE} reference>" \
-  --label "<slug>,task,<labels>" \
+  --label "<combined_labels_from_config>" \
   --repo <owner/repo>
 ```
 
@@ -271,7 +281,7 @@ See sub-issues below for detailed task breakdown.
 ...
 ```
 
-**Labels**: `<slug>`, `requirement`, <labels from export.yml github.labels>
+**Labels**: <labels from export.yml github.labels + github.main_issue_labels (if set)>
 
 ---
 
@@ -311,7 +321,7 @@ Relates to #<main_issue> (create main issue first, then reference here)
 <task.risks if present>
 ```
 
-**Labels**: `<slug>`, `task`, <task.labels>, <labels from export.yml github.labels>
+**Labels**: <labels from export.yml github.labels + github.task_labels (if set)>
 
 ---
 
@@ -328,7 +338,7 @@ Relates to #<main_issue> (create main issue first, then reference here)
    MAIN_ISSUE=$(gh issue create \
      --title "[<slug>] <title>" \
      --body "$(cat main-issue-body.md)" \
-     --label "<slug>,requirement,..." \
+     --label "<combined_labels>" \
      --repo <owner/repo> | grep -oE '#[0-9]+' | tr -d '#')
    echo "Main issue created: #${MAIN_ISSUE}"
    ```
@@ -340,7 +350,7 @@ Relates to #<main_issue> (create main issue first, then reference here)
      --body "Relates to #${MAIN_ISSUE}
 
    $(cat task-001-body.md)" \
-     --label "<slug>,task,backend,..." \
+     --label "<combined_labels>" \
      --repo <owner/repo> | grep -oE '#[0-9]+' | tr -d '#')
    echo "Sub-issue T-001 created: #${SUB_ISSUE_1}"
    ```
@@ -378,15 +388,21 @@ echo ""
 
 # Step 1: Create main requirement issue
 echo "📋 Creating main requirement issue..."
+# Build main issue labels (github.labels + github.main_issue_labels if set)
+MAIN_LABELS="<combined_main_labels_from_config>"
+
 MAIN_ISSUE=$(gh issue create --repo "$REPO" \
   --title "[<slug>] <requirement title>" \
   --body "<main issue body>" \
-  --label "<slug>,requirement,<labels>" | grep -oE '#[0-9]+' | tr -d '#')
+  --label "$MAIN_LABELS" | grep -oE '#[0-9]+' | tr -d '#')
 echo "✅ Main issue created: #${MAIN_ISSUE}"
 echo ""
 
 # Step 2: Create task sub-issues
 echo "📝 Creating task sub-issues..."
+
+# Build task labels (github.labels + github.task_labels if set)
+TASK_LABELS="<combined_task_labels_from_config>"
 
 SUB_ISSUE_T001=$(gh issue create --repo "$REPO" \
   --title "[<slug>][T-001] <task title>" \
@@ -394,7 +410,7 @@ SUB_ISSUE_T001=$(gh issue create --repo "$REPO" \
 Relates to #${MAIN_ISSUE}
 
 <task body>" \
-  --label "<slug>,task,<task labels>" | grep -oE '#[0-9]+' | tr -d '#')
+  --label "$TASK_LABELS" | grep -oE '#[0-9]+' | tr -d '#')
 echo "  ✅ T-001 → #${SUB_ISSUE_T001}"
 
 SUB_ISSUE_T002=$(gh issue create --repo "$REPO" \
@@ -403,7 +419,7 @@ SUB_ISSUE_T002=$(gh issue create --repo "$REPO" \
 Relates to #${MAIN_ISSUE}
 
 <task body>" \
-  --label "<slug>,task,<task labels>" | grep -oE '#[0-9]+' | tr -d '#')
+  --label "$TASK_LABELS" | grep -oE '#[0-9]+' | tr -d '#')
 echo "  ✅ T-002 → #${SUB_ISSUE_T002}"
 
 # ... (repeat for each task)
@@ -460,10 +476,13 @@ Write-Host ""
 
 # Step 1: Create main requirement issue
 Write-Host "📋 Creating main requirement issue..." -ForegroundColor Cyan
+# Build main issue labels (github.labels + github.main_issue_labels if set)
+$MAIN_LABELS = "<combined_main_labels_from_config>"
+
 $mainIssueOutput = gh issue create --repo $REPO `
   --title "[<slug>] <requirement title>" `
   --body "<main issue body>" `
-  --label "<slug>,requirement,<labels>"
+  --label $MAIN_LABELS
 $MAIN_ISSUE = [regex]::Match($mainIssueOutput, '#(\d+)').Groups[1].Value
 Write-Host "✅ Main issue created: #$MAIN_ISSUE" -ForegroundColor Green
 Write-Host ""
@@ -471,17 +490,20 @@ Write-Host ""
 # Step 2: Create task sub-issues
 Write-Host "📝 Creating task sub-issues..." -ForegroundColor Cyan
 
+# Build task labels (github.labels + github.task_labels if set)
+$TASK_LABELS = "<combined_task_labels_from_config>"
+
 $subIssueT001Output = gh issue create --repo $REPO `
   --title "[<slug>][T-001] <task title>" `
   --body "## Parent Issue`nRelates to #$MAIN_ISSUE`n`n<task body>" `
-  --label "<slug>,task,<task labels>"
+  --label $TASK_LABELS
 $SUB_ISSUE_T001 = [regex]::Match($subIssueT001Output, '#(\d+)').Groups[1].Value
 Write-Host "  ✅ T-001 → #$SUB_ISSUE_T001" -ForegroundColor Green
 
 $subIssueT002Output = gh issue create --repo $REPO `
   --title "[<slug>][T-002] <task title>" `
   --body "## Parent Issue`nRelates to #$MAIN_ISSUE`n`n<task body>" `
-  --label "<slug>,task,<task labels>"
+  --label $TASK_LABELS
 $SUB_ISSUE_T002 = [regex]::Match($subIssueT002Output, '#(\d+)').Groups[1].Value
 Write-Host "  ✅ T-002 → #$SUB_ISSUE_T002" -ForegroundColor Green
 
