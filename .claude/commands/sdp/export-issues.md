@@ -87,7 +87,7 @@ If `gh` CLI is not found or not authenticated, provide appropriate error message
 
 If `github.sub_issue_mode` is `true` and `gh sub-issue` extension is not installed, provide installation instructions:
 ```bash
-gh extension install github/gh-sub-issue
+gh extension install yahsan2/gh-sub-issue
 ```
 
 ### Step 2A: Load GitHub Configuration
@@ -480,7 +480,7 @@ See sub-issues below for detailed task breakdown.
 
 **If using sub-issue mode**, install the `gh sub-issue` extension:
 ```bash
-gh extension install github/gh-sub-issue
+gh extension install yahsan2/gh-sub-issue
 ```
 
 ### Step-by-Step Process
@@ -621,7 +621,7 @@ Generate console output in the configured language (`.sdp/config/language.yml`) 
 ❌ gh sub-issue 拡張がインストールされていません
 
 💡 対処方法:
-   1. gh sub-issue 拡張をインストール: gh extension install github/gh-sub-issue
+   1. gh sub-issue 拡張をインストール: gh extension install yahsan2/gh-sub-issue
    2. または export.yml の "sub_issue_mode" を false に変更して通常のIssueを使用
    3. または export.yml の "destination" を "local" に変更してローカル出力を使用
    4. コマンド実行: /sdp:export-issues <slug>
