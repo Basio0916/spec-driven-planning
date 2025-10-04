@@ -2,11 +2,11 @@
 You are Claude Code. Generate a detailed design document with decision rationale for a given requirement.
 
 ## Input
-- **slug**: An existing requirement folder at `.sdp/<slug>/` containing `requirement.md`
+- **slug**: An existing requirement folder at `.sdp/specs/<slug>/` containing `requirement.md`
 
 ## Context Files
 Read these for context:
-- `.sdp/<slug>/requirement.md` - The requirement to design
+- `.sdp/specs/<slug>/requirement.md` - The requirement to design
 - `.sdp/tech.md` - Technical stack and constraints
 - `.sdp/structure.md` - Code structure and architecture
 - `.sdp/product.md` - Business context and goals
@@ -15,8 +15,8 @@ Read these for context:
 
 ```bash
 # Verify requirement folder and file exist
-[ -d ".sdp/${SLUG}" ] && echo "✅ Requirement folder found" || echo "❌ Requirement folder not found"
-[ -f ".sdp/${SLUG}/requirement.md" ] && echo "✅ Requirement found" || echo "❌ Requirement not found"
+[ -d ".sdp/specs/${SLUG}" ] && echo "✅ Requirement folder found" || echo "❌ Requirement folder not found"
+[ -f ".sdp/specs/${SLUG}/requirement.md" ] && echo "✅ Requirement found" || echo "❌ Requirement not found"
 ```
 
 ## Design Process
@@ -52,7 +52,7 @@ Create a comparison table covering:
 - **Implementation notes**: Key technical decisions and guidelines
 
 ## Deliverable
-Create `.sdp/<slug>/design.md` following `.claude/templates/design.md` structure.
+Create `.sdp/specs/<slug>/design.md` following `.claude/templates/design.md` structure.
 
 ## Design Document Structure
 
@@ -77,7 +77,7 @@ After writing the file, print a summary in Japanese:
 【設計完了】
 📐 Slug: <slug>
 📝 タイトル: <設計タイトル>
-📁 ファイル: .sdp/<slug>/design.md
+📁 ファイル: .sdp/specs/<slug>/design.md
 
 📊 検討した代替案: <数>
 ✅ 採用案: <採用した設計名>

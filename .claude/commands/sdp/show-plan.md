@@ -2,20 +2,20 @@
 You are Claude Code. Transform a task breakdown into a human-readable project plan.
 
 ## Input
-- **slug**: An existing requirement folder at `.sdp/<slug>/` containing `tasks.yml`
+- **slug**: An existing requirement folder at `.sdp/specs/<slug>/` containing `tasks.yml`
 
 ## Context Files
 Read these for context:
-- `.sdp/<slug>/tasks.yml` - Task breakdown and estimates
-- `.sdp/<slug>/requirement.md` - Original requirement
+- `.sdp/specs/<slug>/tasks.yml` - Task breakdown and estimates
+- `.sdp/specs/<slug>/requirement.md` - Original requirement
 - `.sdp/product.md` - Business context
 
 ## Pre-Check
 
 ```bash
 # Verify requirement folder and task file exist
-[ -d ".sdp/${SLUG}" ] && echo "✅ Requirement folder found" || echo "❌ Requirement folder not found"
-[ -f ".sdp/${SLUG}/tasks.yml" ] && echo "✅ Task file found" || echo "❌ Task file not found"
+[ -d ".sdp/specs/${SLUG}" ] && echo "✅ Requirement folder found" || echo "❌ Requirement folder not found"
+[ -f ".sdp/specs/${SLUG}/tasks.yml" ] && echo "✅ Task file found" || echo "❌ Task file not found"
 ```
 
 ## Plan Structure
@@ -78,7 +78,7 @@ Based on confidence level and stddev:
 ## Output Format
 
 ### 1. Write Plan File
-Create `.sdp/<slug>/plan.md` with all sections above in **Japanese language**.
+Create `.sdp/specs/<slug>/plan.md` with all sections above in **Japanese language**.
 
 ### 2. Console Output
 Print a summary in **Japanese**:
@@ -86,7 +86,7 @@ Print a summary in **Japanese**:
 ```
 【プロジェクト計画生成完了】
 📋 要件: <slug>
-📁 ファイル: .sdp/<slug>/plan.md
+📁 ファイル: .sdp/specs/<slug>/plan.md
 
 📊 概要:
 - タスク数: <数>

@@ -2,14 +2,14 @@
 You are Claude Code. Convert task breakdown into GitHub Issues or local markdown files.
 
 ## Inputs
-- **slug**: An existing requirement folder at `.sdp/<slug>/` containing `tasks.yml`
+- **slug**: An existing requirement folder at `.sdp/specs/<slug>/` containing `tasks.yml`
 - **Export Config**: `.claude/config/export.yml` (output destination)
 - **GitHub Config**: `.claude/config/github.yml` (GitHub-specific settings)
 
 ## Context Files
 Read these for context:
-- `.sdp/<slug>/tasks.yml` - Task breakdown to export
-- `.sdp/<slug>/requirement.md` - Original requirement
+- `.sdp/specs/<slug>/tasks.yml` - Task breakdown to export
+- `.sdp/specs/<slug>/requirement.md` - Original requirement
 - `.claude/config/export.yml` - Export destination configuration
 - `.claude/config/github.yml` - GitHub integration config (if exporting to GitHub)
 
@@ -17,8 +17,8 @@ Read these for context:
 
 ```bash
 # Verify requirement folder and task file exist
-[ -d ".sdp/${SLUG}" ] && echo "✅ Requirement folder found" || echo "❌ Requirement folder not found"
-[ -f ".sdp/${SLUG}/tasks.yml" ] && echo "✅ Task file found" || echo "❌ Task file not found"
+[ -d ".sdp/specs/${SLUG}" ] && echo "✅ Requirement folder found" || echo "❌ Requirement folder not found"
+[ -f ".sdp/specs/${SLUG}/tasks.yml" ] && echo "✅ Task file found" || echo "❌ Task file not found"
 
 # Read export configuration to determine output destination
 # Expected: export.yml contains "to: github" or "to: local"
@@ -112,7 +112,7 @@ Collect the main issue number for use in sub-issues.
 
 ### Step 4A: Create Task Sub-Issues (GitHub Mode)
 
-For each task in `.sdp/<slug>/tasks.yml`, create a sub-issue:
+For each task in `.sdp/specs/<slug>/tasks.yml`, create a sub-issue:
 
 #### Sub-Issue Title
 Format: `[<slug>][T-xxx] <task.title>`
@@ -207,7 +207,7 @@ Create a mapping table of task ID → sub-issue number/URL and main issue.
 ```bash
 # Get output directory from export.yml local.out_dir (default: ./out)
 OUT_DIR=$(grep -A1 "^local:" .claude/config/export.yml | grep "out_dir:" | awk '{print $2}')
-OUT_DIR=${OUT_DIR:-.sdp/out}  # Fallback to .sdp/out if not specified
+OUT_DIR=${OUT_DIR:-out}  # Fallback to out if not specified
 
 # Create output directory
 mkdir -p "$OUT_DIR"
@@ -232,7 +232,7 @@ Structure: 1 main issue + N sub-issues (tasks)
 **Body**:
 ```markdown
 ## Requirement Overview
-<brief summary from .sdp/<slug>/requirement.md Goal section>
+<brief summary from .sdp/specs/<slug>/requirement.md Goal section>
 
 ## Rollup Estimate
 - Total Tasks: <count>
@@ -510,10 +510,10 @@ Generate console output in **Japanese** based on export mode:
 ```
 【エラー: タスクファイル未検出】
 📋 要件: <slug>
-❌ .sdp/<slug>/tasks.yml が見つかりません
+❌ .sdp/specs/<slug>/tasks.yml が見つかりません
 
 💡 対処方法:
-   1. 要件が存在するか確認: ls -d .sdp/*/
+   1. 要件が存在するか確認: ls -d .sdp/specs/*/
    2. タスク分解を実行: /sdp:estimate <slug>
    3. その後再実行: /sdp:export-issues <slug>
 ```
