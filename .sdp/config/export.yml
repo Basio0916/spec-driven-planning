@@ -44,7 +44,8 @@ jira:
   # Jira instance URL (e.g., "https://your-domain.atlassian.net")
   url: https://your-domain.atlassian.net
 
-  # Jira project key (e.g., "PROJ", "DEV")
+  # Jira project key / space key (e.g., "PROJ", "DEV", "SCRUM")
+  # In Jira UI this may be called "Space Key", but API uses it as project key
   project: YOUR-PROJECT
 
   # Authentication: Use API token (recommended) or set as environment variable

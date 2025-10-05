@@ -65,7 +65,7 @@ github:
     - implementation        # (if not set, no additional labels beyond "labels")
 
 jira:
-  project: YOUR-PROJECT     # Jira project key
+  project: YOUR-PROJECT     # Jira project key (also called "space key" in Jira UI)
   issue_mode: single_issue  # "sub_tasks", "linked_issues", or "single_issue"
   main_issue_type: Story    # Issue type for main requirement
   task_issue_type: Sub-task # Issue type for tasks
@@ -322,7 +322,7 @@ Claude Code will check:
 - If required Jira configuration is present in `.sdp/config/export.yml`:
   - `jira.url`: Jira instance URL
   - `jira.email`: User email for authentication
-  - `jira.project`: Project key
+  - `jira.project`: Project key (also called "space key" in Jira UI)
 - If Jira API token is available:
   - Check if `jira.api_token` is set in config, OR
   - Check if `JIRA_API_TOKEN` environment variable is set
@@ -346,7 +346,8 @@ Read Jira settings from `.sdp/config/export.yml`:
 - `jira.url`: Jira instance URL (e.g., "https://your-domain.atlassian.net")
 - `jira.email`: User email for authentication
 - `jira.api_token`: API token (optional if using environment variable)
-- `jira.project`: Jira project key (e.g., "PROJ", "DEV")
+- `jira.project`: Jira project key / space key (e.g., "PROJ", "DEV", "SCRUM")
+  - In Jira UI this may be displayed as "space key", but it's the project key in the API
 - `jira.issue_mode`: Export mode ("sub_tasks", "linked_issues", or "single_issue")
 - `jira.main_issue_type`: Issue type for main requirement (e.g., "Story", "Epic")
 - `jira.task_issue_type`: Issue type for tasks (e.g., "Sub-task", "Task")
@@ -732,7 +733,7 @@ For each task, generate a task issue section using the task template (`.sdp/temp
 - Configure `.sdp/config/export.yml`:
   - Set `jira.url` (your Jira instance URL)
   - Set `jira.email` (your email)
-  - Set `jira.project` (project key)
+  - Set `jira.project` (project key / space key shown in Jira settings)
 - Set API token as environment variable: `export JIRA_API_TOKEN=your-token`
 
 ### Step-by-Step Process
