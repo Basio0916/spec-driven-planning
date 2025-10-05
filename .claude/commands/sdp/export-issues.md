@@ -108,53 +108,17 @@ Format: `[<slug>] <requirement title>`
 
 #### Issue Body Template
 
-**For English (language: en)**:
-```markdown
-## Requirement Overview
-<brief summary from .sdp/<slug>/requirement.md Goal section>
+Read the appropriate template based on language configuration:
+- **English**: `.sdp/templates/en/issue-main.md`
+- **Japanese**: `.sdp/templates/ja/issue-main.md`
 
-## Rollup Estimate
-- Total Tasks: <count>
-- Expected Hours: <expected_hours>h
-- Standard Deviation: <stddev_hours>h
-- Confidence: <confidence>
-
-## Critical Path
-<critical_path from rollup> (e.g., T-001 → T-003 → T-007)
-
-## Task Breakdown
-See sub-issues below for detailed task breakdown.
-
-## Progress Tracking
-- [ ] Requirements finalized
-- [ ] Implementation started
-- [ ] Testing complete
-- [ ] Deployment ready
-```
-
-**For Japanese (language: ja)**:
-```markdown
-## 要件概要
-<brief summary from .sdp/<slug>/requirement.md Goal section>
-
-## 見積もりサマリー
-- 総タスク数: <count>
-- 予想時間: <expected_hours>h
-- 標準偏差: <stddev_hours>h
-- 信頼度: <confidence>
-
-## クリティカルパス
-<critical_path from rollup> (例: T-001 → T-003 → T-007)
-
-## タスク分解
-詳細なタスク分解はサブIssueを参照してください。
-
-## 進捗管理
-- [ ] 要件確定
-- [ ] 実装開始
-- [ ] テスト完了
-- [ ] デプロイ準備完了
-```
+Replace placeholders:
+- `{{requirement_summary}}`: Brief summary from `.sdp/specs/<slug>/requirement.md` Goal section
+- `{{task_count}}`: Total number of tasks
+- `{{expected_hours}}`: Expected hours from rollup
+- `{{stddev_hours}}`: Standard deviation from rollup
+- `{{confidence}}`: Confidence level from rollup
+- `{{critical_path}}`: Critical path from rollup (e.g., T-001 → T-003 → T-007)
 
 #### Execution
 ```bash
@@ -179,55 +143,20 @@ Format: `[<slug>][T-xxx] <task.title>`
 
 #### Sub-Issue Body Template
 
-**For English (language: en)**:
-```markdown
-## Description
-<task.description>
+Read the appropriate template based on language configuration:
+- **English**: `.sdp/templates/en/issue-task.md`
+- **Japanese**: `.sdp/templates/ja/issue-task.md`
 
-## Deliverables
-<list of task.deliverables>
-
-## Definition of Done
-<checklist from task.dod>
-
-## Dependencies
-<list of task.depends_on with issue references if available>
-
-## Estimate
-- Method: PERT
-- Optimistic: <optimistic>h
-- Most Likely: <most_likely>h
-- Pessimistic: <pessimistic>h
-- Expected: <mean>h
-
-## Risk Notes
-<task.risks if present>
-```
-
-**For Japanese (language: ja)**:
-```markdown
-## 説明
-<task.description>
-
-## 成果物
-<list of task.deliverables>
-
-## 完了の定義
-<checklist from task.dod>
-
-## 依存関係
-<list of task.depends_on with issue references if available>
-
-## 見積もり
-- 手法: PERT
-- 楽観値: <optimistic>h
-- 最頻値: <most_likely>h
-- 悲観値: <pessimistic>h
-- 期待値: <mean>h
-
-## リスクメモ
-<task.risks if present>
-```
+Replace placeholders:
+- `{{description}}`: Task description
+- `{{deliverables}}`: List of deliverables (bulleted list)
+- `{{dod}}`: Definition of Done checklist items
+- `{{dependencies}}`: List of dependencies with issue references
+- `{{optimistic}}`: Optimistic estimate
+- `{{most_likely}}`: Most likely estimate
+- `{{pessimistic}}`: Pessimistic estimate
+- `{{expected}}`: Expected (mean) estimate
+- `{{risks}}`: Risk notes (if present)
 
 #### Execution
 
@@ -316,160 +245,27 @@ Create the output directory if it doesn't exist using Claude Code's file operati
 
 Create a markdown file at `${OUT_DIR}/<slug>-issues.md` with localized content based on `.sdp/config/language.yml`.
 
-**For English (language: en)**:
-```markdown
-# GitHub Issues Draft for <slug>
+Read the appropriate draft template:
+- **English**: `.sdp/templates/en/issue-draft.md`
+- **Japanese**: `.sdp/templates/ja/issue-draft.md`
 
-This file contains issue drafts for requirement <slug>.
-Structure: 1 main issue + N sub-issues (tasks)
+Replace placeholders:
+- `{{slug}}`: Requirement slug
+- `{{requirement_title}}`: Requirement title
+- `{{main_issue_body}}`: Main issue body (generated from `.sdp/templates/{lang}/issue-main.md`)
+- `{{task_issues}}`: Task issues section (generated from `.sdp/templates/{lang}/issue-task.md` for each task)
 
----
+For each task, generate a task issue section using the task template (`.sdp/templates/{lang}/issue-task.md`) with the following format:
 
-## Main Requirement Issue
+```
+### Sub-Issue N: [T-XXX] <task title>
 
-**Title**: [<slug>] <requirement title>
+**Title**: [T-XXX] <task.title>
 
 **Body**:
 ```markdown
-## Requirement Overview
-<brief summary from .sdp/specs/<slug>/requirement.md Goal section>
-
-## Rollup Estimate
-- Total Tasks: <count>
-- Expected Hours: <expected_hours>h
-- Standard Deviation: <stddev_hours>h
-- Confidence: <confidence>
-
-## Critical Path
-<critical_path from rollup> (e.g., T-001 → T-003 → T-007)
-
-## Task Breakdown
-See sub-issues below for detailed task breakdown.
-
-## Progress Tracking
-- [ ] Requirements finalized
-- [ ] Implementation started
-- [ ] Testing complete
-- [ ] Deployment ready
+<content from issue-task.md template with placeholders replaced>
 ```
-
----
-
-## Task Sub-Issues
-
-### Sub-Issue 1: [T-001] <task title>
-
-**Title**: [T-001] <task.title>
-
-**Body**:
-```markdown
-## Description
-<task.description>
-
-## Deliverables
-- <deliverable 1>
-- <deliverable 2>
-
-## Definition of Done
-- [ ] <dod 1>
-- [ ] <dod 2>
-
-## Dependencies
-- <depends_on with issue references>
-
-## Estimate
-- Method: PERT
-- Optimistic: <optimistic>h
-- Most Likely: <most_likely>h
-- Pessimistic: <pessimistic>h
-- Expected: <mean>h
-
-## Risk Notes
-<task.risks if present>
-```
-
----
-
-(Repeat for each task)
-
----
-```
-
-**For Japanese (language: ja)**:
-```markdown
-# <slug> GitHub Issues ドラフト
-
-この要件 <slug> のIssueドラフトです。
-構造: 1つのメインIssue + N個のサブIssue (タスク)
-
----
-
-## メイン要件Issue
-
-**タイトル**: [<slug>] <requirement title>
-
-**本文**:
-```markdown
-## 要件概要
-<brief summary from .sdp/specs/<slug>/requirement.md Goal section>
-
-## 見積もりサマリー
-- 総タスク数: <count>
-- 予想時間: <expected_hours>h
-- 標準偏差: <stddev_hours>h
-- 信頼度: <confidence>
-
-## クリティカルパス
-<critical_path from rollup> (例: T-001 → T-003 → T-007)
-
-## タスク分解
-詳細なタスク分解はサブIssueを参照してください。
-
-## 進捗管理
-- [ ] 要件確定
-- [ ] 実装開始
-- [ ] テスト完了
-- [ ] デプロイ準備完了
-```
-
----
-
-## タスクサブIssue
-
-### サブIssue 1: [T-001] <task title>
-
-**タイトル**: [T-001] <task.title>
-
-**本文**:
-```markdown
-## 説明
-<task.description>
-
-## 成果物
-- <deliverable 1>
-- <deliverable 2>
-
-## 完了の定義
-- [ ] <dod 1>
-- [ ] <dod 2>
-
-## 依存関係
-- <depends_on with issue references>
-
-## 見積もり
-- 手法: PERT
-- 楽観値: <optimistic>h
-- 最頻値: <most_likely>h
-- 悲観値: <pessimistic>h
-- 期待値: <mean>h
-
-## リスクメモ
-<task.risks if present>
-```
-
----
-
-(各タスクについて繰り返し)
 
 ---
 ```
