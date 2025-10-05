@@ -51,7 +51,7 @@ Claude Code will automatically check these conditions and report errors if files
 Read `.sdp/config/export.yml`:
 
 ```yaml
-destination: github | local   # Determines export destination
+destination: github | jira | local   # Determines export destination
 
 github:
   repo: owner/repo          # Target GitHub repository
@@ -64,6 +64,15 @@ github:
   task_labels:              # Optional: Additional labels for task sub-issues
     - implementation        # (if not set, no additional labels beyond "labels")
 
+jira:
+  project: YOUR-PROJECT     # Jira project key
+  issue_mode: single_issue  # "sub_tasks", "linked_issues", or "single_issue"
+  main_issue_type: Story    # Issue type for main requirement
+  task_issue_type: Sub-task # Issue type for tasks
+  labels:                   # Default labels for all issues
+    - sdp
+    - planning
+
 local:
   out_dir: .sdp/out         # Local output directory
 ```
@@ -72,12 +81,20 @@ local:
 
 Based on `destination` field:
 - **`github`**: Export to GitHub Issues (requires `gh` CLI)
-- **`local`**: Export to local markdown files (no GitHub required)
+- **`jira`**: Export to Jira Issues (requires `jira` CLI)
+- **`local`**: Export to local markdown files (no external tools required)
 
-### Issue Mode (GitHub only)
+### Issue Mode (GitHub and Jira)
 
-The `github.issue_mode` setting determines how tasks are exported:
+The `github.issue_mode` or `jira.issue_mode` setting determines how tasks are exported:
+
+**For GitHub**:
 - **`sub_issues`**: Creates 1 main issue + N sub-issues (requires `gh sub-issue` extension)
+- **`linked_issues`**: Creates 1 main issue + N regular issues (linked manually)
+- **`single_issue`**: Creates 1 comprehensive issue with all tasks as checkboxes
+
+**For Jira**:
+- **`sub_tasks`**: Creates 1 main issue + N sub-tasks (Jira native sub-tasks)
 - **`linked_issues`**: Creates 1 main issue + N regular issues (linked manually)
 - **`single_issue`**: Creates 1 comprehensive issue with all tasks as checkboxes
 
@@ -297,6 +314,322 @@ gh issue edit ${MAIN_ISSUE} --body "${CURRENT_BODY}${TASK_LIST}" --repo <owner/r
 
 Create a mapping table of task ID → issue number/URL and main issue for the console output.
 
+## Export Mode: Jira
+
+### Pre-Check for Jira Mode
+
+Claude Code will check:
+- If required Jira configuration is present in `.sdp/config/export.yml`:
+  - `jira.url`: Jira instance URL
+  - `jira.email`: User email for authentication
+  - `jira.project`: Project key
+- If Jira API token is available:
+  - Check if `jira.api_token` is set in config, OR
+  - Check if `JIRA_API_TOKEN` environment variable is set
+
+If required configuration is missing, provide appropriate error messages to guide the user.
+
+**Note**: This implementation uses Jira REST API v3 with Basic Authentication (email + API token).
+
+### Step 2C: Load Jira Configuration
+
+Read Jira settings from `.sdp/config/export.yml`:
+- `jira.url`: Jira instance URL (e.g., "https://your-domain.atlassian.net")
+- `jira.email`: User email for authentication
+- `jira.api_token`: API token (optional if using environment variable)
+- `jira.project`: Jira project key (e.g., "PROJ", "DEV")
+- `jira.issue_mode`: Export mode ("sub_tasks", "linked_issues", or "single_issue")
+- `jira.main_issue_type`: Issue type for main requirement (e.g., "Story", "Epic")
+- `jira.task_issue_type`: Issue type for tasks (e.g., "Sub-task", "Task")
+- `jira.component`: Optional component name
+- `jira.labels`: Default labels to apply to all issues
+
+Get API token:
+```bash
+# Priority 1: From config file
+API_TOKEN="${JIRA_API_TOKEN_FROM_CONFIG}"
+
+# Priority 2: From environment variable
+if [ -z "$API_TOKEN" ]; then
+  API_TOKEN="${JIRA_API_TOKEN}"
+fi
+```
+
+### Step 3C: Create Main Issue (Jira Mode)
+
+The content and structure depend on `jira.issue_mode`.
+
+#### Issue Summary (Title)
+Format: `[<slug>] <requirement title>`
+
+#### Issue Description Template
+
+**For `issue_mode: single_issue`**:
+
+Read the comprehensive single-issue template:
+- **English**: `.sdp/templates/en/jira-single.md`
+- **Japanese**: `.sdp/templates/ja/jira-single.md`
+
+Replace placeholders (same as GitHub single_issue mode):
+- `{{requirement_summary}}`: Brief summary from requirement
+- `{{task_count}}`: Total number of tasks
+- `{{expected_hours}}`: Expected hours from rollup
+- `{{stddev_hours}}`: Standard deviation from rollup
+- `{{confidence}}`: Confidence level from rollup
+- `{{critical_path}}`: Critical path from rollup
+- `{{task_list}}`: Checklist of all tasks with checkboxes
+- `{{task_details}}`: Detailed breakdown of each task
+
+**For `issue_mode: sub_tasks` or `issue_mode: linked_issues`**:
+
+Read the main issue template (without task details):
+- **English**: `.sdp/templates/en/jira-main.md`
+- **Japanese**: `.sdp/templates/ja/jira-main.md`
+
+Replace placeholders (same as GitHub mode).
+
+#### Execution
+
+**Important**: Use Jira REST API to create issues. Authentication uses email + API token (Basic Auth).
+
+```bash
+# Prepare authentication (Base64 encode email:api_token)
+AUTH=$(echo -n "${JIRA_EMAIL}:${API_TOKEN}" | base64)
+
+# Prepare JSON payload for main issue
+JSON_PAYLOAD=$(cat <<EOF
+{
+  "fields": {
+    "project": {
+      "key": "${JIRA_PROJECT}"
+    },
+    "summary": "[<slug>] <requirement title>",
+    "description": {
+      "type": "doc",
+      "version": 1,
+      "content": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "<formatted body>"
+            }
+          ]
+        }
+      ]
+    },
+    "issuetype": {
+      "name": "${MAIN_ISSUE_TYPE}"
+    }
+  }
+}
+EOF
+)
+
+# Create main issue via REST API
+RESPONSE=$(curl -s -X POST "${JIRA_URL}/rest/api/3/issue" \
+  -H "Authorization: Basic ${AUTH}" \
+  -H "Content-Type: application/json" \
+  -d "${JSON_PAYLOAD}")
+
+# Extract issue key from response
+MAIN_ISSUE=$(echo "${RESPONSE}" | grep -oE '"key":"[A-Z]+-[0-9]+"' | cut -d'"' -f4)
+
+# Add labels if specified
+if [ -n "$LABELS" ]; then
+  LABEL_JSON=$(cat <<EOF
+{
+  "update": {
+    "labels": [
+      $(echo "$LABELS" | sed 's/,/","/g' | sed 's/^/{"add":"/' | sed 's/$/"}/')
+    ]
+  }
+}
+EOF
+)
+  curl -s -X PUT "${JIRA_URL}/rest/api/3/issue/${MAIN_ISSUE}" \
+    -H "Authorization: Basic ${AUTH}" \
+    -H "Content-Type: application/json" \
+    -d "${LABEL_JSON}"
+fi
+
+# Add component if specified
+if [ -n "$COMPONENT" ]; then
+  COMPONENT_JSON=$(cat <<EOF
+{
+  "update": {
+    "components": [
+      {"add": {"name": "${COMPONENT}"}}
+    ]
+  }
+}
+EOF
+)
+  curl -s -X PUT "${JIRA_URL}/rest/api/3/issue/${MAIN_ISSUE}" \
+    -H "Authorization: Basic ${AUTH}" \
+    -H "Content-Type: application/json" \
+    -d "${COMPONENT_JSON}"
+fi
+```
+
+**If `issue_mode: single_issue`**: This is the only issue created. Skip to Step 5C.
+
+**If `issue_mode: sub_tasks` or `issue_mode: linked_issues`**: Collect the main issue key for use in creating task issues (proceed to Step 4C).
+
+### Step 4C: Create Task Issues (Jira Mode)
+
+**Note**: This step is only executed if `issue_mode` is `sub_tasks` or `linked_issues`. Skip this step if `issue_mode: single_issue`.
+
+For each task in `.sdp/specs/<slug>/tasks.yml`, create an issue.
+
+#### Task Issue Summary (Title)
+Format: `[T-xxx] <task.title>`
+
+#### Task Issue Description Template
+
+Read the appropriate template based on language configuration:
+- **English**: `.sdp/templates/en/jira-task.md`
+- **Japanese**: `.sdp/templates/ja/jira-task.md`
+
+Replace placeholders (same as GitHub mode).
+
+#### Execution
+
+**If `issue_mode: sub_tasks`**:
+Use Jira REST API to create sub-tasks with parent relationship:
+
+```bash
+# Prepare JSON payload for sub-task
+TASK_JSON=$(cat <<EOF
+{
+  "fields": {
+    "project": {
+      "key": "${JIRA_PROJECT}"
+    },
+    "parent": {
+      "key": "${MAIN_ISSUE}"
+    },
+    "summary": "[T-001] <task.title>",
+    "description": {
+      "type": "doc",
+      "version": 1,
+      "content": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "<formatted body>"
+            }
+          ]
+        }
+      ]
+    },
+    "issuetype": {
+      "name": "${TASK_ISSUE_TYPE}"
+    }
+  }
+}
+EOF
+)
+
+# Create sub-task via REST API
+RESPONSE=$(curl -s -X POST "${JIRA_URL}/rest/api/3/issue" \
+  -H "Authorization: Basic ${AUTH}" \
+  -H "Content-Type: application/json" \
+  -d "${TASK_JSON}")
+
+# Extract issue key
+TASK_ISSUE=$(echo "${RESPONSE}" | grep -oE '"key":"[A-Z]+-[0-9]+"' | cut -d'"' -f4)
+
+# Add labels if specified (same as main issue)
+```
+
+**If `issue_mode: linked_issues`**:
+Use Jira REST API to create regular issues and link them:
+
+```bash
+# Create regular issue (without parent field)
+TASK_JSON=$(cat <<EOF
+{
+  "fields": {
+    "project": {
+      "key": "${JIRA_PROJECT}"
+    },
+    "summary": "[T-001] <task.title>",
+    "description": {
+      "type": "doc",
+      "version": 1,
+      "content": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "<formatted body>"
+            }
+          ]
+        }
+      ]
+    },
+    "issuetype": {
+      "name": "${TASK_ISSUE_TYPE}"
+    }
+  }
+}
+EOF
+)
+
+RESPONSE=$(curl -s -X POST "${JIRA_URL}/rest/api/3/issue" \
+  -H "Authorization: Basic ${AUTH}" \
+  -H "Content-Type: application/json" \
+  -d "${TASK_JSON}")
+
+TASK_ISSUE=$(echo "${RESPONSE}" | grep -oE '"key":"[A-Z]+-[0-9]+"' | cut -d'"' -f4)
+
+# Link to parent issue (Relates link type)
+LINK_JSON=$(cat <<EOF
+{
+  "type": {
+    "name": "Relates"
+  },
+  "inwardIssue": {
+    "key": "${TASK_ISSUE}"
+  },
+  "outwardIssue": {
+    "key": "${MAIN_ISSUE}"
+  }
+}
+EOF
+)
+
+curl -s -X POST "${JIRA_URL}/rest/api/3/issueLink" \
+  -H "Authorization: Basic ${AUTH}" \
+  -H "Content-Type: application/json" \
+  -d "${LINK_JSON}"
+```
+
+Collect the returned issue key and URL for each task.
+
+### Step 5C: Finalize and Collect Results (Jira Mode)
+
+**If `issue_mode: single_issue`**:
+- All tasks are already included in the single issue as checkboxes
+- No additional updates needed
+- Create a summary for console output showing the single issue URL
+
+**If `issue_mode: sub_tasks`**:
+- Jira automatically maintains the parent-child relationship
+- Sub-tasks are visible in the parent issue
+- No manual update needed
+
+**If `issue_mode: linked_issues`**:
+- Issues are linked via "relates to" relationship
+- You can optionally add a task checklist to the parent issue description
+
+Create a mapping table of task ID → issue key/URL and main issue for the console output.
+
 ## Export Mode: Local
 
 ### Step 2B: Prepare Local Output Directory
@@ -354,14 +687,23 @@ For each task, generate a task issue section using the task template (`.sdp/temp
 
 ### Prerequisites
 
-**If using sub-issue mode (`issue_mode: sub_issues`)**, install the `gh sub-issue` extension:
-```bash
-gh extension install yahsan2/gh-sub-issue
-```
+**For GitHub**:
+- **If using sub-issue mode (`issue_mode: sub_issues`)**, install the `gh sub-issue` extension:
+  ```bash
+  gh extension install yahsan2/gh-sub-issue
+  ```
+
+**For Jira**:
+- Create Jira API token: https://id.atlassian.com/manage-profile/security/api-tokens
+- Configure `.sdp/config/export.yml`:
+  - Set `jira.url` (your Jira instance URL)
+  - Set `jira.email` (your email)
+  - Set `jira.project` (project key)
+- Set API token as environment variable: `export JIRA_API_TOKEN=your-token`
 
 ### Step-by-Step Process
 
-#### Option A: Single Issue Mode (issue_mode: single_issue)
+#### GitHub: Option A: Single Issue Mode (issue_mode: single_issue)
 
 1. **Create One Comprehensive Issue**:
    ```bash
@@ -375,7 +717,7 @@ gh extension install yahsan2/gh-sub-issue
 
 2. **Note**: All tasks are included as checkboxes in the issue body. Check them off as you complete each task.
 
-#### Option B: Sub-Issue Mode (issue_mode: sub_issues)
+#### GitHub: Option B: Sub-Issue Mode (issue_mode: sub_issues)
 
 1. **Create Main Requirement Issue First**:
    ```bash
@@ -404,7 +746,7 @@ gh extension install yahsan2/gh-sub-issue
 
 3. **Note**: Task checklist is automatically maintained by GitHub's sub-issue feature. No manual update needed.
 
-#### Option C: Linked Issues Mode (issue_mode: linked_issues)
+#### GitHub: Option C: Linked Issues Mode (issue_mode: linked_issues)
 
 1. **Create Main Requirement Issue First** (same as above)
 
@@ -436,11 +778,190 @@ gh extension install yahsan2/gh-sub-issue
 - [ ] #${SUB_ISSUE_1} T-001: <task title> (<estimate>h)
 - [ ] #${SUB_ISSUE_2} T-002: <task title> (<estimate>h)" --repo <owner/repo>
    ```
+
+#### Jira: Option A: Single Issue Mode (issue_mode: single_issue)
+
+1. **Set up authentication**:
+   ```bash
+   export JIRA_URL="https://your-domain.atlassian.net"
+   export JIRA_EMAIL="your-email@example.com"
+   export JIRA_API_TOKEN="your-api-token"
+   export JIRA_PROJECT="PROJ"
+   AUTH=$(echo -n "${JIRA_EMAIL}:${JIRA_API_TOKEN}" | base64)
+   ```
+
+2. **Create One Comprehensive Issue**:
+   ```bash
+   BODY=$(cat single-issue-body.md)
+   JSON=$(cat <<EOF
+   {
+     "fields": {
+       "project": {"key": "${JIRA_PROJECT}"},
+       "summary": "[<slug>] <title>",
+       "description": {
+         "type": "doc",
+         "version": 1,
+         "content": [{"type": "paragraph", "content": [{"type": "text", "text": "${BODY}"}]}]
+       },
+       "issuetype": {"name": "Story"}
+     }
+   }
+   EOF
+   )
+   
+   RESPONSE=$(curl -s -X POST "${JIRA_URL}/rest/api/3/issue" \
+     -H "Authorization: Basic ${AUTH}" \
+     -H "Content-Type: application/json" \
+     -d "${JSON}")
+   
+   ISSUE=$(echo "${RESPONSE}" | grep -oE '"key":"[A-Z]+-[0-9]+"' | cut -d'"' -f4)
+   echo "Issue created: ${ISSUE}"
+   echo "URL: ${JIRA_URL}/browse/${ISSUE}"
+   ```
+
+3. **Note**: All tasks are included as checkboxes in the issue description. Check them off as you complete each task.
+
+#### Jira: Option B: Sub-Task Mode (issue_mode: sub_tasks)
+
+1. **Set up authentication** (same as Option A)
+
+2. **Create Main Requirement Issue First**:
+   ```bash
+   # Create main issue (same as Option A, step 2)
+   ```
+
+3. **Create Each Task as Sub-Task** (automatically linked to parent):
+   ```bash
+   TASK_BODY=$(cat task-001-body.md)
+   TASK_JSON=$(cat <<EOF
+   {
+     "fields": {
+       "project": {"key": "${JIRA_PROJECT}"},
+       "parent": {"key": "${MAIN_ISSUE}"},
+       "summary": "[T-001] <task title>",
+       "description": {
+         "type": "doc",
+         "version": 1,
+         "content": [{"type": "paragraph", "content": [{"type": "text", "text": "${TASK_BODY}"}]}]
+       },
+       "issuetype": {"name": "Sub-task"}
+     }
+   }
+   EOF
+   )
+   
+   RESPONSE=$(curl -s -X POST "${JIRA_URL}/rest/api/3/issue" \
+     -H "Authorization: Basic ${AUTH}" \
+     -H "Content-Type: application/json" \
+     -d "${TASK_JSON}")
+   
+   TASK_1=$(echo "${RESPONSE}" | grep -oE '"key":"[A-Z]+-[0-9]+"' | cut -d'"' -f4)
+   echo "Sub-task T-001 created: ${TASK_1}"
+   ```
+
+4. **Note**: Sub-tasks are automatically visible in the parent issue. No manual update needed.
+
+#### Jira: Option C: Linked Issues Mode (issue_mode: linked_issues)
+
+1. **Set up authentication** (same as Option A)
+
+2. **Create Main Requirement Issue First** (same as Option B)
+
+3. **Create Each Task as Regular Issue** (and link to parent):
+   ```bash
+   # Create task issue (without parent field)
+   TASK_JSON=$(cat <<EOF
+   {
+     "fields": {
+       "project": {"key": "${JIRA_PROJECT}"},
+       "summary": "[T-001] <task title>",
+       "description": {
+         "type": "doc",
+         "version": 1,
+         "content": [{"type": "paragraph", "content": [{"type": "text", "text": "$(cat task-001-body.md)"}]}]
+       },
+       "issuetype": {"name": "Task"}
+     }
+   }
+   EOF
+   )
+   
+   RESPONSE=$(curl -s -X POST "${JIRA_URL}/rest/api/3/issue" \
+     -H "Authorization: Basic ${AUTH}" \
+     -H "Content-Type: application/json" \
+     -d "${TASK_JSON}")
+   
+   TASK_1=$(echo "${RESPONSE}" | grep -oE '"key":"[A-Z]+-[0-9]+"' | cut -d'"' -f4)
+   
+   # Link to parent issue
+   LINK_JSON=$(cat <<EOF
+   {
+     "type": {"name": "Relates"},
+     "inwardIssue": {"key": "${TASK_1}"},
+     "outwardIssue": {"key": "${MAIN_ISSUE}"}
+   }
+   EOF
+   )
+   
+   curl -s -X POST "${JIRA_URL}/rest/api/3/issueLink" \
+     -H "Authorization: Basic ${AUTH}" \
+     -H "Content-Type: application/json" \
+     -d "${LINK_JSON}"
+   
+   echo "Task issue T-001 created: ${TASK_1}"
+   ```
+
+4. **Note**: Issues are linked via "relates to" relationship and are visible in the parent issue's Links section.
 ```
 
 ## Output Format
 
 Generate console output in the configured language (`.sdp/config/language.yml`) based on export mode:
+
+### For Jira Mode (destination: jira)
+
+**If `issue_mode: single_issue`**:
+```
+【Jira Issues エクスポート完了】
+📋 要件: <slug>
+🎯 モード: Jira (単一Issue)
+📦 プロジェクト: <project>
+
+作成されたIssue:
+📌 Issue: <ISSUE-KEY>
+   https://<your-domain>.atlassian.net/browse/<ISSUE-KEY>
+
+📊 含まれるタスク: <count>個
+⏱️  総見積時間: <expected_hours>h
+
+✅ 全タスクを含む1つのIssueを作成しました
+💡 次のステップ: Issue <ISSUE-KEY> のチェックボックスで進捗を管理してください
+```
+
+**If `issue_mode: sub_tasks` or `issue_mode: linked_issues`**:
+```
+【Jira Issues エクスポート完了】
+📋 要件: <slug>
+🎯 モード: Jira (<sub_tasks/linked_issues>)
+📦 プロジェクト: <project>
+
+作成されたIssue:
+📌 メインIssue: <MAIN-ISSUE-KEY>
+   https://<your-domain>.atlassian.net/browse/<MAIN-ISSUE-KEY>
+
+🎫 タスクIssue: <count>個
+
+タスクIssueマッピング:
+| Task ID | Issue Key | URL                                                    |
+|---------|-----------|--------------------------------------------------------|
+| T-001   | PROJ-124  | https://<your-domain>.atlassian.net/browse/PROJ-124 |
+| T-002   | PROJ-125  | https://<your-domain>.atlassian.net/browse/PROJ-125 |
+| T-003   | PROJ-126  | https://<your-domain>.atlassian.net/browse/PROJ-126 |
+...
+
+✅ 1つのメインIssueと<count>個のタスクIssueを作成しました
+💡 次のステップ: メインIssue <MAIN-ISSUE-KEY> から各タスクの進捗を管理してください
+```
 
 ### For GitHub Mode (destination: github)
 
@@ -508,6 +1029,40 @@ Generate console output in the configured language (`.sdp/config/language.yml`) 
 ```
 
 ### Error Cases
+
+#### Jira Mode: Missing configuration
+```
+【エラー: Jira 設定不足】
+📋 要件: <slug>
+🎯 設定モード: Jira Issues
+❌ 必要な設定が不足しています
+
+💡 対処方法:
+   1. .sdp/config/export.yml に以下の設定を追加してください:
+      - jira.url: Jira インスタンスURL (例: https://your-domain.atlassian.net)
+      - jira.email: ユーザーメールアドレス
+      - jira.project: プロジェクトキー (例: PROJ)
+   2. または export.yml の "destination" を "local" に変更してローカル出力を使用
+   3. コマンド実行: /sdp:export-issues <slug>
+```
+
+#### Jira Mode: Missing API token
+```
+【エラー: Jira API トークン未設定】
+📋 要件: <slug>
+🎯 設定モード: Jira Issues
+❌ API トークンが設定されていません
+
+💡 対処方法:
+   1. Jira API トークンを作成: https://id.atlassian.com/manage-profile/security/api-tokens
+   2. 以下のいずれかの方法で設定:
+      Option A: 環境変数に設定 (推奨)
+        export JIRA_API_TOKEN=your-api-token-here
+      Option B: export.yml に直接記載
+        jira.api_token: your-api-token-here
+   3. または export.yml の "destination" を "local" に変更してローカル出力を使用
+   4. コマンド実行: /sdp:export-issues <slug>
+```
 
 #### GitHub Mode: gh CLI not available
 ```
@@ -584,6 +1139,7 @@ This command works on all platforms (Windows, macOS, Linux):
 - Uses Claude Code's native file operations instead of shell-specific commands
 - Local mode generates markdown files that can be manually imported on any platform
 - GitHub mode uses `gh` CLI which is available on all platforms
+- Jira mode uses REST API with `curl` (available on all platforms, no additional CLI tool required)
 
 ## Allowed Tools
 Read, Write, Terminal (for gh CLI commands in GitHub mode), File Search, Grep only
