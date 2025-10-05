@@ -55,7 +55,7 @@ destination: github | local   # Determines export destination
 
 github:
   repo: owner/repo          # Target GitHub repository
-  sub_issue_mode: true      # true: Use sub-issues, false: Regular issues with manual linking
+  issue_mode: sub_issues    # "sub_issues", "linked_issues", or "single_issue"
   labels:                   # Default labels for all issues
     - sdp
     - enhancement
@@ -74,6 +74,13 @@ Based on `destination` field:
 - **`github`**: Export to GitHub Issues (requires `gh` CLI)
 - **`local`**: Export to local markdown files (no GitHub required)
 
+### Issue Mode (GitHub only)
+
+The `github.issue_mode` setting determines how tasks are exported:
+- **`sub_issues`**: Creates 1 main issue + N sub-issues (requires `gh sub-issue` extension)
+- **`linked_issues`**: Creates 1 main issue + N regular issues (linked manually)
+- **`single_issue`**: Creates 1 comprehensive issue with all tasks as checkboxes
+
 ## Export Mode: GitHub
 
 ### Pre-Check for GitHub Mode
@@ -81,34 +88,69 @@ Based on `destination` field:
 Claude Code will check:
 - If `gh` CLI is available in the system
 - If GitHub authentication is valid (if `gh` is available)
-- If `github.sub_issue_mode` is `true`, check if `gh sub-issue` extension is installed
+- If `github.issue_mode` is `sub_issues`, check if `gh sub-issue` extension is installed
 
 If `gh` CLI is not found or not authenticated, provide appropriate error messages to guide the user.
 
-If `github.sub_issue_mode` is `true` and `gh sub-issue` extension is not installed, provide installation instructions:
+If `github.issue_mode` is `sub_issues` and `gh sub-issue` extension is not installed, provide installation instructions:
 ```bash
 gh extension install yahsan2/gh-sub-issue
 ```
 
 ### Step 2A: Load GitHub Configuration
 
-Read repository and labels from `.sdp/config/export.yml`:
+Read repository, issue mode, and labels from `.sdp/config/export.yml`:
 - `github.repo`: Target repository (format: "owner/repo")
   - If not specified, gh CLI will auto-detect from current git repository
+- `github.issue_mode`: Export mode ("sub_issues", "linked_issues", or "single_issue")
 - `github.labels`: Default labels to apply to all issues
 - `github.main_issue_labels`: Optional labels specifically for main requirement issues (if not set, omit)
-- `github.task_labels`: Optional labels specifically for task sub-issues (if not set, omit)
+- `github.task_labels`: Optional labels specifically for task sub-issues (if not set, omit; not used in single_issue mode)
 
-### Step 3A: Create Main Requirement Issue (GitHub Mode)
+### Step 3A: Create Main Issue (GitHub Mode)
 
-First, create a single main issue for the requirement:
+The content and structure depend on `github.issue_mode`.
 
 #### Issue Title
 Format: `[<slug>] <requirement title>`
 
 #### Issue Body Template
 
-Read the appropriate template based on language configuration:
+**For `issue_mode: single_issue`**:
+
+Read the comprehensive single-issue template:
+- **English**: `.sdp/templates/en/issue-single.md`
+- **Japanese**: `.sdp/templates/ja/issue-single.md`
+
+Replace placeholders:
+- `{{requirement_summary}}`: Brief summary from `.sdp/specs/<slug>/requirement.md` Goal section
+- `{{task_count}}`: Total number of tasks
+- `{{expected_hours}}`: Expected hours from rollup
+- `{{stddev_hours}}`: Standard deviation from rollup
+- `{{confidence}}`: Confidence level from rollup
+- `{{critical_path}}`: Critical path from rollup (e.g., T-001 → T-003 → T-007)
+- `{{task_list}}`: Checklist of all tasks with format:
+  ```
+  - [ ] **T-001**: <task.title> (Expected: <mean>h, Dependencies: <depends_on>)
+  - [ ] **T-002**: <task.title> (Expected: <mean>h, Dependencies: <depends_on>)
+  ...
+  ```
+- `{{task_details}}`: Detailed breakdown of each task with format:
+  ```
+  ### T-001: <task.title>
+  
+  **Estimate**: <optimistic>h / <most_likely>h / <pessimistic>h (Expected: <mean>h)  
+  **Dependencies**: <depends_on>  
+  **Deliverables**: <comma-separated deliverables>  
+  **DoD**: <comma-separated DoD items>  
+  **Risks**: <task.risks if present>
+  
+  ---
+  ```
+
+**For `issue_mode: sub_issues` or `issue_mode: linked_issues`**:
+
+Read the main issue template (without task details):
 - **English**: `.sdp/templates/en/issue-main.md`
 - **Japanese**: `.sdp/templates/ja/issue-main.md`
 
@@ -121,8 +163,12 @@ Replace placeholders:
 - `{{critical_path}}`: Critical path from rollup (e.g., T-001 → T-003 → T-007)
 
 #### Execution
+
+**Important**: Use `grep` and `tr` to extract issue number from output. Do NOT use `--json` flag as it may not be supported in older versions of GitHub CLI.
+
 ```bash
 # Combine labels from export.yml (labels + main_issue_labels if set)
+# Extract issue number from output using grep and tr (compatible with all gh versions)
 MAIN_ISSUE=$(gh issue create \
   --title "[<slug>] <requirement title>" \
   --body "<formatted body>" \
@@ -130,13 +176,17 @@ MAIN_ISSUE=$(gh issue create \
   --repo <owner/repo> | grep -oE '#[0-9]+' | tr -d '#')
 ```
 
-Collect the main issue number for use in sub-issues.
+**If `issue_mode: single_issue`**: This is the only issue created. Skip to Step 5A.
+
+**If `issue_mode: sub_issues` or `issue_mode: linked_issues`**: Collect the main issue number for use in creating task issues (proceed to Step 4A).
 
 ### Step 4A: Create Task Issues (GitHub Mode)
 
+**Note**: This step is only executed if `issue_mode` is `sub_issues` or `linked_issues`. Skip this step if `issue_mode: single_issue`.
+
 For each task in `.sdp/specs/<slug>/tasks.yml`, create an issue.
 
-**If `github.sub_issue_mode` is `true`**, use `gh sub-issue` extension to create sub-issues with automatic parent-child relationship.
+**If `issue_mode: sub_issues`**, use `gh sub-issue` extension to create sub-issues with automatic parent-child relationship.
 
 #### Sub-Issue Title
 Format: `[<slug>][T-xxx] <task.title>`
@@ -160,28 +210,35 @@ Replace placeholders:
 
 #### Execution
 
-**If `github.sub_issue_mode` is `true`**:
+**If `issue_mode: sub_issues`**:
 Use `gh sub-issue create` to create sub-issues that are automatically linked to the parent:
+
+**Note**: The `gh sub-issue create` command returns the full issue URL, not just the number.
 
 ```bash
 # Combine labels from export.yml (labels + task_labels if set)
 # If labels are set, add --label flag; otherwise omit it
+# gh sub-issue returns URL (e.g., https://github.com/owner/repo/issues/123)
 if [ -n "$TASK_LABELS" ]; then
-  SUB_ISSUE=$(gh sub-issue create --parent ${MAIN_ISSUE} \
+  SUB_ISSUE_URL=$(gh sub-issue create --parent ${MAIN_ISSUE} \
     --repo <owner/repo> \
     --title "[T-001] <task.title>" \
     --body "<formatted body>" \
     --label "$TASK_LABELS")
+  SUB_ISSUE=$(echo "$SUB_ISSUE_URL" | grep -oE '[0-9]+$')
 else
-  SUB_ISSUE=$(gh sub-issue create --parent ${MAIN_ISSUE} \
+  SUB_ISSUE_URL=$(gh sub-issue create --parent ${MAIN_ISSUE} \
     --repo <owner/repo> \
     --title "[T-001] <task.title>" \
     --body "<formatted body>")
+  SUB_ISSUE=$(echo "$SUB_ISSUE_URL" | grep -oE '[0-9]+$')
 fi
 ```
 
-**If `github.sub_issue_mode` is `false`**:
+**If `issue_mode: linked_issues`**:
 Use regular `gh issue create` and manually reference the parent issue in the body:
+
+**Important**: Extract issue number using `grep` and `tr` (do NOT use `--json` flag).
 
 ```bash
 # Body includes reference to parent issue
@@ -189,6 +246,7 @@ BODY="**Parent Issue**: #${MAIN_ISSUE}
 
 <formatted body>"
 
+# Extract issue number from output using grep and tr (compatible with all gh versions)
 if [ -n "$TASK_LABELS" ]; then
   SUB_ISSUE=$(gh issue create \
     --repo <owner/repo> \
@@ -205,14 +263,19 @@ fi
 
 Collect the returned issue number and URL for each task.
 
-### Step 5A: Update Main Issue and Collect Results (GitHub Mode)
+### Step 5A: Finalize and Collect Results (GitHub Mode)
 
-**If `github.sub_issue_mode` is `true`**:
+**If `issue_mode: single_issue`**:
+- All tasks are already included in the single issue as checkboxes
+- No additional updates needed
+- Create a summary for console output showing the single issue URL
+
+**If `issue_mode: sub_issues`**:
 - The `gh sub-issue` extension automatically creates a proper parent-child relationship
 - The task checklist is automatically maintained in the parent issue by GitHub's sub-issue feature
 - No manual update needed
 
-**If `github.sub_issue_mode` is `false`**:
+**If `issue_mode: linked_issues`**:
 - Update the main issue body to include a task checklist with links to child issues:
 
 ```bash
@@ -241,11 +304,28 @@ Create a mapping table of task ID → issue number/URL and main issue for the co
 Read the output directory from `.sdp/config/export.yml` under `local.out_dir` (default: `out`).
 Create the output directory if it doesn't exist using Claude Code's file operations.
 
+Also read `github.issue_mode` to determine the output format (even for local mode):
+- `single_issue`: Generate a single comprehensive issue draft
+- `sub_issues` or `linked_issues`: Generate main issue + task issues drafts
+
 ### Step 3B: Generate Issue Drafts (Local Mode)
 
 Create a markdown file at `${OUT_DIR}/<slug>-issues.md` with localized content based on `.sdp/config/language.yml`.
 
-Read the appropriate draft template:
+**If `issue_mode: single_issue`**:
+
+Read the single issue draft template:
+- **English**: `.sdp/templates/en/issue-draft-single.md`
+- **Japanese**: `.sdp/templates/ja/issue-draft-single.md`
+
+Replace placeholders:
+- `{{slug}}`: Requirement slug
+- `{{requirement_title}}`: Requirement title
+- `{{issue_body}}`: Complete issue body (generated from `.sdp/templates/{lang}/issue-single.md`)
+
+**If `issue_mode: sub_issues` or `issue_mode: linked_issues`**:
+
+Read the multi-issue draft template:
 - **English**: `.sdp/templates/en/issue-draft.md`
 - **Japanese**: `.sdp/templates/ja/issue-draft.md`
 
@@ -274,14 +354,28 @@ For each task, generate a task issue section using the task template (`.sdp/temp
 
 ### Prerequisites
 
-**If using sub-issue mode**, install the `gh sub-issue` extension:
+**If using sub-issue mode (`issue_mode: sub_issues`)**, install the `gh sub-issue` extension:
 ```bash
 gh extension install yahsan2/gh-sub-issue
 ```
 
 ### Step-by-Step Process
 
-#### Option A: Using Sub-Issue Mode (sub_issue_mode: true)
+#### Option A: Single Issue Mode (issue_mode: single_issue)
+
+1. **Create One Comprehensive Issue**:
+   ```bash
+   ISSUE=$(gh issue create \
+     --title "[<slug>] <title>" \
+     --body "$(cat single-issue-body.md)" \
+     --label "<combined_labels>" \
+     --repo <owner/repo> | grep -oE '#[0-9]+' | tr -d '#')
+   echo "Issue created: #${ISSUE}"
+   ```
+
+2. **Note**: All tasks are included as checkboxes in the issue body. Check them off as you complete each task.
+
+#### Option B: Sub-Issue Mode (issue_mode: sub_issues)
 
 1. **Create Main Requirement Issue First**:
    ```bash
@@ -310,7 +404,7 @@ gh extension install yahsan2/gh-sub-issue
 
 3. **Note**: Task checklist is automatically maintained by GitHub's sub-issue feature. No manual update needed.
 
-#### Option B: Using Regular Issues (sub_issue_mode: false)
+#### Option C: Linked Issues Mode (issue_mode: linked_issues)
 
 1. **Create Main Requirement Issue First** (same as above)
 
@@ -350,27 +444,46 @@ Generate console output in the configured language (`.sdp/config/language.yml`) 
 
 ### For GitHub Mode (destination: github)
 
+**If `issue_mode: single_issue`**:
 ```
 【GitHub Issues エクスポート完了】
 📋 要件: <slug>
-🎯 モード: GitHub Issues
+🎯 モード: GitHub Issues (単一Issue)
+📦 リポジトリ: <owner/repo>
+
+作成されたIssue:
+📌 Issue: #<issue>
+   https://github.com/owner/repo/issues/<issue>
+
+📊 含まれるタスク: <count>個
+⏱️  総見積時間: <expected_hours>h
+
+✅ 全タスクを含む1つのIssueを作成しました
+💡 次のステップ: Issue #<issue> のチェックボックスで進捗を管理してください
+```
+
+**If `issue_mode: sub_issues` or `issue_mode: linked_issues`**:
+```
+【GitHub Issues エクスポート完了】
+📋 要件: <slug>
+🎯 モード: GitHub Issues (<sub_issues/linked_issues>)
 📦 リポジトリ: <owner/repo>
 
 作成されたIssue:
 📌 メインIssue: #<main_issue>
    https://github.com/owner/repo/issues/<main_issue>
 
-🎫 サブIssue (タスク): <count>個
+🎫 タスクIssue: <count>個
 
 タスクIssueマッピング:
-| Task ID | Sub-Issue # | URL                                    |
-|---------|-------------|----------------------------------------|
-| T-001   | #124        | https://github.com/owner/repo/issues/124 |
-| T-002   | #125        | https://github.com/owner/repo/issues/125 |
-| T-003   | #126        | https://github.com/owner/repo/issues/126 |
+| Task ID | Issue # | URL                                    |
+|---------|---------|----------------------------------------|
+| T-001   | #124    | https://github.com/owner/repo/issues/124 |
+| T-002   | #125    | https://github.com/owner/repo/issues/125 |
+| T-003   | #126    | https://github.com/owner/repo/issues/126 |
 ...
 
-✅ 1つのメインIssueと<count>個のサブIssueを作成しました
+✅ 1つのメインIssueと<count>個のタスクIssueを作成しました
 💡 次のステップ: メインIssue #<main_issue> から各タスクの進捗を管理してください
 ```
 
@@ -409,7 +522,7 @@ Generate console output in the configured language (`.sdp/config/language.yml`) 
    3. コマンド実行: /sdp:export-issues <slug>
 ```
 
-#### GitHub Mode: gh sub-issue extension not installed (only when sub_issue_mode is true)
+#### GitHub Mode: gh sub-issue extension not installed (only when issue_mode is sub_issues)
 ```
 【エラー: gh sub-issue 拡張未インストール】
 📋 要件: <slug>
@@ -418,7 +531,7 @@ Generate console output in the configured language (`.sdp/config/language.yml`) 
 
 💡 対処方法:
    1. gh sub-issue 拡張をインストール: gh extension install yahsan2/gh-sub-issue
-   2. または export.yml の "sub_issue_mode" を false に変更して通常のIssueを使用
+   2. または export.yml の "issue_mode" を "linked_issues" または "single_issue" に変更
    3. または export.yml の "destination" を "local" に変更してローカル出力を使用
    4. コマンド実行: /sdp:export-issues <slug>
 ```
