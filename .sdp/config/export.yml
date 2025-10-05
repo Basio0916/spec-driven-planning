@@ -12,10 +12,11 @@ github:
   # If not specified, gh CLI will auto-detect from current git repository
   repo: your-org/your-repo
 
-  # Use GitHub's sub-issue feature (requires gh sub-issue extension)
-  # - true: Create tasks as sub-issues with automatic parent-child relationship
-  # - false: Create tasks as regular issues and link them manually to parent
-  sub_issue_mode: false
+  # Issue export mode
+  # - "sub_issues": Create tasks as sub-issues (requires gh sub-issue extension (gh extension install yahsan2/gh-sub-issue))
+  # - "linked_issues": Create tasks as regular issues and link them to parent
+  # - "single_issue": Create one issue with all tasks as checkboxes
+  issue_mode: single_issue
 
   # Default labels to apply to all issues
   # These labels will be added to both main requirement issues and task sub-issues
