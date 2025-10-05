@@ -57,6 +57,7 @@ Read `.sdp/config/export.yml` to determine:
 Based on the `destination` field in export.yml:
 - **`github`**: Export to GitHub Issues (requires `gh` CLI)
 - **`jira`**: Export to Jira Issues (uses REST API v3)
+- **`backlog`**: Export to Backlog Issues (uses REST API v2)
 - **`local`**: Export to local markdown files (no external tools required)
 
 ### Implementation Details
@@ -64,6 +65,7 @@ Based on the `destination` field in export.yml:
 For detailed implementation instructions, refer to:
 - **GitHub mode**: `.sdp/docs/export-github.md`
 - **Jira mode**: `.sdp/docs/export-jira.md`
+- **Backlog mode**: `.sdp/docs/export-backlog.md`
 - **Local mode**: `.sdp/docs/export-local.md`
 
 ## Step 3: Execute Export
@@ -87,6 +89,17 @@ If `destination: jira`, read `.sdp/docs/export-jira.md` for complete implementat
 1. Check Jira configuration (url, email, project, API token)
 2. Load templates and convert Wiki Markup to ADF
 3. Create main issue via REST API
+4. Create task issues if using sub_tasks or linked_issues mode
+5. Generate console output with issue URLs
+
+### Backlog Export
+
+If `destination: backlog`, read `.sdp/docs/export-backlog.md` for complete implementation details.
+
+**Summary**:
+1. Check Backlog configuration (space_key, project_key, API key)
+2. Get project ID and issue type IDs via REST API
+3. Create main issue with Markdown description
 4. Create task issues if using sub_tasks or linked_issues mode
 5. Generate console output with issue URLs
 
@@ -278,6 +291,7 @@ Collect the returned issue number and URL for each task.
 For detailed implementation guides on each export mode, refer to:
 - **GitHub Issues**: `.sdp/docs/export-github.md`
 - **Jira Issues**: `.sdp/docs/export-jira.md`
+- **Backlog Issues**: `.sdp/docs/export-backlog.md`
 - **Local Files**: `.sdp/docs/export-local.md`
 
 These files contain complete API reference, template formats, error handling, and manual import instructions.

@@ -1,10 +1,11 @@
 # Export Configuration for /sdp:export-issues command
 # Determines where task breakdowns should be exported
 
-# Export destination: "github", "jira", or "local"
-# - github: Create issues directly in GitHub (requires gh CLI)
-# - jira:   Create issues directly in Jira (requires jira CLI)
-# - local:  Generate markdown files locally
+# Export destination: "github", "jira", "backlog", or "local"
+# - github:  Create issues directly in GitHub (requires gh CLI)
+# - jira:    Create issues directly in Jira (uses REST API v3)
+# - backlog: Create issues directly in Backlog (uses REST API v2)
+# - local:   Generate markdown files locally
 destination: github
 
 # GitHub export settings
@@ -79,6 +80,41 @@ jira:
   labels:
   #  - sdp
   #  - planning
+
+# Backlog export settings
+backlog:
+  # Backlog space key (subdomain)
+  # e.g., if your URL is https://myspace.backlog.jp, space_key is "myspace"
+  space_key: myspace
+
+  # Backlog domain (default: backlog.jp for Japanese instances)
+  # Use "backlog.com" for international instances
+  domain: backlog.jp
+
+  # Backlog project key (shown in project settings)
+  project_key: PROJ
+
+  # Authentication: Use API key (recommended) or set as environment variable
+  # Create API key at: 個人設定 > API > 登録
+  # https://support-ja.backlog.com/hc/ja/articles/115015420567-API%E3%81%AE%E8%A8%AD%E5%AE%9A
+  # Option 1: Set API key directly (not recommended for security)
+  # api_key: your-api-key-here
+  # Option 2: Use environment variable (recommended)
+  # Set environment variable: export BACKLOG_API_KEY=your-api-key-here
+  # The command will read from environment variable if api_key is not set
+
+  # Issue export mode
+  # - "sub_tasks": Create tasks as sub-tasks (Backlog native parent-child)
+  # - "linked_issues": Create tasks as regular issues and link via comments
+  # - "single_issue": Create one issue with all tasks as checkboxes
+  issue_mode: sub_tasks
+
+  # Backlog issue type for main requirement (e.g., "タスク", "バグ", "要望")
+  main_issue_type: タスク
+
+  # Backlog issue type for task issues (e.g., "タスク", "バグ")
+  # Only used when issue_mode is "sub_tasks" or "linked_issues"
+  task_issue_type: タスク
 
 # Local export settings
 local:
