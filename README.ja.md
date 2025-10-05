@@ -7,7 +7,7 @@
 - 📋 **要件の洗練化**: 自然言語を構造化された仕様書に変換
 - 📊 **PERT見積もり**: PERTベースの見積もりによる正確なタスク分解
 - 🗺️ **ビジュアル計画**: ガントチャートとクリティカルパス分析の作成
-- 🔗 **GitHub連携**: タスクをサブIssue構造でGitHub Issueにエクスポート
+- 🔗 **マルチプラットフォーム連携**: GitHub Issues、Jira、Backlog、またはローカルファイルへタスクをエクスポート
 - 🏗️ **スマートコンテキスト**: プロジェクトコンテキスト（プロダクト、技術、構造）の自動生成
 
 ## クイックスタート
@@ -49,12 +49,23 @@ language: en  # または ja
 
 **エクスポート設定の更新** (`.sdp/config/export.yml`):
    ```yaml
-   destination: github  # または "local"
+   destination: github  # "github"、"jira"、"backlog"、または "local"
    github:
      repo: your-org/your-repo
+     issue_mode: sub_issues  # sub_issues、linked_issues、または single_issue
      labels:
        - sdp
        - enhancement
+   jira:
+     url: https://your-domain.atlassian.net
+     project: PROJ
+     email: your-email@example.com
+     issue_mode: sub_tasks
+   backlog:
+     space_key: myspace
+     domain: backlog.com
+     project_key: PROJ
+     issue_mode: sub_tasks
    local:
      out_dir: out
    ```
@@ -144,9 +155,9 @@ PERT見積もり付きのタスク分解を作成:
 - リスク台帳（上位3つ）
 - クリティカルパスとバッファ推奨事項
 
-### 6. GitHubへのエクスポート
+### 6. 課題トラッカーへのエクスポート
 
-タスクをGitHub Issueにエクスポート:
+タスクをGitHub Issues、Jira、Backlog、またはローカルファイルにエクスポート:
 
 ```bash
 /sdp:export-issues add-user-authentication
@@ -161,31 +172,77 @@ PERT見積もり付きのタスク分解を作成:
   # 認証
   gh auth login
   ```
-- 1つのメインの要件Issueを作成
-- N個のタスクサブIssueを作成
+- `export.yml`で`destination: github`に設定
+- メインIssueを作成
+- タスクIssueを作成（サブIssue/リンクIssue/単一Issue）
 - サブIssueはメインIssueを参照
 - メインIssueにタスクチェックリストを追加
 
+**Jiraモード**（REST API使用）:
+- **前提条件**: Jira API Token（[生成方法](https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/)）
+- `export.yml`で`destination: jira`に設定
+- Jiraプロジェクト、URL、メール、API Tokenを設定
+- Jira REST API v3を使用
+- Atlassian Document Format (ADF)で記述
+- 説明フィールドに整形されたコンテンツを作成
+- エピック、ストーリー、サブタスクの関係を自動作成
+
+**Backlogモード**（REST API使用）:
+- **前提条件**: Backlog API Key（スペース管理者権限が必要）
+- `export.yml`で`destination: backlog`に設定
+- Backlogスペース、プロジェクトキー、API Keyを設定
+- Backlog REST API v2を使用
+- Markdown形式で記述
+- 親課題と子課題の関係を自動作成
+
 **ローカルモード**（GitHub CLIは不要）:
+- `export.yml`で`destination: local`に設定
 - `.sdp/out/add-user-authentication-issues.md` を生成
 - `.sdp/out/add-user-authentication-import.sh` を作成（macOS/Linux/Git Bash用Bashスクリプト）
 - `.sdp/out/add-user-authentication-import.ps1` を作成（Windows用PowerShellスクリプト）
-- インポートスクリプトは、後で `gh` CLIが利用可能になった際に実行可能
+- インポートスクリプトは、後でCLIが利用可能になった際に実行可能
 
 ## Issue構造
 
-GitHubへのエクスポート時、SDPは階層構造を作成します:
+課題トラッカーへのエクスポート時、SDPは階層構造を作成します。`issue_mode`設定により構造が変わります:
+
+### 1. Sub-issues/Sub-tasks Mode (デフォルト)
+親課題の下にサブ課題を作成:
+
+```
+📌 メイン課題: [add-user-authentication] ユーザー認証機能
+   ├─ 🎫 サブ課題: [add-user-authentication][T-001] 認証モジュールのセットアップ
+   ├─ 🎫 サブ課題: [add-user-authentication][T-002] JWTトークンサービスの実装
+   ├─ 🎫 サブ課題: [add-user-authentication][T-003] ログイン/ログアウトエンドポイントの作成
+   └─ 🎫 サブ課題: [add-user-authentication][T-004] 認証テストの追加
+```
+
+### 2. Linked Issues Mode
+独立した課題を作成し、メインIssue本文にリンク:
 
 ```
 📌 メインIssue: [add-user-authentication] ユーザー認証機能
-   ├─ 🎫 サブIssue: [add-user-authentication][T-001] 認証モジュールのセットアップ
-   ├─ 🎫 サブIssue: [add-user-authentication][T-002] JWTトークンサービスの実装
-   ├─ 🎫 サブIssue: [add-user-authentication][T-003] ログイン/ログアウトエンドポイントの作成
-   └─ 🎫 サブIssue: [add-user-authentication][T-004] 認証テストの追加
+   [本文にリンクリスト]
+   
+🎫 課題: [add-user-authentication][T-001] 認証モジュールのセットアップ
+🎫 課題: [add-user-authentication][T-002] JWTトークンサービスの実装
+🎫 課題: [add-user-authentication][T-003] ログイン/ログアウトエンドポイントの作成
+🎫 課題: [add-user-authentication][T-004] 認証テストの追加
 ```
 
-各サブIssueには以下が含まれます:
-- 親Issue参照
+### 3. Single Issue Mode
+すべてのタスクを1つのIssue内のチェックリストとして作成:
+
+```
+📌 単一Issue: [add-user-authentication] ユーザー認証機能
+   - [ ] [T-001] 認証モジュールのセットアップ
+   - [ ] [T-002] JWTトークンサービスの実装
+   - [ ] [T-003] ログイン/ログアウトエンドポイントの作成
+   - [ ] [T-004] 認証テストの追加
+```
+
+各サブ課題には以下が含まれます:
+- 親課題参照
 - 説明と成果物
 - 完了の定義（チェックリスト）
 - 依存関係
@@ -203,7 +260,7 @@ GitHubへのエクスポート時、SDPは階層構造を作成します:
 | `/sdp:design <slug>` | 代替案と根拠を含む詳細設計の生成 |
 | `/sdp:estimate <slug>` | PERT見積もり付きのタスク分解の生成 |
 | `/sdp:show-plan <slug>` | ガントチャート付きのビジュアルプロジェクト計画の作成 |
-| `/sdp:export-issues <slug>` | GitHub Issueまたはローカルファイルへのエクスポート |
+| `/sdp:export-issues <slug>` | GitHub Issues、Jira、Backlog、またはローカルファイルへのエクスポート |
 
 ## テンプレート
 
@@ -266,9 +323,22 @@ language: ja  # 英語の場合は 'en'、日本語の場合は 'ja' に変更
 
 - **Node.js**: 14.0.0以上（`npx`によるインストールに必要）
 - **Claude Code**: カスタムコマンドの実行に必要
-- **GitHub CLI** (`gh`): オプション、直接GitHub Issueへのエクスポートにのみ必要
+
+### オプション要件（エクスポート先に応じて）
+
+- **GitHub CLI** (`gh`): GitHub Issueへの直接エクスポートに必要
   - インストール: https://cli.github.com/
   - ローカルモード（`.sdp/config/export.yml`で`destination: local`を設定）を使用する場合は不要
+
+- **Jira API Token**: Jiraへのエクスポートに必要
+  - Jira Cloud環境とプロジェクトへのアクセス
+  - Jira API Token（[生成方法](https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/)）
+  - `.sdp/config/export.yml`にURL、プロジェクト、メール、API Tokenを設定
+
+- **Backlog API Key**: Backlogへのエクスポートに必要
+  - Backlogスペースとプロジェクトへのアクセス
+  - Backlog API Key（スペース管理者権限が必要）
+  - `.sdp/config/export.yml`にspace_key、domain、project_key、API Keyを設定
 
 ## プラットフォームサポート
 
