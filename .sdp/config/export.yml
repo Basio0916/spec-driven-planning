@@ -63,7 +63,7 @@ jira:
   # - "sub_tasks": Create tasks as sub-tasks (Jira native sub-tasks)
   # - "linked_issues": Create tasks as regular issues and link them to parent
   # - "single_issue": Create one issue with all tasks as checkboxes
-  issue_mode: single_issue
+  issue_mode: sub_tasks
 
   # Jira issue type for main requirement (e.g., "Epic", "Story", "Task")
   main_issue_type: Story
