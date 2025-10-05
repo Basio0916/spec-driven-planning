@@ -331,6 +331,15 @@ If required configuration is missing, provide appropriate error messages to guid
 
 **Note**: This implementation uses Jira REST API v3 with Basic Authentication (email + API token).
 
+**Important**: All Jira issue descriptions must use **Atlassian Document Format (ADF)**, not plain text or Wiki Markup. ADF is a JSON-based format that properly renders:
+- Headings (h1-h6)
+- Task lists with checkboxes (taskItem nodes with state: "TODO" or "DONE")
+- Bullet lists and numbered lists
+- Paragraphs, bold, italic, links
+- Code blocks, horizontal rules, and more
+
+The templates in `.sdp/templates/{lang}/jira-*.md` are stored in Wiki Markup for human readability, but must be converted to ADF before sending to the API.
+
 ### Step 2C: Load Jira Configuration
 
 Read Jira settings from `.sdp/config/export.yml`:
@@ -388,15 +397,103 @@ Read the main issue template (without task details):
 
 Replace placeholders (same as GitHub mode).
 
+**Important**: Jira templates use Wiki Markup format (h2., *, [ ]) for readability, but the actual API requests must use Atlassian Document Format (ADF). When implementing:
+1. Load the template file (Wiki Markup)
+2. Replace all placeholders with actual values
+3. Convert the entire content from Wiki Markup to ADF JSON structure
+4. Send the ADF structure to Jira REST API
+
+This ensures proper rendering of headings, checkboxes, lists, and other formatting in Jira issues.
+
 #### Execution
 
-**Important**: Use Jira REST API to create issues. Authentication uses email + API token (Basic Auth).
+**Important**: Use Jira REST API with Atlassian Document Format (ADF). Authentication uses email + API token (Basic Auth).
+
+**ADF Structure Guidelines**:
+- Use proper ADF nodes: `heading`, `paragraph`, `bulletList`, `listItem`, `taskList`, `taskItem`
+- Headings: `{"type": "heading", "attrs": {"level": 2}, "content": [{"type": "text", "text": "Heading"}]}`
+- Checkboxes: `{"type": "taskList", "content": [{"type": "taskItem", "attrs": {"state": "TODO"}, "content": [{"type": "text", "text": "Task"}]}]}`
+- Bullet lists: `{"type": "bulletList", "content": [{"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "Item"}]}]}]}`
+
+**Template Conversion**:
+When loading Jira templates (jira-single.md, jira-main.md, jira-task.md), convert from Wiki Markup to ADF:
+1. `h2. Title` → heading level 2 node
+2. `* [ ] Item` → taskItem node with state "TODO"
+3. `* Item` → bulletList with listItem nodes
+4. Plain text → paragraph nodes
+5. `----` → rule node (horizontal line)
+
+**Example ADF Conversion**:
+```
+Wiki Markup:
+h2. 要件概要
+{{requirement_summary}}
+
+h2. タスク分解
+* [ ] T-001: Task 1
+* [ ] T-002: Task 2
+```
+
+Converts to ADF:
+```json
+{
+  "type": "doc",
+  "version": 1,
+  "content": [
+    {
+      "type": "heading",
+      "attrs": {"level": 2},
+      "content": [{"type": "text", "text": "要件概要"}]
+    },
+    {
+      "type": "paragraph",
+      "content": [{"type": "text", "text": "{{requirement_summary}}"}]
+    },
+    {
+      "type": "heading",
+      "attrs": {"level": 2},
+      "content": [{"type": "text", "text": "タスク分解"}]
+    },
+    {
+      "type": "taskList",
+      "attrs": {"localId": "task-list-1"},
+      "content": [
+        {
+          "type": "taskItem",
+          "attrs": {"localId": "task-1", "state": "TODO"},
+          "content": [
+            {
+              "type": "text",
+              "text": "T-001: Task 1"
+            }
+          ]
+        },
+        {
+          "type": "taskItem",
+          "attrs": {"localId": "task-2", "state": "TODO"},
+          "content": [
+            {
+              "type": "text",
+              "text": "T-002: Task 2"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
 
 ```bash
 # Prepare authentication (Base64 encode email:api_token)
 AUTH=$(echo -n "${JIRA_EMAIL}:${API_TOKEN}" | base64)
 
-# Prepare JSON payload for main issue
+# Load and convert template to ADF
+# Read template file (e.g., .sdp/templates/ja/jira-single.md)
+# Replace placeholders with actual values
+# Convert Wiki Markup to ADF structure
+
+# Prepare JSON payload for main issue with ADF description
 JSON_PAYLOAD=$(cat <<EOF
 {
   "fields": {
@@ -404,24 +501,12 @@ JSON_PAYLOAD=$(cat <<EOF
       "key": "${JIRA_PROJECT}"
     },
     "summary": "[<slug>] <requirement title>",
-    "description": {
-      "type": "doc",
-      "version": 1,
-      "content": [
-        {
-          "type": "paragraph",
-          "content": [
-            {
-              "type": "text",
-              "text": "<formatted body>"
-            }
-          ]
-        }
-      ]
-    },
+    "description": <ADF_JSON_STRUCTURE>,
     "issuetype": {
       "name": "${MAIN_ISSUE_TYPE}"
-    }
+    }$(if [ -n "$LABELS" ]; then echo ',
+    "labels": ['"$(echo "$LABELS" | sed 's/,/", "/g')"']'; fi)$(if [ -n "$COMPONENT" ]; then echo ',
+    "components": [{"name": "'"$COMPONENT"'"}]'; fi)
   }
 }
 EOF
@@ -435,42 +520,6 @@ RESPONSE=$(curl -s -X POST "${JIRA_URL}/rest/api/3/issue" \
 
 # Extract issue key from response
 MAIN_ISSUE=$(echo "${RESPONSE}" | grep -oE '"key":"[A-Z]+-[0-9]+"' | cut -d'"' -f4)
-
-# Add labels if specified
-if [ -n "$LABELS" ]; then
-  LABEL_JSON=$(cat <<EOF
-{
-  "update": {
-    "labels": [
-      $(echo "$LABELS" | sed 's/,/","/g' | sed 's/^/{"add":"/' | sed 's/$/"}/')
-    ]
-  }
-}
-EOF
-)
-  curl -s -X PUT "${JIRA_URL}/rest/api/3/issue/${MAIN_ISSUE}" \
-    -H "Authorization: Basic ${AUTH}" \
-    -H "Content-Type: application/json" \
-    -d "${LABEL_JSON}"
-fi
-
-# Add component if specified
-if [ -n "$COMPONENT" ]; then
-  COMPONENT_JSON=$(cat <<EOF
-{
-  "update": {
-    "components": [
-      {"add": {"name": "${COMPONENT}"}}
-    ]
-  }
-}
-EOF
-)
-  curl -s -X PUT "${JIRA_URL}/rest/api/3/issue/${MAIN_ISSUE}" \
-    -H "Authorization: Basic ${AUTH}" \
-    -H "Content-Type: application/json" \
-    -d "${COMPONENT_JSON}"
-fi
 ```
 
 **If `issue_mode: single_issue`**: This is the only issue created. Skip to Step 5C.
@@ -494,13 +543,24 @@ Read the appropriate template based on language configuration:
 
 Replace placeholders (same as GitHub mode).
 
+**Note**: Jira templates use Wiki Markup format for human readability, but must be converted to Atlassian Document Format (ADF) when creating issues via REST API. The conversion process:
+1. Load the template file
+2. Replace all placeholders with actual values
+3. Convert Wiki Markup syntax to ADF JSON structure
+4. Use the ADF structure in the API request
+
 #### Execution
 
 **If `issue_mode: sub_tasks`**:
 Use Jira REST API to create sub-tasks with parent relationship:
 
 ```bash
-# Prepare JSON payload for sub-task
+# Load and convert task template to ADF
+# Read template file (e.g., .sdp/templates/ja/jira-task.md)
+# Replace placeholders with actual task values
+# Convert Wiki Markup to ADF structure
+
+# Prepare JSON payload for sub-task with ADF description
 TASK_JSON=$(cat <<EOF
 {
   "fields": {
@@ -511,24 +571,11 @@ TASK_JSON=$(cat <<EOF
       "key": "${MAIN_ISSUE}"
     },
     "summary": "[T-001] <task.title>",
-    "description": {
-      "type": "doc",
-      "version": 1,
-      "content": [
-        {
-          "type": "paragraph",
-          "content": [
-            {
-              "type": "text",
-              "text": "<formatted body>"
-            }
-          ]
-        }
-      ]
-    },
+    "description": <ADF_JSON_STRUCTURE>,
     "issuetype": {
       "name": "${TASK_ISSUE_TYPE}"
-    }
+    }$(if [ -n "$LABELS" ]; then echo ',
+    "labels": ['"$(echo "$LABELS" | sed 's/,/", "/g')"']'; fi)
   }
 }
 EOF
@@ -542,14 +589,14 @@ RESPONSE=$(curl -s -X POST "${JIRA_URL}/rest/api/3/issue" \
 
 # Extract issue key
 TASK_ISSUE=$(echo "${RESPONSE}" | grep -oE '"key":"[A-Z]+-[0-9]+"' | cut -d'"' -f4)
-
-# Add labels if specified (same as main issue)
 ```
 
 **If `issue_mode: linked_issues`**:
 Use Jira REST API to create regular issues and link them:
 
 ```bash
+# Load and convert task template to ADF (same as sub_tasks)
+
 # Create regular issue (without parent field)
 TASK_JSON=$(cat <<EOF
 {
@@ -558,24 +605,11 @@ TASK_JSON=$(cat <<EOF
       "key": "${JIRA_PROJECT}"
     },
     "summary": "[T-001] <task.title>",
-    "description": {
-      "type": "doc",
-      "version": 1,
-      "content": [
-        {
-          "type": "paragraph",
-          "content": [
-            {
-              "type": "text",
-              "text": "<formatted body>"
-            }
-          ]
-        }
-      ]
-    },
+    "description": <ADF_JSON_STRUCTURE>,
     "issuetype": {
       "name": "${TASK_ISSUE_TYPE}"
-    }
+    }$(if [ -n "$LABELS" ]; then echo ',
+    "labels": ['"$(echo "$LABELS" | sed 's/,/", "/g')"']'; fi)
   }
 }
 EOF
@@ -790,18 +824,52 @@ For each task, generate a task issue section using the task template (`.sdp/temp
    AUTH=$(echo -n "${JIRA_EMAIL}:${JIRA_API_TOKEN}" | base64)
    ```
 
-2. **Create One Comprehensive Issue**:
+2. **Create One Comprehensive Issue with ADF**:
    ```bash
-   BODY=$(cat single-issue-body.md)
-   JSON=$(cat <<EOF
+   # Load template and convert to ADF
+   # The description must use Atlassian Document Format (ADF)
+   # Example ADF structure with headings, task lists, and paragraphs:
+   
+   JSON=$(cat <<'EOF'
    {
      "fields": {
-       "project": {"key": "${JIRA_PROJECT}"},
-       "summary": "[<slug>] <title>",
+       "project": {"key": "PROJ"},
+       "summary": "[slug] Title",
        "description": {
          "type": "doc",
          "version": 1,
-         "content": [{"type": "paragraph", "content": [{"type": "text", "text": "${BODY}"}]}]
+         "content": [
+           {
+             "type": "heading",
+             "attrs": {"level": 2},
+             "content": [{"type": "text", "text": "要件概要"}]
+           },
+           {
+             "type": "paragraph",
+             "content": [{"type": "text", "text": "Requirement summary text here"}]
+           },
+           {
+             "type": "heading",
+             "attrs": {"level": 2},
+             "content": [{"type": "text", "text": "タスク分解"}]
+           },
+           {
+             "type": "taskList",
+             "attrs": {"localId": "tasks"},
+             "content": [
+               {
+                 "type": "taskItem",
+                 "attrs": {"localId": "task-1", "state": "TODO"},
+                 "content": [{"type": "text", "text": "T-001: Task 1 (Expected: 2h)"}]
+               },
+               {
+                 "type": "taskItem",
+                 "attrs": {"localId": "task-2", "state": "TODO"},
+                 "content": [{"type": "text", "text": "T-002: Task 2 (Expected: 3h)"}]
+               }
+             ]
+           }
+         ]
        },
        "issuetype": {"name": "Story"}
      }
@@ -819,7 +887,7 @@ For each task, generate a task issue section using the task template (`.sdp/temp
    echo "URL: ${JIRA_URL}/browse/${ISSUE}"
    ```
 
-3. **Note**: All tasks are included as checkboxes in the issue description. Check them off as you complete each task.
+3. **Note**: All tasks are included as checkboxes (taskItem nodes) in the issue description. Check them off as you complete each task.
 
 #### Jira: Option B: Sub-Task Mode (issue_mode: sub_tasks)
 
@@ -830,19 +898,59 @@ For each task, generate a task issue section using the task template (`.sdp/temp
    # Create main issue (same as Option A, step 2)
    ```
 
-3. **Create Each Task as Sub-Task** (automatically linked to parent):
+3. **Create Each Task as Sub-Task with ADF** (automatically linked to parent):
    ```bash
-   TASK_BODY=$(cat task-001-body.md)
-   TASK_JSON=$(cat <<EOF
+   # Load task template and convert to ADF
+   # The description must use Atlassian Document Format (ADF)
+   
+   TASK_JSON=$(cat <<'EOF'
    {
      "fields": {
-       "project": {"key": "${JIRA_PROJECT}"},
-       "parent": {"key": "${MAIN_ISSUE}"},
-       "summary": "[T-001] <task title>",
+       "project": {"key": "PROJ"},
+       "parent": {"key": "PROJ-123"},
+       "summary": "[T-001] Task title",
        "description": {
          "type": "doc",
          "version": 1,
-         "content": [{"type": "paragraph", "content": [{"type": "text", "text": "${TASK_BODY}"}]}]
+         "content": [
+           {
+             "type": "heading",
+             "attrs": {"level": 2},
+             "content": [{"type": "text", "text": "説明"}]
+           },
+           {
+             "type": "paragraph",
+             "content": [{"type": "text", "text": "Task description here"}]
+           },
+           {
+             "type": "heading",
+             "attrs": {"level": 2},
+             "content": [{"type": "text", "text": "見積もり"}]
+           },
+           {
+             "type": "bulletList",
+             "content": [
+               {
+                 "type": "listItem",
+                 "content": [
+                   {
+                     "type": "paragraph",
+                     "content": [{"type": "text", "text": "手法: PERT"}]
+                   }
+                 ]
+               },
+               {
+                 "type": "listItem",
+                 "content": [
+                   {
+                     "type": "paragraph",
+                     "content": [{"type": "text", "text": "期待値: 2h"}]
+                   }
+                 ]
+               }
+             ]
+           }
+         ]
        },
        "issuetype": {"name": "Sub-task"}
      }
@@ -867,18 +975,56 @@ For each task, generate a task issue section using the task template (`.sdp/temp
 
 2. **Create Main Requirement Issue First** (same as Option B)
 
-3. **Create Each Task as Regular Issue** (and link to parent):
+3. **Create Each Task as Regular Issue with ADF** (and link to parent):
    ```bash
-   # Create task issue (without parent field)
-   TASK_JSON=$(cat <<EOF
+   # Create task issue (without parent field) using ADF
+   TASK_JSON=$(cat <<'EOF'
    {
      "fields": {
-       "project": {"key": "${JIRA_PROJECT}"},
-       "summary": "[T-001] <task title>",
+       "project": {"key": "PROJ"},
+       "summary": "[T-001] Task title",
        "description": {
          "type": "doc",
          "version": 1,
-         "content": [{"type": "paragraph", "content": [{"type": "text", "text": "$(cat task-001-body.md)"}]}]
+         "content": [
+           {
+             "type": "heading",
+             "attrs": {"level": 2},
+             "content": [{"type": "text", "text": "説明"}]
+           },
+           {
+             "type": "paragraph",
+             "content": [{"type": "text", "text": "Task description here"}]
+           },
+           {
+             "type": "heading",
+             "attrs": {"level": 2},
+             "content": [{"type": "text", "text": "見積もり"}]
+           },
+           {
+             "type": "bulletList",
+             "content": [
+               {
+                 "type": "listItem",
+                 "content": [
+                   {
+                     "type": "paragraph",
+                     "content": [{"type": "text", "text": "手法: PERT"}]
+                   }
+                 ]
+               },
+               {
+                 "type": "listItem",
+                 "content": [
+                   {
+                     "type": "paragraph",
+                     "content": [{"type": "text", "text": "期待値: 2h"}]
+                   }
+                 ]
+               }
+             ]
+           }
+         ]
        },
        "issuetype": {"name": "Task"}
      }
