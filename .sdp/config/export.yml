@@ -84,12 +84,12 @@ jira:
 # Backlog export settings
 backlog:
   # Backlog space key (subdomain)
-  # e.g., if your URL is https://myspace.backlog.jp, space_key is "myspace"
+  # e.g., if your URL is https://myspace.backlog.com, space_key is "myspace"
   space_key: myspace
 
-  # Backlog domain (default: backlog.jp for Japanese instances)
-  # Use "backlog.com" for international instances
-  domain: backlog.jp
+  # Backlog domain (default: backlog.com for international instances)
+  # Use "backlog.jp" for Japanese instances
+  domain: backlog.com
 
   # Backlog project key (shown in project settings)
   project_key: PROJ
@@ -107,7 +107,7 @@ backlog:
   # - "sub_tasks": Create tasks as sub-tasks (Backlog native parent-child)
   # - "linked_issues": Create tasks as regular issues and link via comments
   # - "single_issue": Create one issue with all tasks as checkboxes
-  issue_mode: sub_tasks
+  issue_mode: single_issue
 
   # Backlog issue type for main requirement (e.g., "タスク", "バグ", "要望")
   main_issue_type: タスク
