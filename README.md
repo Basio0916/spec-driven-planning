@@ -9,7 +9,7 @@ A structured workflow system for transforming natural-language requirements into
 - 📋 **Requirement Refinement**: Transform natural language into structured specifications
 - 📊 **PERT Estimation**: Generate accurate task breakdowns with PERT-based estimates
 - 🗺️ **Visual Planning**: Create Gantt charts and critical path analysis
-- 🔗 **GitHub Integration**: Export tasks to GitHub Issues with sub-issue structure
+- 🔗 **Multi-Platform Integration**: Export tasks to GitHub Issues, Jira, Backlog, or local files
 - 🏗️ **Smart Context**: Auto-generate project context (product, tech, structure)
 
 ## Quick Start
@@ -51,12 +51,23 @@ All generated documents (requirement.md, design.md, plan.md, etc.) will be creat
 
 **Update export settings** in `.sdp/config/export.yml`:
    ```yaml
-   destination: github  # or "local"
+   destination: github  # "github", "jira", "backlog", or "local"
    github:
      repo: your-org/your-repo
+     issue_mode: sub_issues  # sub_issues, linked_issues, or single_issue
      labels:
        - sdp
        - enhancement
+   jira:
+     url: https://your-domain.atlassian.net
+     project: PROJ
+     email: your-email@example.com
+     issue_mode: sub_tasks
+   backlog:
+     space_key: myspace
+     domain: backlog.com
+     project_key: PROJ
+     issue_mode: sub_tasks
    local:
      out_dir: out
    ```
@@ -146,15 +157,18 @@ Creates `.sdp/specs/add-user-authentication/plan.md` with:
 - Risk register (top 3)
 - Critical path and buffer recommendations
 
-### 6. Export to GitHub
+### 6. Export to Issue Trackers
 
-Export tasks to GitHub Issues:
+Export tasks to your preferred issue tracker:
 
 ```bash
 /sdp:export-issues add-user-authentication
 ```
 
-**GitHub Mode** (requires GitHub CLI):
+SDP supports multiple export destinations (configured in `.sdp/config/export.yml`):
+
+#### GitHub Mode (requires GitHub CLI)
+
 - **Prerequisites**: Install and authenticate [GitHub CLI (`gh`)](https://cli.github.com/)
   ```bash
   # Install GitHub CLI (macOS)
@@ -162,36 +176,78 @@ Export tasks to GitHub Issues:
   
   # Authenticate
   gh auth login
+  
+  # Optional: Install sub-issue extension for sub_issues mode
+  gh extension install yahsan2/gh-sub-issue
   ```
 - Creates 1 main requirement issue
-- Creates N task sub-issues
-- Sub-issues reference main issue
-- Main issue updated with task checklist
+- Creates N task sub-issues (with `sub_issues` or `linked_issues` mode)
+- Main issue includes task checklist
 
-**Local Mode** (no GitHub CLI required):
+#### Jira Mode (REST API)
+
+- **Prerequisites**: 
+  - Jira API token from [Atlassian Account Settings](https://id.atlassian.com/manage-profile/security/api-tokens)
+  - Set environment variable: `export JIRA_API_TOKEN=your-token`
+- Creates issues with Atlassian Document Format (ADF)
+- Supports sub-tasks and linked issues
+- Native parent-child relationships
+
+#### Backlog Mode (REST API)
+
+- **Prerequisites**:
+  - Backlog API key from 個人設定 > API > 登録
+  - Set environment variable: `export BACKLOG_API_KEY=your-key`
+- Creates issues with Markdown formatting
+- Supports sub-tasks and linked issues
+- Native parent-child relationships
+
+#### Local Mode (no external tools required)
+
 - Generates `.sdp/out/add-user-authentication-issues.md`
 - Creates `.sdp/out/add-user-authentication-import.sh` (Bash script for macOS/Linux/Git Bash)
 - Creates `.sdp/out/add-user-authentication-import.ps1` (PowerShell script for Windows)
-- Import scripts can be run later when `gh` CLI is available
+- Import scripts can be run later when tools are available
 
 ## Issue Structure
 
-When exporting to GitHub, SDP creates a hierarchical structure:
+When exporting to issue trackers, SDP creates a hierarchical structure:
 
 ```
 📌 Main Issue: [add-user-authentication] User Authentication Feature
-   ├─ 🎫 Sub-Issue: [add-user-authentication][T-001] Setup authentication module
-   ├─ 🎫 Sub-Issue: [add-user-authentication][T-002] Implement JWT token service
-   ├─ 🎫 Sub-Issue: [add-user-authentication][T-003] Create login/logout endpoints
-   └─ 🎫 Sub-Issue: [add-user-authentication][T-004] Add authentication tests
+   ├─ 🎫 Sub-Issue: [T-001] Setup authentication module
+   ├─ 🎫 Sub-Issue: [T-002] Implement JWT token service
+   ├─ 🎫 Sub-Issue: [T-003] Create login/logout endpoints
+   └─ 🎫 Sub-Issue: [T-004] Add authentication tests
 ```
+
+### Issue Modes
+
+SDP supports three issue organization modes:
+
+1. **Sub-Issues / Sub-Tasks Mode** (`sub_issues` / `sub_tasks`)
+   - Native parent-child relationships
+   - Automatic task checklist in parent issue
+   - Best for: GitHub (with extension), Jira, Backlog
+
+2. **Linked Issues Mode** (`linked_issues`)
+   - Separate issues with references
+   - Manual task checklist with links
+   - Best for: GitHub (without extension), cross-project tasks
+
+3. **Single Issue Mode** (`single_issue`)
+   - One comprehensive issue with all tasks as checkboxes
+   - Simplest approach
+   - Best for: Small features, quick prototypes
+
+### Issue Content
 
 Each sub-issue includes:
 - Parent issue reference
 - Description and deliverables
 - Definition of Done (checklist)
 - Dependencies
-- PERT estimate
+- PERT estimate (optimistic / most likely / pessimistic)
 - Risk notes
 
 ## Custom Commands
@@ -205,7 +261,7 @@ All commands are located in `.claude/commands/sdp/`:
 | `/sdp:design <slug>` | Generate detailed design with alternatives and rationale |
 | `/sdp:estimate <slug>` | Generate task breakdown with PERT estimates |
 | `/sdp:show-plan <slug>` | Create visual project plan with Gantt chart |
-| `/sdp:export-issues <slug>` | Export to GitHub Issues or local files |
+| `/sdp:export-issues <slug>` | Export to GitHub Issues, Jira, Backlog, or local files |
 
 ## Templates
 
@@ -268,9 +324,20 @@ All subsequent commands will generate content in the specified language.
 
 - **Node.js**: 14.0.0 or higher (for `npx` installation)
 - **Claude Code**: Required to run custom commands
-- **GitHub CLI** (`gh`): Optional, required only for direct GitHub Issues export
+
+### Optional (for issue export)
+
+- **GitHub CLI** (`gh`): For GitHub Issues export
   - Install: https://cli.github.com/
-  - Not needed if using Local Mode (`.sdp/config/export.yml` with `destination: local`)
+  - Not needed if using Jira, Backlog, or Local Mode
+  
+- **Jira API Token**: For Jira Issues export
+  - Create at: https://id.atlassian.com/manage-profile/security/api-tokens
+  - Set as environment variable: `JIRA_API_TOKEN`
+  
+- **Backlog API Key**: For Backlog Issues export
+  - Create at: 個人設定 > API > 登録
+  - Set as environment variable: `BACKLOG_API_KEY`
 
 ## Platform Support
 
