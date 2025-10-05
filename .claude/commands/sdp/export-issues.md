@@ -1038,12 +1038,17 @@ Generate console output in the configured language (`.sdp/config/language.yml`) 
 ❌ 必要な設定が不足しています
 
 💡 対処方法:
-   1. .sdp/config/export.yml に以下の設定を追加してください:
-      - jira.url: Jira インスタンスURL (例: https://your-domain.atlassian.net)
-      - jira.email: ユーザーメールアドレス
-      - jira.project: プロジェクトキー (例: PROJ)
-   2. または export.yml の "destination" を "local" に変更してローカル出力を使用
-   3. コマンド実行: /sdp:export-issues <slug>
+   .sdp/config/export.yml に以下の設定を追加してください:
+   
+   jira:
+     url: https://your-domain.atlassian.net
+     email: your-email@example.com
+     project: YOUR-PROJECT
+     issue_mode: single_issue
+     main_issue_type: Story
+     task_issue_type: Sub-task
+   
+   設定完了後、再度実行してください: /sdp:export-issues <slug>
 ```
 
 #### Jira Mode: Missing API token
@@ -1056,12 +1061,15 @@ Generate console output in the configured language (`.sdp/config/language.yml`) 
 💡 対処方法:
    1. Jira API トークンを作成: https://id.atlassian.com/manage-profile/security/api-tokens
    2. 以下のいずれかの方法で設定:
+      
       Option A: 環境変数に設定 (推奨)
         export JIRA_API_TOKEN=your-api-token-here
+      
       Option B: export.yml に直接記載
-        jira.api_token: your-api-token-here
-   3. または export.yml の "destination" を "local" に変更してローカル出力を使用
-   4. コマンド実行: /sdp:export-issues <slug>
+        jira:
+          api_token: your-api-token-here
+   
+   設定完了後、再度実行してください: /sdp:export-issues <slug>
 ```
 
 #### GitHub Mode: gh CLI not available
@@ -1072,9 +1080,20 @@ Generate console output in the configured language (`.sdp/config/language.yml`) 
 ❌ GitHub CLI (gh) がインストールされていません
 
 💡 対処方法:
-   1. GitHub CLI をインストール: https://cli.github.com/
-   2. または export.yml の "destination" を "local" に変更してローカル出力を使用
-   3. コマンド実行: /sdp:export-issues <slug>
+   GitHub CLI をインストールしてください:
+   
+   macOS (Homebrew):
+     brew install gh
+   
+   Windows (WinGet):
+     winget install --id GitHub.cli
+   
+   Linux (apt):
+     sudo apt install gh
+   
+   その他のインストール方法: https://cli.github.com/
+   
+   インストール完了後、再度実行してください: /sdp:export-issues <slug>
 ```
 
 #### GitHub Mode: gh sub-issue extension not installed (only when issue_mode is sub_issues)
@@ -1085,10 +1104,17 @@ Generate console output in the configured language (`.sdp/config/language.yml`) 
 ❌ gh sub-issue 拡張がインストールされていません
 
 💡 対処方法:
-   1. gh sub-issue 拡張をインストール: gh extension install yahsan2/gh-sub-issue
-   2. または export.yml の "issue_mode" を "linked_issues" または "single_issue" に変更
-   3. または export.yml の "destination" を "local" に変更してローカル出力を使用
-   4. コマンド実行: /sdp:export-issues <slug>
+   以下のいずれかを実行してください:
+   
+   Option A: gh sub-issue 拡張をインストール
+     gh extension install yahsan2/gh-sub-issue
+   
+   Option B: issue_mode を変更
+     .sdp/config/export.yml で以下のように変更:
+     github:
+       issue_mode: linked_issues  # または single_issue
+   
+   対処完了後、再度実行してください: /sdp:export-issues <slug>
 ```
 
 #### GitHub Mode: Not authenticated
@@ -1099,9 +1125,11 @@ Generate console output in the configured language (`.sdp/config/language.yml`) 
 ⚠️  GitHub CLI は利用可能ですが、認証されていません
 
 💡 対処方法:
-   1. GitHub認証を実行: gh auth login
-   2. または export.yml の "destination" を "local" に変更してローカル出力を使用
-   3. コマンド実行: /sdp:export-issues <slug>
+   GitHub認証を実行してください:
+   
+   gh auth login
+   
+   認証完了後、再度実行してください: /sdp:export-issues <slug>
 ```
 
 #### Task file not found
