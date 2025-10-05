@@ -17,15 +17,22 @@
 `npx`を使用してプロジェクトにSDPを初期化します:
 
 ```bash
-# 英語で初期化（デフォルト）
+# Claude Code用に初期化（デフォルト）
 npx spec-driven-planning init
+
+# GitHub Copilot用に初期化
+npx spec-driven-planning init --github-copilot
 
 # 日本語で初期化
 npx spec-driven-planning init --lang ja
+
+# GitHub Copilot用で日本語で初期化
+npx spec-driven-planning init --github-copilot --lang ja
 ```
 
 以下のファイル・ディレクトリが作成されます:
-- `.claude/commands/sdp/` - カスタムスラッシュコマンド
+- `.claude/commands/sdp/` - カスタムスラッシュコマンド（Claude Code）
+- `.github/prompts/` - プロンプトファイル（GitHub Copilot）
 - `.sdp/config/` - 設定ファイル（言語設定を含む）
 - `.sdp/templates/en/` - 英語ドキュメントテンプレート
 - `.sdp/templates/ja/` - 日本語ドキュメントテンプレート
@@ -319,10 +326,50 @@ language: ja  # 英語の場合は 'en'、日本語の場合は 'ja' に変更
 
 その後のすべてのコマンドは指定された言語でコンテンツを生成します。
 
+## GitHub Copilotサポート
+
+SDPはClaude Codeに加えて、GitHub Copilotにも対応しました！初期化時に`--github-copilot`フラグを使用することで、GitHub Copilot用のプロンプトファイルをセットアップできます。
+
+### GitHub Copilotのセットアップ
+
+1. **GitHub Copilotサポートで初期化:**
+   ```bash
+   npx spec-driven-planning init --github-copilot
+   ```
+
+2. **VS Codeでプロンプトファイルを有効化:**
+   - VS Code設定を開く（Cmd+, または Ctrl+,）
+   - `chat.promptFiles`を検索
+   - 設定を有効化
+
+3. **VS Codeをリロード**してプロンプトファイルを有効化
+
+### コマンドの違い
+
+| Claude Code | GitHub Copilot | 説明 |
+|------------|----------------|------|
+| `/sdp:steering` | `/sdp-steering` | プロジェクトコンテキストを生成 |
+| `/sdp:requirement` | `/sdp-requirement` | 要件仕様を洗練化 |
+| `/sdp:design` | `/sdp-design` | 詳細設計を生成 |
+| `/sdp:estimate` | `/sdp-estimate` | タスク分解を生成 |
+| `/sdp:show-plan` | `/sdp-show-plan` | ビジュアルプロジェクト計画を作成 |
+| `/sdp:export-issues` | `/sdp-export-issues` | Issue Trackerへエクスポート |
+
+### GitHub Copilotでのプロンプトファイル使用方法
+
+GitHub Copilot Chatビューで:
+1. `/`に続けてコマンド名を入力
+2. 必要に応じて引数を追加（例: `/sdp-requirement ユーザー認証を追加`）
+3. Enterキーを押して実行
+
+GitHub Copilotはプロンプトファイルを使用し、Claude Codeと同じ構造化された出力を生成します！
+
 ## 必要要件
 
 - **Node.js**: 14.0.0以上（`npx`によるインストールに必要）
-- **Claude Code**: カスタムコマンドの実行に必要
+- **AIアシスタント**: 以下のいずれか:
+  - **Claude Code**: `.claude/commands/sdp/`カスタムコマンド用
+  - **GitHub Copilot**: `.github/prompts/`プロンプトファイル用（VS Codeで`chat.promptFiles`設定を有効化する必要があります）
 
 ### オプション要件（エクスポート先に応じて）
 

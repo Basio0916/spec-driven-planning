@@ -19,15 +19,22 @@ A structured workflow system for transforming natural-language requirements into
 Use `npx` to initialize SDP in your project:
 
 ```bash
-# Initialize with English (default)
+# Initialize for Claude Code (default)
 npx spec-driven-planning init
+
+# Initialize for GitHub Copilot
+npx spec-driven-planning init --github-copilot
 
 # Initialize with Japanese
 npx spec-driven-planning init --lang ja
+
+# Initialize for GitHub Copilot with Japanese
+npx spec-driven-planning init --github-copilot --lang ja
 ```
 
 This will create:
-- `.claude/commands/sdp/` - Custom slash commands
+- `.claude/commands/sdp/` - Custom slash commands (Claude Code)
+- `.github/prompts/` - Prompt files (GitHub Copilot)
 - `.sdp/config/` - Configuration files (including language settings)
 - `.sdp/templates/en/` - English document templates
 - `.sdp/templates/ja/` - Japanese document templates
@@ -320,10 +327,50 @@ language: ja  # Change to 'en' for English or 'ja' for Japanese
 
 All subsequent commands will generate content in the specified language.
 
+## GitHub Copilot Support
+
+SDP now supports GitHub Copilot in addition to Claude Code! Use the `--github-copilot` flag during initialization to set up prompt files for GitHub Copilot.
+
+### Setup for GitHub Copilot
+
+1. **Initialize with GitHub Copilot support:**
+   ```bash
+   npx spec-driven-planning init --github-copilot
+   ```
+
+2. **Enable prompt files in VS Code:**
+   - Open VS Code Settings (Cmd+, or Ctrl+,)
+   - Search for `chat.promptFiles`
+   - Enable the setting
+
+3. **Reload VS Code** to activate the prompt files
+
+### Command Differences
+
+| Claude Code | GitHub Copilot | Description |
+|------------|----------------|-------------|
+| `/sdp:steering` | `/sdp-steering` | Generate project context |
+| `/sdp:requirement` | `/sdp-requirement` | Refine requirement specification |
+| `/sdp:design` | `/sdp-design` | Generate detailed design |
+| `/sdp:estimate` | `/sdp-estimate` | Generate task breakdown |
+| `/sdp:show-plan` | `/sdp-show-plan` | Create visual project plan |
+| `/sdp:export-issues` | `/sdp-export-issues` | Export to issue trackers |
+
+### Using Prompt Files in GitHub Copilot
+
+In the GitHub Copilot Chat view:
+1. Type `/` followed by the command name
+2. Add arguments as needed (e.g., `/sdp-requirement Add user authentication`)
+3. Press Enter to execute
+
+GitHub Copilot will use the prompt file and generate the same structured outputs as Claude Code!
+
 ## Requirements
 
 - **Node.js**: 14.0.0 or higher (for `npx` installation)
-- **Claude Code**: Required to run custom commands
+- **AI Assistant**: One of the following:
+  - **Claude Code**: For `.claude/commands/sdp/` custom commands
+  - **GitHub Copilot**: For `.github/prompts/` prompt files (requires VS Code with `chat.promptFiles` setting enabled)
 
 ### Optional (for issue export)
 
