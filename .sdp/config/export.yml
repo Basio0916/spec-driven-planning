@@ -1,9 +1,10 @@
 # Export Configuration for /sdp:export-issues command
 # Determines where task breakdowns should be exported
 
-# Export destination: "github" or "local"
+# Export destination: "github", "jira", or "local"
 # - github: Create issues directly in GitHub (requires gh CLI)
-# - local:  Generate markdown files and import scripts locally
+# - jira:   Create issues directly in Jira (requires jira CLI)
+# - local:  Generate markdown files locally
 destination: github
 
 # GitHub export settings
@@ -37,6 +38,47 @@ github:
   # task_labels:
   #   - implementation
   #   - subtask
+
+# Jira export settings
+jira:
+  # Jira instance URL (e.g., "https://your-domain.atlassian.net")
+  url: https://your-domain.atlassian.net
+
+  # Jira project key / space key (e.g., "PROJ", "DEV", "SCRUM")
+  # In Jira UI this may be called "Space Key", but API uses it as project key
+  project: YOUR-PROJECT
+
+  # Authentication: Use API token (recommended) or set as environment variable
+  # Create API token at: https://id.atlassian.com/manage-profile/security/api-tokens
+  # Option 1: Set token directly (not recommended for security)
+  # api_token: your-api-token-here
+  # Option 2: Use environment variable (recommended)
+  # Set environment variable: export JIRA_API_TOKEN=your-api-token-here
+  # The command will read from environment variable if api_token is not set
+
+  # Jira user email (required for authentication)
+  email: your-email@example.com
+
+  # Issue export mode
+  # - "sub_tasks": Create tasks as sub-tasks (Jira native sub-tasks)
+  # - "linked_issues": Create tasks as regular issues and link them to parent
+  # - "single_issue": Create one issue with all tasks as checkboxes
+  issue_mode: sub_tasks
+
+  # Jira issue type for main requirement (e.g., "Epic", "Story", "Task")
+  main_issue_type: Story
+
+  # Jira issue type for task issues (e.g., "Sub-task", "Task")
+  # Only used when issue_mode is "sub_tasks" or "linked_issues"
+  task_issue_type: Sub-task
+
+  # Jira component (optional)
+  # component: Backend
+
+  # Default labels to apply to all issues
+  labels:
+  #  - sdp
+  #  - planning
 
 # Local export settings
 local:

@@ -1,10 +1,6 @@
 # /export-issues <slug>
-You are Claude Code. Convert task breakdown into GitHub Issues ### Step 2A: Load GitHub Configuration
 
-Read repository and mode from `.sdp/config/export.yml`:
-- `github.repo`: Target repository (format: "owner/repo")
-  - If not specified, gh CLI will auto-detect from current git repository
-- `github.sub_issue_mode`: Use sub-issue feature (true/false, default: true)cal markdown files.
+Export task breakdown to GitHub Issues, Jira Issues, or local markdown files.
 
 ## Inputs
 - **slug**: An existing requirement folder at `.sdp/specs/<slug>/` containing `tasks.yml`
@@ -48,64 +44,60 @@ Claude Code will automatically check these conditions and report errors if files
 
 ## Step 1: Load Export Configuration
 
-Read `.sdp/config/export.yml`:
+Read `.sdp/config/export.yml` to determine:
+- `destination`: Export target (`github`, `jira`, or `local`)
+- Destination-specific settings (repository, project, labels, etc.)
+- `issue_mode`: How to organize tasks
+  - `sub_issues` / `sub_tasks`: Create parent-child relationships
+  - `linked_issues`: Create separate issues with links
+  - `single_issue`: Create one comprehensive issue with all tasks
 
-```yaml
-destination: github | local   # Determines export destination
+## Step 2: Determine Export Destination
 
-github:
-  repo: owner/repo          # Target GitHub repository
-  issue_mode: sub_issues    # "sub_issues", "linked_issues", or "single_issue"
-  labels:                   # Default labels for all issues
-    - sdp
-    - enhancement
-  main_issue_labels:        # Optional: Additional labels for main requirement issues
-    - epic                  # (if not set, no additional labels beyond "labels")
-  task_labels:              # Optional: Additional labels for task sub-issues
-    - implementation        # (if not set, no additional labels beyond "labels")
-
-local:
-  out_dir: .sdp/out         # Local output directory
-```
-
-### Determine Export Mode
-
-Based on `destination` field:
+Based on the `destination` field in export.yml:
 - **`github`**: Export to GitHub Issues (requires `gh` CLI)
-- **`local`**: Export to local markdown files (no GitHub required)
+- **`jira`**: Export to Jira Issues (uses REST API v3)
+- **`local`**: Export to local markdown files (no external tools required)
 
-### Issue Mode (GitHub only)
+### Implementation Details
 
-The `github.issue_mode` setting determines how tasks are exported:
-- **`sub_issues`**: Creates 1 main issue + N sub-issues (requires `gh sub-issue` extension)
-- **`linked_issues`**: Creates 1 main issue + N regular issues (linked manually)
-- **`single_issue`**: Creates 1 comprehensive issue with all tasks as checkboxes
+For detailed implementation instructions, refer to:
+- **GitHub mode**: `.sdp/docs/export-github.md`
+- **Jira mode**: `.sdp/docs/export-jira.md`
+- **Local mode**: `.sdp/docs/export-local.md`
 
-## Export Mode: GitHub
+## Step 3: Execute Export
 
-### Pre-Check for GitHub Mode
+### GitHub Export
 
-Claude Code will check:
-- If `gh` CLI is available in the system
-- If GitHub authentication is valid (if `gh` is available)
-- If `github.issue_mode` is `sub_issues`, check if `gh sub-issue` extension is installed
+If `destination: github`, read `.sdp/docs/export-github.md` for complete implementation details.
 
-If `gh` CLI is not found or not authenticated, provide appropriate error messages to guide the user.
+**Summary**:
+1. Check `gh` CLI availability and authentication
+2. Check `gh sub-issue` extension if needed
+3. Create main issue using appropriate template
+4. Create task issues if using sub_issues or linked_issues mode
+5. Generate console output with issue URLs
 
-If `github.issue_mode` is `sub_issues` and `gh sub-issue` extension is not installed, provide installation instructions:
-```bash
-gh extension install yahsan2/gh-sub-issue
-```
+### Jira Export
 
-### Step 2A: Load GitHub Configuration
+If `destination: jira`, read `.sdp/docs/export-jira.md` for complete implementation details.
 
-Read repository, issue mode, and labels from `.sdp/config/export.yml`:
-- `github.repo`: Target repository (format: "owner/repo")
-  - If not specified, gh CLI will auto-detect from current git repository
-- `github.issue_mode`: Export mode ("sub_issues", "linked_issues", or "single_issue")
-- `github.labels`: Default labels to apply to all issues
-- `github.main_issue_labels`: Optional labels specifically for main requirement issues (if not set, omit)
-- `github.task_labels`: Optional labels specifically for task sub-issues (if not set, omit; not used in single_issue mode)
+**Summary**:
+1. Check Jira configuration (url, email, project, API token)
+2. Load templates and convert Wiki Markup to ADF
+3. Create main issue via REST API
+4. Create task issues if using sub_tasks or linked_issues mode
+5. Generate console output with issue URLs
+
+### Local Export
+
+If `destination: local`, read `.sdp/docs/export-local.md` for complete implementation details.
+
+**Summary**:
+1. Create output directory if needed
+2. Generate markdown file with issue drafts
+3. Generate console output with file path
 
 ### Step 3A: Create Main Issue (GitHub Mode)
 
@@ -276,314 +268,21 @@ Collect the returned issue number and URL for each task.
 - No manual update needed
 
 **If `issue_mode: linked_issues`**:
-- Update the main issue body to include a task checklist with links to child issues:
-
-```bash
-# Get current body
-CURRENT_BODY=$(gh issue view ${MAIN_ISSUE} --json body -q .body --repo <owner/repo>)
-
-# Append task checklist
-TASK_LIST="
-
-## Tasks
-- [ ] #${SUB_ISSUE_1} T-001: <task title> (<estimate>h)
-- [ ] #${SUB_ISSUE_2} T-002: <task title> (<estimate>h)
-...
-"
-
-# Update main issue
-gh issue edit ${MAIN_ISSUE} --body "${CURRENT_BODY}${TASK_LIST}" --repo <owner/repo>
-```
-
-Create a mapping table of task ID → issue number/URL and main issue for the console output.
-
-## Export Mode: Local
-
-### Step 2B: Prepare Local Output Directory
-
-Read the output directory from `.sdp/config/export.yml` under `local.out_dir` (default: `out`).
-Create the output directory if it doesn't exist using Claude Code's file operations.
-
-Also read `github.issue_mode` to determine the output format (even for local mode):
-- `single_issue`: Generate a single comprehensive issue draft
-- `sub_issues` or `linked_issues`: Generate main issue + task issues drafts
-
-### Step 3B: Generate Issue Drafts (Local Mode)
-
-Create a markdown file at `${OUT_DIR}/<slug>-issues.md` with localized content based on `.sdp/config/language.yml`.
-
-**If `issue_mode: single_issue`**:
-
-Read the single issue draft template:
-- **English**: `.sdp/templates/en/issue-draft-single.md`
-- **Japanese**: `.sdp/templates/ja/issue-draft-single.md`
-
-Replace placeholders:
-- `{{slug}}`: Requirement slug
-- `{{requirement_title}}`: Requirement title
-- `{{issue_body}}`: Complete issue body (generated from `.sdp/templates/{lang}/issue-single.md`)
-
-**If `issue_mode: sub_issues` or `issue_mode: linked_issues`**:
-
-Read the multi-issue draft template:
-- **English**: `.sdp/templates/en/issue-draft.md`
-- **Japanese**: `.sdp/templates/ja/issue-draft.md`
-
-Replace placeholders:
-- `{{slug}}`: Requirement slug
-- `{{requirement_title}}`: Requirement title
-- `{{main_issue_body}}`: Main issue body (generated from `.sdp/templates/{lang}/issue-main.md`)
-- `{{task_issues}}`: Task issues section (generated from `.sdp/templates/{lang}/issue-task.md` for each task)
-
-For each task, generate a task issue section using the task template (`.sdp/templates/{lang}/issue-task.md`) with the following format:
-
-```
-### Sub-Issue N: [T-XXX] <task title>
-
-**Title**: [T-XXX] <task.title>
-
-**Body**:
-```markdown
-<content from issue-task.md template with placeholders replaced>
-```
+- Update the main issue body to include a task checklist with links to child issues
+- Create a mapping table of task ID → issue number/URL and main issue for the console output
 
 ---
-```
 
-## Instructions for Manual Issue Creation
+## Additional Resources
 
-### Prerequisites
+For detailed implementation guides on each export mode, refer to:
+- **GitHub Issues**: `.sdp/docs/export-github.md`
+- **Jira Issues**: `.sdp/docs/export-jira.md`
+- **Local Files**: `.sdp/docs/export-local.md`
 
-**If using sub-issue mode (`issue_mode: sub_issues`)**, install the `gh sub-issue` extension:
-```bash
-gh extension install yahsan2/gh-sub-issue
-```
+These files contain complete API reference, template formats, error handling, and manual import instructions.
 
-### Step-by-Step Process
-
-#### Option A: Single Issue Mode (issue_mode: single_issue)
-
-1. **Create One Comprehensive Issue**:
-   ```bash
-   ISSUE=$(gh issue create \
-     --title "[<slug>] <title>" \
-     --body "$(cat single-issue-body.md)" \
-     --label "<combined_labels>" \
-     --repo <owner/repo> | grep -oE '#[0-9]+' | tr -d '#')
-   echo "Issue created: #${ISSUE}"
-   ```
-
-2. **Note**: All tasks are included as checkboxes in the issue body. Check them off as you complete each task.
-
-#### Option B: Sub-Issue Mode (issue_mode: sub_issues)
-
-1. **Create Main Requirement Issue First**:
-   ```bash
-   MAIN_ISSUE=$(gh issue create \
-     --title "[<slug>] <title>" \
-     --body "$(cat main-issue-body.md)" \
-     --label "<combined_labels>" \
-     --repo <owner/repo> | grep -oE '#[0-9]+' | tr -d '#')
-   echo "Main issue created: #${MAIN_ISSUE}"
-   ```
-
-2. **Create Each Task as Sub-Issue** (automatically linked to parent):
-   ```bash
-   SUB_ISSUE_1=$(gh sub-issue create --parent ${MAIN_ISSUE} \
-     --repo <owner/repo> \
-     --title "[T-001] <task title>" \
-     --body "$(cat task-001-body.md)")
-   echo "Sub-issue T-001 created: ${SUB_ISSUE_1}"
-   
-   SUB_ISSUE_2=$(gh sub-issue create --parent ${MAIN_ISSUE} \
-     --repo <owner/repo> \
-     --title "[T-002] <task title>" \
-     --body "$(cat task-002-body.md)")
-   echo "Sub-issue T-002 created: ${SUB_ISSUE_2}"
-   ```
-
-3. **Note**: Task checklist is automatically maintained by GitHub's sub-issue feature. No manual update needed.
-
-#### Option C: Linked Issues Mode (issue_mode: linked_issues)
-
-1. **Create Main Requirement Issue First** (same as above)
-
-2. **Create Each Task as Regular Issue** (with parent reference in body):
-   ```bash
-   SUB_ISSUE_1=$(gh issue create \
-     --repo <owner/repo> \
-     --title "[T-001] <task title>" \
-     --body "**Parent Issue**: #${MAIN_ISSUE}
-
-   $(cat task-001-body.md)" | grep -oE '#[0-9]+' | tr -d '#')
-   echo "Task issue T-001 created: #${SUB_ISSUE_1}"
-   
-   SUB_ISSUE_2=$(gh issue create \
-     --repo <owner/repo> \
-     --title "[T-002] <task title>" \
-     --body "**Parent Issue**: #${MAIN_ISSUE}
-
-   $(cat task-002-body.md)" | grep -oE '#[0-9]+' | tr -d '#')
-   echo "Task issue T-002 created: #${SUB_ISSUE_2}"
-   ```
-
-3. **Update Main Issue** with task checklist:
-   ```bash
-   CURRENT_BODY=$(gh issue view ${MAIN_ISSUE} --json body -q .body --repo <owner/repo>)
-   gh issue edit ${MAIN_ISSUE} --body "${CURRENT_BODY}
-
-## Tasks
-- [ ] #${SUB_ISSUE_1} T-001: <task title> (<estimate>h)
-- [ ] #${SUB_ISSUE_2} T-002: <task title> (<estimate>h)" --repo <owner/repo>
-   ```
-```
-
-## Output Format
-
-Generate console output in the configured language (`.sdp/config/language.yml`) based on export mode:
-
-### For GitHub Mode (destination: github)
-
-**If `issue_mode: single_issue`**:
-```
-【GitHub Issues エクスポート完了】
-📋 要件: <slug>
-🎯 モード: GitHub Issues (単一Issue)
-📦 リポジトリ: <owner/repo>
-
-作成されたIssue:
-📌 Issue: #<issue>
-   https://github.com/owner/repo/issues/<issue>
-
-📊 含まれるタスク: <count>個
-⏱️  総見積時間: <expected_hours>h
-
-✅ 全タスクを含む1つのIssueを作成しました
-💡 次のステップ: Issue #<issue> のチェックボックスで進捗を管理してください
-```
-
-**If `issue_mode: sub_issues` or `issue_mode: linked_issues`**:
-```
-【GitHub Issues エクスポート完了】
-📋 要件: <slug>
-🎯 モード: GitHub Issues (<sub_issues/linked_issues>)
-📦 リポジトリ: <owner/repo>
-
-作成されたIssue:
-📌 メインIssue: #<main_issue>
-   https://github.com/owner/repo/issues/<main_issue>
-
-🎫 タスクIssue: <count>個
-
-タスクIssueマッピング:
-| Task ID | Issue # | URL                                    |
-|---------|---------|----------------------------------------|
-| T-001   | #124    | https://github.com/owner/repo/issues/124 |
-| T-002   | #125    | https://github.com/owner/repo/issues/125 |
-| T-003   | #126    | https://github.com/owner/repo/issues/126 |
-...
-
-✅ 1つのメインIssueと<count>個のタスクIssueを作成しました
-💡 次のステップ: メインIssue #<main_issue> から各タスクの進捗を管理してください
-```
-
-### For Local Mode (destination: local)
-
-```
-【GitHub Issues エクスポート（ローカル出力）】
-📋 要件: <slug>
-🎯 モード: ローカルファイル
-📁 出力ディレクトリ: <out_dir>
-
-生成ファイル:
-✅ <out_dir>/<slug>-issues.md     - Issue ドラフト (マニュアルインポート用)
-
-📊 タスク数: <count>
-⏱️  総見積時間: <expected_hours>h
-
-💡 次のステップ:
-   1. Issueドラフトをレビュー: cat <out_dir>/<slug>-issues.md
-   2. GitHub上で手動でIssueを作成してください
-   3. または GitHub CLI (gh) を使って手動でインポートしてください
-```
-
-### Error Cases
-
-#### GitHub Mode: gh CLI not available
-```
-【エラー: GitHub CLI 未検出】
-📋 要件: <slug>
-🎯 設定モード: GitHub Issues
-❌ GitHub CLI (gh) がインストールされていません
-
-💡 対処方法:
-   1. GitHub CLI をインストール: https://cli.github.com/
-   2. または export.yml の "destination" を "local" に変更してローカル出力を使用
-   3. コマンド実行: /sdp:export-issues <slug>
-```
-
-#### GitHub Mode: gh sub-issue extension not installed (only when issue_mode is sub_issues)
-```
-【エラー: gh sub-issue 拡張未インストール】
-📋 要件: <slug>
-🎯 設定モード: GitHub Issues (Sub-Issue)
-❌ gh sub-issue 拡張がインストールされていません
-
-💡 対処方法:
-   1. gh sub-issue 拡張をインストール: gh extension install yahsan2/gh-sub-issue
-   2. または export.yml の "issue_mode" を "linked_issues" または "single_issue" に変更
-   3. または export.yml の "destination" を "local" に変更してローカル出力を使用
-   4. コマンド実行: /sdp:export-issues <slug>
-```
-
-#### GitHub Mode: Not authenticated
-```
-【エラー: GitHub 認証未完了】
-📋 要件: <slug>
-🎯 設定モード: GitHub Issues
-⚠️  GitHub CLI は利用可能ですが、認証されていません
-
-💡 対処方法:
-   1. GitHub認証を実行: gh auth login
-   2. または export.yml の "destination" を "local" に変更してローカル出力を使用
-   3. コマンド実行: /sdp:export-issues <slug>
-```
-
-#### Task file not found
-```
-【エラー: タスクファイル未検出】
-📋 要件: <slug>
-❌ .sdp/specs/<slug>/tasks.yml が見つかりません
-
-💡 対処方法:
-   1. 要件が存在するか確認: ls -d .sdp/specs/*/
-   2. タスク分解を実行: /sdp:estimate <slug>
-   3. その後再実行: /sdp:export-issues <slug>
-```
-
-## Configuration Priority
-
-When determining the target repository:
-
-1. **First priority**: `export.yml` → `github.repo`
-2. **Fallback**: Let `gh` auto-detect from current git repository
-
-Example decision tree:
-```
-IF export.yml has github.repo:
-  USE export.yml github.repo
-ELSE:
-  OMIT --repo flag (gh auto-detects from current git repo)
-```
-
-**Note**: All configuration is now centralized in `.sdp/config/export.yml`.
-
-## Cross-Platform Compatibility
-
-This command works on all platforms (Windows, macOS, Linux):
-- Uses Claude Code's native file operations instead of shell-specific commands
-- Local mode generates markdown files that can be manually imported on any platform
-- GitHub mode uses `gh` CLI which is available on all platforms
+---
 
 ## Allowed Tools
-Read, Write, Terminal (for gh CLI commands in GitHub mode), File Search, Grep only
+Read, Write, Terminal, File Search, Grep
