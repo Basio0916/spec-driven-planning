@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const VERSION = '1.5.0';
+const VERSION = '1.6.0';
 
 // ANSI color codes
 const colors = {
@@ -59,11 +59,12 @@ function showHelp() {
   log('\n📋 Spec-Driven Planning (SDP) CLI', colors.bright + colors.cyan);
   log(`Version: ${VERSION}\n`, colors.cyan);
   log('Usage:', colors.bright);
-  log('  npx spec-driven-planning init [--lang <en|ja>]    Initialize SDP in current directory\n');
+  log('  npx spec-driven-planning init [options]            Initialize SDP in current directory\n');
   log('  npx spec-driven-planning --help                    Show this help message\n');
   log('  npx spec-driven-planning -v                        Show version\n');
   log('Options:', colors.bright);
-  log('  --lang <en|ja>    Set output language (default: en)\n');
+  log('  --lang <en|ja>        Set output language (default: en)');
+  log('  --github-copilot      Setup for GitHub Copilot instead of Claude Code\n');
 }
 
 function showVersion() {
@@ -101,21 +102,29 @@ function main() {
       }
     }
 
+    // Parse GitHub Copilot option
+    const isGitHubCopilot = args.includes('--github-copilot');
+    const targetType = isGitHubCopilot ? 'GitHub Copilot' : 'Claude Code';
+
     log('\n╔═══════════════════════════════════════════════════════════╗', colors.bright + colors.cyan);
     log('║                                                           ║', colors.bright + colors.cyan);
     log('║   📋 Spec-Driven Planning (SDP) Setup                    ║', colors.bright + colors.cyan);
-    log('║   Claude Code custom commands for requirements planning  ║', colors.bright + colors.cyan);
+    log(`║   ${targetType} commands for requirements planning${' '.repeat(Math.max(0, 22 - targetType.length))}║`, colors.bright + colors.cyan);
     log('║                                                           ║', colors.bright + colors.cyan);
     log('╚═══════════════════════════════════════════════════════════╝', colors.bright + colors.cyan);
     log(`   Version: ${VERSION}`, colors.cyan);
+    log(`   Target: ${targetType}`, colors.cyan);
     log(`   Language: ${lang === 'en' ? 'English' : '日本語'}\n`, colors.cyan);
 
     const targetDir = process.cwd();
-    const sdpCommandsDir = path.join(targetDir, '.claude', 'commands', 'sdp');
+    const commandsDir = isGitHubCopilot 
+      ? path.join(targetDir, '.github', 'prompts')
+      : path.join(targetDir, '.claude', 'commands', 'sdp');
 
-    // Check if .claude/commands/sdp already exists
-    if (fs.existsSync(sdpCommandsDir)) {
-      warn('.claude/commands/sdp/ directory already exists.');
+    // Check if commands directory already exists
+    if (fs.existsSync(commandsDir)) {
+      const dirName = isGitHubCopilot ? '.github/prompts/' : '.claude/commands/sdp/';
+      warn(`${dirName} directory already exists.`);
       const readline = require('readline').createInterface({
         input: process.stdin,
         output: process.stdout
@@ -125,16 +134,16 @@ function main() {
         readline.close();
 
         if (answer.toLowerCase() === 'y' || answer.toLowerCase() === 'yes') {
-          info('Removing existing .claude/commands/sdp/ directory...');
-          fs.rmSync(sdpCommandsDir, { recursive: true, force: true });
-          setupSDP(targetDir, lang);
+          info(`Removing existing ${dirName} directory...`);
+          fs.rmSync(commandsDir, { recursive: true, force: true });
+          setupSDP(targetDir, lang, isGitHubCopilot);
         } else {
           info('Setup cancelled. No changes were made.');
           process.exit(0);
         }
       });
     } else {
-      setupSDP(targetDir, lang);
+      setupSDP(targetDir, lang, isGitHubCopilot);
     }
   } else {
     error(`Unknown command: ${command}`);
@@ -143,20 +152,30 @@ function main() {
   }
 }
 
-function setupSDP(targetDir, lang = 'en') {
+function setupSDP(targetDir, lang = 'en', isGitHubCopilot = false) {
   const sourceDir = path.join(__dirname, '..');
-  const claudeCommandsSdpSource = path.join(sourceDir, '.claude', 'commands', 'sdp');
-  const claudeCommandsSdpTarget = path.join(targetDir, '.claude', 'commands', 'sdp');
   const sdpSourceDir = path.join(sourceDir, '.sdp');
   const sdpTargetDir = path.join(targetDir, '.sdp');
 
   info('Setting up Spec-Driven Planning structure...\n');
 
   try {
-    // Copy .claude/commands/sdp directory only
-    info('📁 Copying .claude/commands/sdp/ directory...');
-    copyRecursive(claudeCommandsSdpSource, claudeCommandsSdpTarget);
-    success('.claude/commands/sdp/ directory created');
+    // Copy commands directory based on target type
+    if (isGitHubCopilot) {
+      // Copy GitHub Copilot prompt files
+      const githubPromptsSource = path.join(sourceDir, '.github', 'prompts');
+      const githubPromptsTarget = path.join(targetDir, '.github', 'prompts');
+      info('📁 Copying .github/prompts/ directory...');
+      copyRecursive(githubPromptsSource, githubPromptsTarget);
+      success('.github/prompts/ directory created');
+    } else {
+      // Copy Claude Code commands
+      const claudeCommandsSdpSource = path.join(sourceDir, '.claude', 'commands', 'sdp');
+      const claudeCommandsSdpTarget = path.join(targetDir, '.claude', 'commands', 'sdp');
+      info('📁 Copying .claude/commands/sdp/ directory...');
+      copyRecursive(claudeCommandsSdpSource, claudeCommandsSdpTarget);
+      success('.claude/commands/sdp/ directory created');
+    }
 
     // Copy .sdp directory (config and templates)
     info('📁 Copying .sdp/ directory...');
@@ -196,25 +215,49 @@ language: ${lang}
     log('╚═══════════════════════════════════════════════════════════╝', colors.bright + colors.green);
 
     log('\n📚 What was created:', colors.bright);
-    log('   .claude/commands/sdp/    - Custom slash commands');
+    if (isGitHubCopilot) {
+      log('   .github/prompts/         - GitHub Copilot prompt files');
+    } else {
+      log('   .claude/commands/sdp/    - Custom slash commands');
+    }
     log('   .sdp/config/             - Configuration files');
     log('   .sdp/templates/          - Document templates');
     log('   .sdp/specs/              - Requirements directory');
     log('   .sdp/out/                - Output directory (gitignored)\n');
 
+    if (isGitHubCopilot) {
+      log('⚙️  GitHub Copilot Setup:', colors.bright + colors.cyan);
+      log('   1. Enable chat.promptFiles setting in VS Code');
+      log('   2. Reload VS Code to activate prompt files\n');
+    }
+
     log('🚀 Next Steps:', colors.bright + colors.cyan);
     log('   1. Review and customize .sdp/config/*.yml files');
     log('   2. Update repository settings in .sdp/config/export.yml');
-    log('   3. Run: /sdp:steering to initialize project context');
-    log('   4. Start with: /sdp:requirement "Your requirement description"\n');
+    if (isGitHubCopilot) {
+      log('   3. Run: /sdp-steering to initialize project context');
+      log('   4. Start with: /sdp-requirement "Your requirement description"\n');
+    } else {
+      log('   3. Run: /sdp:steering to initialize project context');
+      log('   4. Start with: /sdp:requirement "Your requirement description"\n');
+    }
 
     log('📖 Available Commands:', colors.bright + colors.cyan);
-    log('   /sdp:steering              - Generate project context');
-    log('   /sdp:requirement <text>    - Refine requirement specification');
-    log('   /sdp:design <slug>         - Generate detailed design with alternatives');
-    log('   /sdp:estimate <slug>       - Generate task breakdown & estimates');
-    log('   /sdp:show-plan <slug>      - Create visual project plan');
-    log('   /sdp:export-issues <slug>  - Export to GitHub Issues\n');
+    if (isGitHubCopilot) {
+      log('   /sdp-steering              - Generate project context');
+      log('   /sdp-requirement <text>    - Refine requirement specification');
+      log('   /sdp-design <slug>         - Generate detailed design with alternatives');
+      log('   /sdp-estimate <slug>       - Generate task breakdown & estimates');
+      log('   /sdp-show-plan <slug>      - Create visual project plan');
+      log('   /sdp-export-issues <slug>  - Export to GitHub Issues\n');
+    } else {
+      log('   /sdp:steering              - Generate project context');
+      log('   /sdp:requirement <text>    - Refine requirement specification');
+      log('   /sdp:design <slug>         - Generate detailed design with alternatives');
+      log('   /sdp:estimate <slug>       - Generate task breakdown & estimates');
+      log('   /sdp:show-plan <slug>      - Create visual project plan');
+      log('   /sdp:export-issues <slug>  - Export to GitHub Issues\n');
+    }
 
     log('📚 Documentation:', colors.bright + colors.cyan);
     log('   For detailed usage, see: https://github.com/Basio0916/spec-driven-planning\n');
