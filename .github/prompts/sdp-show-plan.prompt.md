@@ -91,21 +91,13 @@ Based on confidence level and stddev:
 - **Resource buffer**: Key areas needing backup capacity
 - **Risk buffer**: Contingency for high-risk tasks
 
-### 7. Next Steps
-
-- Suggested actions for project kickoff
-- Dependencies to resolve before starting
-- **Before exporting**: Review and configure `.sdp/config/export.yml`:
-  - Set `destination` to `github` or `local`
-  - Configure repository (for GitHub)
-  - Configure output directory (for local)
-- Recommendation to run `/sdp-export-issues` after configuration
-
 ## Output Format
 
 ### 1. Write Plan File
 
-Create `.sdp/specs/${input:slug}/plan.md` with all sections above in the configured language (`.sdp/config/language.yml`).
+Create `.sdp/specs/${input:slug}/plan.md` with sections 1-6 above in the configured language (`.sdp/config/language.yml`).
+
+**Note**: Do NOT include "Next Steps" section in the plan.md file. Next steps are only shown in the console output below.
 
 ### 2. Console Output
 
