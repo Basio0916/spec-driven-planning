@@ -1,6 +1,6 @@
 {
   "name": "spec-driven-planning",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "Spec-Driven Planning (SDP) CLI tool for Claude Code and GitHub Copilot",
   "bin": {
     "sdp": "./bin/sdp.js"
