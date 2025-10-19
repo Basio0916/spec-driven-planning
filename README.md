@@ -216,6 +216,19 @@ SDP supports multiple export destinations (configured in `.sdp/config/export.yml
 - Creates `.sdp/out/add-user-authentication-import.ps1` (PowerShell script for Windows)
 - Import scripts can be run later when tools are available
 
+### 7. Optional: Execute Implementation
+
+Once plans and issues are finalized, you can optionally execute the implementation:
+
+```bash
+/sdp:implement add-user-authentication
+```
+
+- Without additional arguments, all tasks defined in `tasks.yml` are executed sequentially.
+- Provide one or more task IDs to scope execution (e.g., `/sdp:implement add-user-authentication T-002 T-004`).
+
+Creates or updates `.sdp/specs/add-user-authentication/implementation.md` while applying the required code changes and recording test evidence.
+
 ## Issue Structure
 
 When exporting to issue trackers, SDP creates a hierarchical structure:
@@ -269,6 +282,7 @@ All commands are located in `.claude/commands/sdp/`:
 | `/sdp:estimate <slug>` | Generate task breakdown with PERT estimates |
 | `/sdp:show-plan <slug>` | Create visual project plan with Gantt chart |
 | `/sdp:export-issues <slug>` | Export to GitHub Issues, Jira, Backlog, or local files |
+| `/sdp:implement <slug> [task-id ...]` | (Optional) Execute implementation tasks and capture logs |
 
 ## Templates
 
@@ -279,6 +293,7 @@ All templates are in `.sdp/templates/`:
 - `structure.md` - Code structure template
 - `requirement.md` - Requirement specification template
 - `design.md` - Design document template
+- `implementation.md` - Implementation log template
 - `tasks.schema.yml` - Task YAML schema
 
 Each template includes detailed examples and guidance.
@@ -302,6 +317,7 @@ Each template includes detailed examples and guidance.
 │       ├── requirement.md  # Requirement spec
 │       ├── design.md       # Design document
 │       ├── tasks.yml       # Task breakdown
+│       ├── implementation.md # Implementation log and test evidence
 │       └── plan.md         # Project plan
 └── out/                # Issue drafts and import scripts
 ```
@@ -354,6 +370,7 @@ SDP now supports GitHub Copilot in addition to Claude Code! Use the `--github-co
 | `/sdp:design` | `/sdp-design` | Generate detailed design |
 | `/sdp:estimate` | `/sdp-estimate` | Generate task breakdown |
 | `/sdp:show-plan` | `/sdp-show-plan` | Create visual project plan |
+| `/sdp:implement` | `/sdp-implement` | Execute implementation tasks |
 | `/sdp:export-issues` | `/sdp-export-issues` | Export to issue trackers |
 
 ### Using Prompt Files in GitHub Copilot

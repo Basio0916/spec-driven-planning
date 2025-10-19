@@ -209,6 +209,19 @@ PERT見積もり付きのタスク分解を作成:
 - `.sdp/out/add-user-authentication-import.ps1` を作成（Windows用PowerShellスクリプト）
 - インポートスクリプトは、後でCLIが利用可能になった際に実行可能
 
+### 7. オプション: 実装の実行
+
+計画と課題の準備が整ったら、必要に応じて実装を実行できます:
+
+```bash
+/sdp:implement add-user-authentication
+```
+
+- 引数を指定しない場合、`tasks.yml`に定義された全タスクを順番に実行します。
+- 特定のタスクのみ実行したい場合は、タスクIDを指定します（例: `/sdp:implement add-user-authentication T-002 T-004`）。
+
+`.sdp/specs/add-user-authentication/implementation.md` を生成または更新し、実施内容やテスト結果を記録しつつ必要なコード変更を反映します。
+
 ## Issue構造
 
 課題トラッカーへのエクスポート時、SDPは階層構造を作成します。`issue_mode`設定により構造が変わります:
@@ -268,6 +281,7 @@ PERT見積もり付きのタスク分解を作成:
 | `/sdp:estimate <slug>` | PERT見積もり付きのタスク分解の生成 |
 | `/sdp:show-plan <slug>` | ガントチャート付きのビジュアルプロジェクト計画の作成 |
 | `/sdp:export-issues <slug>` | GitHub Issues、Jira、Backlog、またはローカルファイルへのエクスポート |
+| `/sdp:implement <slug> [task-id ...]` | （任意）実装タスクの実行とログの記録 |
 
 ## テンプレート
 
@@ -278,6 +292,7 @@ PERT見積もり付きのタスク分解を作成:
 - `structure.md` - コード構造テンプレート
 - `requirement.md` - 要件仕様テンプレート
 - `design.md` - 設計ドキュメントテンプレート
+- `implementation.md` - 実装ログテンプレート
 - `tasks.schema.yml` - タスクYAMLスキーマ
 
 各テンプレートには詳細な例とガイダンスが含まれています。
@@ -301,6 +316,7 @@ PERT見積もり付きのタスク分解を作成:
 │       ├── requirement.md  # 要件仕様
 │       ├── design.md       # 設計ドキュメント
 │       ├── tasks.yml       # タスク分解
+│       ├── implementation.md # 実装ログおよびテスト記録
 │       └── plan.md         # プロジェクト計画
 └── out/                # Issue下書きとインポートスクリプト
 ```
@@ -353,6 +369,7 @@ SDPはClaude Codeに加えて、GitHub Copilotにも対応しました！初期�
 | `/sdp:design` | `/sdp-design` | 詳細設計を生成 |
 | `/sdp:estimate` | `/sdp-estimate` | タスク分解を生成 |
 | `/sdp:show-plan` | `/sdp-show-plan` | ビジュアルプロジェクト計画を作成 |
+| `/sdp:implement` | `/sdp-implement` | 実装タスクを実行 |
 | `/sdp:export-issues` | `/sdp-export-issues` | Issue Trackerへエクスポート |
 
 ### GitHub Copilotでのプロンプトファイル使用方法
