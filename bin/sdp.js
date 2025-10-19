@@ -236,10 +236,12 @@ language: ${lang}
     log('   2. Update repository settings in .sdp/config/export.yml');
     if (isGitHubCopilot) {
       log('   3. Run: /sdp-steering to initialize project context');
-      log('   4. Start with: /sdp-requirement "Your requirement description"\n');
+      log('   4. Start with: /sdp-requirement "Your requirement description"');
+      log('   5. When ready, use /sdp-implement <slug> to execute tasks\n');
     } else {
       log('   3. Run: /sdp:steering to initialize project context');
-      log('   4. Start with: /sdp:requirement "Your requirement description"\n');
+      log('   4. Start with: /sdp:requirement "Your requirement description"');
+      log('   5. When ready, use /sdp:implement <slug> to execute tasks\n');
     }
 
     log('📖 Available Commands:', colors.bright + colors.cyan);
@@ -249,6 +251,7 @@ language: ${lang}
       log('   /sdp-design <slug>         - Generate detailed design with alternatives');
       log('   /sdp-estimate <slug>       - Generate task breakdown & estimates');
       log('   /sdp-show-plan <slug>      - Create visual project plan');
+      log('   /sdp-implement <slug> [...]- Execute implementation tasks');
       log('   /sdp-export-issues <slug>  - Export to GitHub Issues\n');
     } else {
       log('   /sdp:steering              - Generate project context');
@@ -256,6 +259,7 @@ language: ${lang}
       log('   /sdp:design <slug>         - Generate detailed design with alternatives');
       log('   /sdp:estimate <slug>       - Generate task breakdown & estimates');
       log('   /sdp:show-plan <slug>      - Create visual project plan');
+      log('   /sdp:implement <slug> [...]- Execute implementation tasks');
       log('   /sdp:export-issues <slug>  - Export to GitHub Issues\n');
     }
 

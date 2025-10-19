@@ -150,7 +150,20 @@ Creates `.sdp/specs/add-user-authentication/tasks.yml` with:
 - Critical path analysis
 - Rollup metrics (expected hours, standard deviation, confidence)
 
-### 5. Visualize Plan
+### 5. Execute Implementation
+
+Implement the feature based on the design and tasks:
+
+```bash
+/sdp:implement add-user-authentication
+```
+
+- Without additional arguments, all tasks defined in `tasks.yml` are executed sequentially.
+- Provide one or more task IDs to scope execution (e.g., `/sdp:implement add-user-authentication T-002 T-004`).
+
+Creates or updates `.sdp/specs/add-user-authentication/implementation.md` while applying the required code changes and recording test evidence.
+
+### 6. Visualize Plan
 
 Generate human-readable project plan:
 
@@ -164,7 +177,7 @@ Creates `.sdp/specs/add-user-authentication/plan.md` with:
 - Risk register (top 3)
 - Critical path and buffer recommendations
 
-### 6. Export to Issue Trackers
+### 7. Export to Issue Trackers
 
 Export tasks to your preferred issue tracker:
 
@@ -268,6 +281,7 @@ All commands are located in `.claude/commands/sdp/`:
 | `/sdp:design <slug>` | Generate detailed design with alternatives and rationale |
 | `/sdp:estimate <slug>` | Generate task breakdown with PERT estimates |
 | `/sdp:show-plan <slug>` | Create visual project plan with Gantt chart |
+| `/sdp:implement <slug> [task-id ...]` | Execute implementation tasks and capture logs |
 | `/sdp:export-issues <slug>` | Export to GitHub Issues, Jira, Backlog, or local files |
 
 ## Templates
@@ -279,6 +293,7 @@ All templates are in `.sdp/templates/`:
 - `structure.md` - Code structure template
 - `requirement.md` - Requirement specification template
 - `design.md` - Design document template
+- `implementation.md` - Implementation log template
 - `tasks.schema.yml` - Task YAML schema
 
 Each template includes detailed examples and guidance.
@@ -302,6 +317,7 @@ Each template includes detailed examples and guidance.
 │       ├── requirement.md  # Requirement spec
 │       ├── design.md       # Design document
 │       ├── tasks.yml       # Task breakdown
+│       ├── implementation.md # Implementation log and test evidence
 │       └── plan.md         # Project plan
 └── out/                # Issue drafts and import scripts
 ```
@@ -354,6 +370,7 @@ SDP now supports GitHub Copilot in addition to Claude Code! Use the `--github-co
 | `/sdp:design` | `/sdp-design` | Generate detailed design |
 | `/sdp:estimate` | `/sdp-estimate` | Generate task breakdown |
 | `/sdp:show-plan` | `/sdp-show-plan` | Create visual project plan |
+| `/sdp:implement` | `/sdp-implement` | Execute implementation tasks |
 | `/sdp:export-issues` | `/sdp-export-issues` | Export to issue trackers |
 
 ### Using Prompt Files in GitHub Copilot
