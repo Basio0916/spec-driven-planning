@@ -237,11 +237,17 @@ language: ${lang}
     if (isGitHubCopilot) {
       log('   3. Run: /sdp-steering to initialize project context');
       log('   4. Start with: /sdp-requirement "Your requirement description"');
-      log('   5. When ready, use /sdp-implement <slug> to execute tasks\n');
+      log('   5. Generate tasks with: /sdp-estimate <slug>');
+      log('   6. Visualize the plan with: /sdp-show-plan <slug>');
+      log('   7. Export issues via: /sdp-export-issues <slug>');
+      log('   8. Optional: Execute tasks using /sdp-implement <slug> [...] when ready\n');
     } else {
       log('   3. Run: /sdp:steering to initialize project context');
       log('   4. Start with: /sdp:requirement "Your requirement description"');
-      log('   5. When ready, use /sdp:implement <slug> to execute tasks\n');
+      log('   5. Generate tasks with: /sdp:estimate <slug>');
+      log('   6. Visualize the plan with: /sdp:show-plan <slug>');
+      log('   7. Export issues via: /sdp:export-issues <slug>');
+      log('   8. Optional: Execute tasks using /sdp:implement <slug> [...] when ready\n');
     }
 
     log('📖 Available Commands:', colors.bright + colors.cyan);
@@ -251,16 +257,16 @@ language: ${lang}
       log('   /sdp-design <slug>         - Generate detailed design with alternatives');
       log('   /sdp-estimate <slug>       - Generate task breakdown & estimates');
       log('   /sdp-show-plan <slug>      - Create visual project plan');
-      log('   /sdp-implement <slug> [...]- Execute implementation tasks');
-      log('   /sdp-export-issues <slug>  - Export to GitHub Issues\n');
+      log('   /sdp-export-issues <slug>  - Export to GitHub Issues');
+      log('   /sdp-implement <slug> [...]- (Optional) Execute implementation tasks\n');
     } else {
       log('   /sdp:steering              - Generate project context');
       log('   /sdp:requirement <text>    - Refine requirement specification');
       log('   /sdp:design <slug>         - Generate detailed design with alternatives');
       log('   /sdp:estimate <slug>       - Generate task breakdown & estimates');
       log('   /sdp:show-plan <slug>      - Create visual project plan');
-      log('   /sdp:implement <slug> [...]- Execute implementation tasks');
-      log('   /sdp:export-issues <slug>  - Export to GitHub Issues\n');
+      log('   /sdp:export-issues <slug>  - Export to GitHub Issues');
+      log('   /sdp:implement <slug> [...]- (Optional) Execute implementation tasks\n');
     }
 
     log('📚 Documentation:', colors.bright + colors.cyan);

@@ -148,20 +148,7 @@ PERT見積もり付きのタスク分解を作成:
 - クリティカルパス分析
 - ロールアップメトリクス（予想時間、標準偏差、信頼度）
 
-### 5. 実装の実行
-
-設計とタスクに基づいて実装を進めます:
-
-```bash
-/sdp:implement add-user-authentication
-```
-
-- 引数を指定しない場合、`tasks.yml`に定義された全タスクを順番に実行します。
-- 特定のタスクのみ実行したい場合は、タスクIDを指定します（例: `/sdp:implement add-user-authentication T-002 T-004`）。
-
-`.sdp/specs/add-user-authentication/implementation.md` を生成または更新し、実施内容やテスト結果を記録しつつ必要なコード変更を反映します。
-
-### 6. 計画の可視化
+### 5. 計画の可視化
 
 人間が読みやすいプロジェクト計画を生成:
 
@@ -175,7 +162,7 @@ PERT見積もり付きのタスク分解を作成:
 - リスク台帳（上位3つ）
 - クリティカルパスとバッファ推奨事項
 
-### 7. 課題トラッカーへのエクスポート
+### 6. 課題トラッカーへのエクスポート
 
 タスクをGitHub Issues、Jira、Backlog、またはローカルファイルにエクスポート:
 
@@ -221,6 +208,19 @@ PERT見積もり付きのタスク分解を作成:
 - `.sdp/out/add-user-authentication-import.sh` を作成（macOS/Linux/Git Bash用Bashスクリプト）
 - `.sdp/out/add-user-authentication-import.ps1` を作成（Windows用PowerShellスクリプト）
 - インポートスクリプトは、後でCLIが利用可能になった際に実行可能
+
+### 7. オプション: 実装の実行
+
+計画と課題の準備が整ったら、必要に応じて実装を実行できます:
+
+```bash
+/sdp:implement add-user-authentication
+```
+
+- 引数を指定しない場合、`tasks.yml`に定義された全タスクを順番に実行します。
+- 特定のタスクのみ実行したい場合は、タスクIDを指定します（例: `/sdp:implement add-user-authentication T-002 T-004`）。
+
+`.sdp/specs/add-user-authentication/implementation.md` を生成または更新し、実施内容やテスト結果を記録しつつ必要なコード変更を反映します。
 
 ## Issue構造
 
@@ -280,8 +280,8 @@ PERT見積もり付きのタスク分解を作成:
 | `/sdp:design <slug>` | 代替案と根拠を含む詳細設計の生成 |
 | `/sdp:estimate <slug>` | PERT見積もり付きのタスク分解の生成 |
 | `/sdp:show-plan <slug>` | ガントチャート付きのビジュアルプロジェクト計画の作成 |
-| `/sdp:implement <slug> [task-id ...]` | 実装タスクの実行とログの記録 |
 | `/sdp:export-issues <slug>` | GitHub Issues、Jira、Backlog、またはローカルファイルへのエクスポート |
+| `/sdp:implement <slug> [task-id ...]` | （任意）実装タスクの実行とログの記録 |
 
 ## テンプレート
 

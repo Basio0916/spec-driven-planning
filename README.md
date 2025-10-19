@@ -150,20 +150,7 @@ Creates `.sdp/specs/add-user-authentication/tasks.yml` with:
 - Critical path analysis
 - Rollup metrics (expected hours, standard deviation, confidence)
 
-### 5. Execute Implementation
-
-Implement the feature based on the design and tasks:
-
-```bash
-/sdp:implement add-user-authentication
-```
-
-- Without additional arguments, all tasks defined in `tasks.yml` are executed sequentially.
-- Provide one or more task IDs to scope execution (e.g., `/sdp:implement add-user-authentication T-002 T-004`).
-
-Creates or updates `.sdp/specs/add-user-authentication/implementation.md` while applying the required code changes and recording test evidence.
-
-### 6. Visualize Plan
+### 5. Visualize Plan
 
 Generate human-readable project plan:
 
@@ -177,7 +164,7 @@ Creates `.sdp/specs/add-user-authentication/plan.md` with:
 - Risk register (top 3)
 - Critical path and buffer recommendations
 
-### 7. Export to Issue Trackers
+### 6. Export to Issue Trackers
 
 Export tasks to your preferred issue tracker:
 
@@ -228,6 +215,19 @@ SDP supports multiple export destinations (configured in `.sdp/config/export.yml
 - Creates `.sdp/out/add-user-authentication-import.sh` (Bash script for macOS/Linux/Git Bash)
 - Creates `.sdp/out/add-user-authentication-import.ps1` (PowerShell script for Windows)
 - Import scripts can be run later when tools are available
+
+### 7. Optional: Execute Implementation
+
+Once plans and issues are finalized, you can optionally execute the implementation:
+
+```bash
+/sdp:implement add-user-authentication
+```
+
+- Without additional arguments, all tasks defined in `tasks.yml` are executed sequentially.
+- Provide one or more task IDs to scope execution (e.g., `/sdp:implement add-user-authentication T-002 T-004`).
+
+Creates or updates `.sdp/specs/add-user-authentication/implementation.md` while applying the required code changes and recording test evidence.
 
 ## Issue Structure
 
@@ -281,8 +281,8 @@ All commands are located in `.claude/commands/sdp/`:
 | `/sdp:design <slug>` | Generate detailed design with alternatives and rationale |
 | `/sdp:estimate <slug>` | Generate task breakdown with PERT estimates |
 | `/sdp:show-plan <slug>` | Create visual project plan with Gantt chart |
-| `/sdp:implement <slug> [task-id ...]` | Execute implementation tasks and capture logs |
 | `/sdp:export-issues <slug>` | Export to GitHub Issues, Jira, Backlog, or local files |
+| `/sdp:implement <slug> [task-id ...]` | (Optional) Execute implementation tasks and capture logs |
 
 ## Templates
 
