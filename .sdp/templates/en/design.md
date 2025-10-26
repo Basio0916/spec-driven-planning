@@ -4,126 +4,30 @@
 <Describe the overview of the design target in 2-3 sentences>
 
 Example:
-Design of user authentication functionality. Evaluate OAuth2.0 or JWT-based authentication methods and select the optimal implementation that meets security and performance requirements.
+Detailed design of user authentication functionality. This document elaborates Alternative 1 (JWT + Passport.js) selected in design-alternatives.md to an implementation-ready level.
 
-## Design Alternatives
+## Selected Design
 
-### Alternative 1: <Design Alternative Name>
+### Design Approach: <Selected Design Alternative Name>
 
-**Overview**
-<Describe the design alternative overview in 2-3 sentences>
+**Alternatives Evaluation**
+This design adopts Alternative <N> evaluated in `design-alternatives.md`.
 
-**Architecture**
-```
-<Describe component diagrams, data flow, module composition, etc.>
-Or use Mermaid diagrams
-```
-
-**Pros**
-- Pro 1: <Details>
-- Pro 2: <Details>
-- Pro 3: <Details>
-
-**Cons**
-- Con 1: <Details>
-- Con 2: <Details>
-- Con 3: <Details>
-
-**Implementation Complexity**: Low / Med / High
-
-**Primary Risks**
-<Describe technical risks in 1-2 sentences>
-
----
-
-### Alternative 2: <Design Alternative Name>
-
-**Overview**
-<Describe the design alternative overview in 2-3 sentences>
-
-**Architecture**
-```
-<Describe component diagrams, data flow, module composition, etc.>
-```
-
-**Pros**
-- Pro 1: <Details>
-- Pro 2: <Details>
-- Pro 3: <Details>
-
-**Cons**
-- Con 1: <Details>
-- Con 2: <Details>
-- Con 3: <Details>
-
-**Implementation Complexity**: Low / Med / High
-
-**Primary Risks**
-<Describe technical risks in 1-2 sentences>
-
----
-
-### Alternative 3: <Design Alternative Name> (Optional)
-
-**Overview**
-<Describe the design alternative overview in 2-3 sentences>
-
-**Architecture**
-```
-<Describe component diagrams, data flow, module composition, etc.>
-```
-
-**Pros**
-- Pro 1: <Details>
-- Pro 2: <Details>
-- Pro 3: <Details>
-
-**Cons**
-- Con 1: <Details>
-- Con 2: <Details>
-- Con 3: <Details>
-
-**Implementation Complexity**: Low / Med / High
-
-**Primary Risks**
-<Describe technical risks in 1-2 sentences>
-
----
-
-## Comparison Matrix
-
-| Criteria | Alternative 1: <Name> | Alternative 2: <Name> | Alternative 3: <Name> |
-|----------|----------------------|----------------------|----------------------|
-| **Implementation Effort** | 5 person-days | 8 person-days | 3 person-days |
-| **Maintainability** | High | Med | Low |
-| **Performance** | 100ms | 50ms | 200ms |
-| **Scalability** | High | Med | Low |
-| **Team Familiarity** | High | Med | Low |
-| **Technical Debt** | Low | Med | High |
-| **Security** | High | High | Med |
-| **Extensibility** | High | Med | Low |
-
-## Recommended Solution
-
-### Selected Design: <Selected Design Alternative Name>
-
-**Selection Rationale**
-<Describe in 1-2 paragraphs why this design was chosen>
+**Selection Rationale Summary**
+<Summarize the selection rationale from design-alternatives.md in 1-2 paragraphs>
 
 Example:
-Alternative 1 is adopted. The main reasons are the following three points:
-1. **High Maintainability**: Simple module composition that all team members can easily understand
-2. **Compliance with Security Requirements**: Adheres to OAuth2.0 standards, minimizing vulnerability risks
-3. **Compatibility with Existing Systems**: Easy to integrate with current authentication infrastructure, low migration costs
+Alternative 1 (JWT + Passport.js) was selected. The main reasons are:
+1. **High Maintainability**: Simple module composition that all team members can easily understand and extend
+2. **Security Compliance**: Adheres to OAuth2.0 standards, minimizing vulnerability risks and meeting regulatory requirements
+3. **Existing System Compatibility**: Easy integration with current authentication infrastructure, resulting in low migration costs
 
-Alternative 2 is superior in performance, but has high implementation complexity and risks increased long-term maintenance costs. Alternative 3 is suitable for short-term development, but does not meet requirements in terms of scalability and security.
-
-**Trade-offs**
-<Clearly state what was sacrificed and why it's acceptable>
+**Key Trade-offs**
+<Summarize the trade-offs identified in design-alternatives.md>
 
 Example:
-- **Performance**: Response time is approximately 2x compared to Alternative 2 (50ms → 100ms), but it well satisfies the 200ms requirement, and the impact on user experience is minimal
-- **Initial Development Speed**: Development period is approximately 2x compared to Alternative 3, but long-term maintainability is prioritized
+- **Performance**: Response time is approximately 2x compared to session-based approach (50ms → 100ms), but it well satisfies the 200ms requirement, and the impact on user experience is minimal
+- **Initial Development Speed**: Development period is approximately 2x compared to SaaS approach, but we prioritize long-term maintainability and data ownership
 
 ## Detailed Design
 

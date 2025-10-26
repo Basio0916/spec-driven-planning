@@ -120,23 +120,48 @@ Creates `.sdp/specs/add-user-authentication/requirement.md` with:
 - Functional Requirements with acceptance criteria
 - Non-Functional Requirements
 
-### 3. Create Design
+### 3. Evaluate Design Alternatives
 
-Generate a detailed design with alternatives:
+Compare design alternatives (lightweight, 200-400 lines):
 
 ```bash
-/sdp:design add-user-authentication
+/sdp:design-alternatives add-user-authentication
 ```
 
-Creates `.sdp/specs/add-user-authentication/design.md` with:
+Creates `.sdp/specs/add-user-authentication/design-alternatives.md` with:
 - Design Alternatives (2-4 approaches with pros/cons)
 - Comparison Matrix
 - Recommended Solution with rationale
+- Key Trade-offs
+
+**Benefits**: Make direction decisions with lightweight comparisons instead of 1000+ line documents.
+
+### 4. Create Detailed Design
+
+Elaborate the selected alternative to implementation-ready level (500-800 lines):
+
+```bash
+# To proceed with recommended alternative
+/sdp:design-detail add-user-authentication
+
+# To select a different alternative (e.g., Alternative 2)
+/sdp:design-detail add-user-authentication 2
+```
+
+Creates `.sdp/specs/add-user-authentication/design.md` with:
+- Selected design summary
 - Detailed Design (architecture, data models, APIs)
+- Security Measures
+- Performance Optimization
 - Trade-offs & Risks
 - Implementation Guidelines
+- File structure and implementation order
 
-### 4. Generate Task Breakdown
+**Benefits**: Detail only the selected approach, avoiding unnecessary design work.
+
+**About existing /sdp:design command**: For backward compatibility, the existing `/sdp:design` command is still available (performs alternatives evaluation and detailed design in one step). However, the new two-stage flow is recommended for iterative design.
+
+### 5. Generate Task Breakdown
 
 Create task decomposition with PERT estimates:
 
@@ -150,7 +175,7 @@ Creates `.sdp/specs/add-user-authentication/tasks.yml` with:
 - Critical path analysis
 - Rollup metrics (expected hours, standard deviation, confidence)
 
-### 5. Visualize Plan
+### 6. Visualize Plan
 
 Generate human-readable project plan:
 
@@ -164,7 +189,7 @@ Creates `.sdp/specs/add-user-authentication/plan.md` with:
 - Risk register (top 3)
 - Critical path and buffer recommendations
 
-### 6. Export to Issue Trackers
+### 7. Export to Issue Trackers
 
 Export tasks to your preferred issue tracker:
 
