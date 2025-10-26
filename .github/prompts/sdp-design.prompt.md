@@ -1,16 +1,14 @@
 ---
-description: Generate a detailed design document with decision rationale for a given requirement
-mode: agent
+description: Generate comprehensive detailed design from selected pre-design option
 ---
 
-# SDP Design Generation
+# SDP: Design
 
-Generate a detailed design document with decision rationale for a given requirement.
+You are GitHub Copilot. Generate a comprehensive detailed design document based on a selected pre-design option.
 
 ## Input
-
-- **slug**: An existing requirement folder at `.sdp/specs/<slug>/` containing `requirement.md`
-- **Usage Example**: `/sdp-design add-user-authentication`
+- **slug**: The requirement slug (e.g., "add-user-authentication")
+- **alternative-number** (optional): Which alternative to detail (1, 2, 3, or 4). If not specified, use the recommended solution
 
 ## Language Configuration
 
@@ -21,128 +19,219 @@ Read `.sdp/config/language.yml` to determine the output language:
 Use templates from `.sdp/templates/<lang>/` directory based on the configured language.
 
 ## Context Files
-
-Read these for context:
-- `.sdp/specs/${input:slug}/requirement.md` - The requirement to design
-- `.sdp/tech.md` - Technical stack and constraints
-- `.sdp/structure.md` - Code structure and architecture
-- `.sdp/product.md` - Business context and goals
+Read these for context (in order of importance):
+1. `.sdp/specs/<slug>/pre-design.md` - The pre-design options (REQUIRED)
+2. `.sdp/specs/<slug>/requirement.md` - The requirement specification
+3. `.sdp/tech.md` - Technical stack and constraints
+4. `.sdp/structure.md` - Code structure and architecture
+5. `.sdp/product.md` - Business context and goals
 
 ## Pre-Check
 
 Before starting, verify that:
-- `.sdp/specs/${input:slug}/` directory exists
-- `.sdp/specs/${input:slug}/requirement.md` file exists
+- `.sdp/specs/<slug>/` directory exists
+- `.sdp/specs/<slug>/requirement.md` file exists
+- `.sdp/specs/<slug>/pre-design.md` file exists
 
 Report errors if requirements are missing.
 
-## Design Process
+## Alternative Selection Logic
 
-### 1. Understand the Requirement
+1. If `alternative-number` is provided (e.g., 1, 2, 3, 4):
+   - Read `pre-design.md` and extract the specified alternative
+   - Verify the alternative number exists
+   - Use that alternative as the basis for detailed design
 
-- Read and analyze the requirement thoroughly
-- Extract key constraints from NFRs (security, performance, etc.)
-- Identify technical boundaries from `.sdp/tech.md`
+2. If `alternative-number` is NOT provided:
+   - Read `pre-design.md`
+   - Extract the "Recommended Solution" section
+   - Determine which alternative was recommended
+   - Use the recommended alternative as the basis for detailed design
 
-### 2. Generate Design Alternatives
+3. Output a clear statement at the beginning indicating which alternative is being detailed
 
-Propose **2-4 alternative design approaches**. For each alternative:
+## Detailed Design Process
 
-- **Overview**: High-level description (2-3 sentences)
-- **Architecture**: Component diagram, data flow, or module structure
-- **Pros**: Key advantages (3-5 bullet points)
-- **Cons**: Drawbacks and limitations (3-5 bullet points)
-- **Complexity**: Estimated implementation complexity (Low/Med/High)
-- **Risk**: Primary technical risks
+### 1. Extract Base Design
+- Read the selected alternative from pre-design.md
+- Extract the overview, architecture, pros, cons as foundation
+- Keep the rationale and trade-offs from the recommendation
 
-### 3. Comparative Analysis
+### 2. Expand to Implementation-Ready Detail
 
-Create a comparison table covering:
-- Implementation effort
-- Maintainability
-- Performance characteristics
-- Scalability
-- Team familiarity
-- Technical debt implications
+**IMPORTANT**: This document should be comprehensive enough for implementation. Include ALL necessary details.
 
-### 4. Recommended Solution
+#### Architecture Details
+- **System Architecture**: Detailed component diagrams (use Mermaid when appropriate)
+- **Data Flow**: Detailed data flow diagrams showing all major paths
+- **Module Structure**: Detailed breakdown of modules/packages/services
+- **Integration Points**: How components interact with each other and external systems
 
-- **Selection rationale**: Why this design was chosen (1-2 paragraphs)
-- **Trade-offs**: What we're sacrificing and why it's acceptable
-- **Detailed design**: Architecture, data models, APIs, integration points
-- **Implementation notes**: Key technical decisions and guidelines
+#### Data Model Details
+- **ER Diagrams**: Full entity-relationship diagrams (use Mermaid)
+- **Table Definitions**: Complete DDL with all columns, types, constraints, indexes
+- **Data Validation Rules**: Field-level validation requirements
+- **Migration Strategy**: How to migrate from current state (if applicable)
+
+#### API Specifications
+- **Endpoint Definitions**: Full REST/GraphQL/gRPC endpoint specifications
+- **Request/Response Schemas**: Complete schemas with examples
+- **Error Responses**: All error cases with codes and messages
+- **Authentication/Authorization**: Security requirements for each endpoint
+
+#### Security Design
+- **Authentication**: Detailed authentication mechanism
+- **Authorization**: Role-based or attribute-based access control details
+- **Data Protection**: Encryption at rest and in transit
+- **Security Headers**: Required HTTP headers
+- **Rate Limiting**: Specific rate limit rules
+- **Input Validation**: Validation and sanitization requirements
+
+#### Performance Design
+- **Performance Targets**: Specific latency/throughput requirements
+- **Caching Strategy**: What to cache, where, and for how long
+- **Database Optimization**: Indexes, query optimization, connection pooling
+- **Scalability Plan**: Horizontal/vertical scaling approach
+
+#### Error Handling
+- **Error Categories**: Define error types and codes
+- **Logging Strategy**: What to log, at what level, where
+- **Monitoring**: Key metrics to track
+- **Alerting**: When to alert and whom
+
+#### Implementation Guidelines
+- **File Structure**: Detailed file and directory organization
+- **Naming Conventions**: Specific naming rules for files, classes, functions
+- **Coding Standards**: Language-specific coding conventions
+- **Testing Strategy**: Unit, integration, e2e testing approach
+- **Implementation Order**: Step-by-step implementation sequence
+- **Dependencies**: New dependencies to add (with versions)
+
+### 3. Address Trade-offs and Risks
+- Expand on trade-offs mentioned in pre-design.md
+- Provide detailed mitigation strategies for identified risks
+- Add new risks discovered during detailed design
+- Create risk matrix with probability, impact, and mitigation
+
+### 4. Provide Implementation Guidance
+- Break down implementation into clear phases
+- Identify critical path items
+- Suggest rollback strategies
+- Provide testing checkpoints
+
+## Document Length Guidelines
+
+**Target length: 500-800 lines**
+
+Be comprehensive but focused:
+- ✅ Complete architecture diagrams
+- ✅ Full database schemas with DDL
+- ✅ Complete API specifications
+- ✅ Detailed security measures
+- ✅ Specific implementation steps
+- ✅ Concrete file structures
+- ❌ NO implementation code (unless small examples for clarity)
+- ❌ NO test code (describe test strategy instead)
+
+**The goal is to provide everything needed to implement, without actually implementing.**
 
 ## Deliverable
 
-Create `.sdp/specs/${input:slug}/design.md` following `.sdp/templates/<lang>/design.md` structure (use the language-specific template).
+Create or update `.sdp/specs/<slug>/design.md` following `.sdp/templates/<lang>/design.md` structure (use the language-specific template).
 
-**IMPORTANT - Response Length Management:**
-If the design document is expected to be very long and may exceed GitHub Copilot's response limit:
-1. First, create the file with sections 1-4 (Overview through Recommended Solution)
-2. Inform the user that detailed design sections will be added next
-3. Wait for user confirmation, then append sections 5-8 (Detailed Design through Open Questions)
-4. Use `replace_string_in_file` to append content, NOT rewrite the entire file
+**Note**: The existing design.md template is comprehensive and suitable for detailed design. Use it as-is.
 
-## Design Document Structure
+## Detailed Design Document Structure
 
-The output must include:
+The output must include (based on design.md template):
 
-**Phase 1 (Core Design):**
-1. **Overview**: Summary of what's being designed
-2. **Design Alternatives**: 2-4 alternative approaches with pros/cons
-3. **Comparison Matrix**: Side-by-side comparison table
-4. **Recommended Solution**: Selected design with rationale
-
-**Phase 2 (Implementation Details):**
-5. **Detailed Design**: Architecture, data models, APIs, etc.
-6. **Trade-offs & Risks**: What we're accepting and why
-7. **Implementation Guidelines**: Technical decisions and conventions
-8. **Open Questions**: Unresolved items requiring user input (if any)
+1. **Title and Overview**: What's being designed (selected alternative)
+2. **Design Selection**: Which alternative was chosen and why (reference pre-design.md)
+3. **Architecture**: Detailed system architecture with diagrams
+4. **Component Design**: Detailed component breakdown
+5. **Data Models**: Complete ER diagrams and table definitions
+6. **API Design**: Full API specifications
+7. **Security Measures**: Comprehensive security design
+8. **Performance Optimization**: Caching, indexing, scaling strategies
+9. **Trade-offs & Risks**: Detailed risk analysis and mitigation
+10. **Implementation Guidelines**: File structure, conventions, implementation order
+11. **Testing Strategy**: Unit, integration, e2e testing approach
+12. **Open Questions**: Unresolved items (if any)
 
 ## Output Format
 
 Generate all content based on the configured language (`.sdp/config/language.yml`).
 
-**For Phase 1 (Core Design) - After creating the initial file:**
+After writing the file, print a summary in the same language as the content:
 
+For Japanese:
 ```
-【設計（フェーズ1）完了】
+【詳細設計完了】
 📐 Slug: <slug>
-📝 タイトル: <設計タイトル>
+📝 採用案: 設計案<N>: <設計名>
 📁 ファイル: .sdp/specs/<slug>/design.md
 
-📊 検討した代替案: <数>
-✅ 採用案: <採用した設計名>
-📌 主要な判断理由: <1行要約>
+📊 ドキュメントサイズ: <行数>行
+📌 主要コンポーネント: <数>個
+🗄️ テーブル数: <数>個
+🔌 API数: <数>個
 
 💡 次のステップ:
-  - 続けて詳細設計セクション（データモデル、API設計など）を追加する場合は「続けてください」と入力
-  - または設計内容を確認し、修正が必要な場合は自然言語で指示してください
+  - 詳細設計を確認し、修正が必要な場合は自然言語で指示してください
+  - 設計が確定したら #sdp-estimate を使用してタスク分解を実行してください
 ```
 
-**For Phase 2 (Implementation Details) - After completing all sections:**
-
+For English:
 ```
-【設計完了】
+【Detailed Design Completed】
 📐 Slug: <slug>
-📝 タイトル: <設計タイトル>
-📁 ファイル: .sdp/specs/<slug>/design.md
+📝 Selected: Alternative <N>: <design name>
+📁 File: .sdp/specs/<slug>/design.md
 
-✅ すべてのセクションが完成しました
+📊 Document Size: <lines> lines
+📌 Main Components: <count>
+🗄️ Tables: <count>
+🔌 APIs: <count>
 
-💡 次のステップ:
-  - 設計内容を確認し、修正が必要な場合は自然言語で指示してください
-  - 設計が確定したら /sdp-estimate でタスク分解を実行してください
+💡 Next Steps:
+  - Review detailed design and provide feedback if changes needed
+  - When design is finalized: Use #sdp-estimate for task breakdown
 ```
 
 ## User Iteration Support
 
-After generating the design:
+After generating the detailed design:
 - User can provide natural language feedback
 - Update the design document based on feedback
+- Refine specific sections as requested
+- Add missing details if pointed out
 - Maintain version notes in the document
-- Re-evaluate alternatives if requested
 
-## Allowed Tools
+## Design Quality Guidelines
 
-Read, Write, Edit, File Search, Grep only
+### Completeness
+- Include all information needed for implementation
+- Don't leave critical decisions to implementation phase
+- Specify exact technologies, libraries, versions when possible
+
+### Consistency with Context
+- **tech.md alignment**: Use stack and patterns from tech.md
+- **structure.md alignment**: Follow existing file organization patterns
+- **requirement.md alignment**: Satisfy all functional and non-functional requirements
+
+### Specificity
+- Use concrete values, not placeholders (e.g., "bcrypt cost factor: 12" not "appropriate cost factor")
+- Provide actual examples (e.g., actual JSON schemas, actual SQL DDL)
+- Give specific numbers (e.g., "100ms p99 latency" not "fast")
+
+### Implementability
+- Implementation order should be clear and logical
+- Dependencies should be explicitly stated
+- File structure should match structure.md conventions
+- No ambiguity about what needs to be built
+
+### Risk Awareness
+- Identify technical risks specific to the detailed design
+- Provide concrete mitigation strategies
+- Acknowledge uncertainties
+- Suggest monitoring and validation approaches

@@ -120,23 +120,48 @@ Creates `.sdp/specs/add-user-authentication/requirement.md` with:
 - Functional Requirements with acceptance criteria
 - Non-Functional Requirements
 
-### 3. Create Design
+### 3. Pre-Design (Evaluate Design Options)
 
-Generate a detailed design with alternatives:
+Compare design options (lightweight, 200-400 lines):
 
 ```bash
-/sdp:design add-user-authentication
+/sdp:pre-design add-user-authentication
 ```
 
-Creates `.sdp/specs/add-user-authentication/design.md` with:
+Creates `.sdp/specs/add-user-authentication/pre-design.md` with:
 - Design Alternatives (2-4 approaches with pros/cons)
 - Comparison Matrix
 - Recommended Solution with rationale
+- Key Trade-offs
+
+**Benefits**: Make direction decisions with lightweight comparisons instead of 1000+ line documents.
+
+### 4. Design (Create Detailed Design)
+
+Elaborate the selected option to implementation-ready level (500-800 lines):
+
+```bash
+# To proceed with recommended option
+/sdp:design add-user-authentication
+
+# To select a different option (e.g., Option 2)
+/sdp:design add-user-authentication 2
+```
+
+Creates `.sdp/specs/add-user-authentication/design.md` with:
+- Selected design summary
 - Detailed Design (architecture, data models, APIs)
+- Security Measures
+- Performance Optimization
 - Trade-offs & Risks
 - Implementation Guidelines
+- File structure and implementation order
 
-### 4. Generate Task Breakdown
+**Benefits**: Detail only the selected approach, avoiding unnecessary design work.
+
+**About /sdp:design-legacy command**: For backward compatibility, the `/sdp:design-legacy` command is still available (performs pre-design and detailed design in one step). However, the new two-stage flow (pre-design → design) is recommended for iterative design.
+
+### 5. Generate Task Breakdown
 
 Create task decomposition with PERT estimates:
 
@@ -150,7 +175,7 @@ Creates `.sdp/specs/add-user-authentication/tasks.yml` with:
 - Critical path analysis
 - Rollup metrics (expected hours, standard deviation, confidence)
 
-### 5. Visualize Plan
+### 6. Visualize Plan
 
 Generate human-readable project plan:
 
@@ -164,7 +189,7 @@ Creates `.sdp/specs/add-user-authentication/plan.md` with:
 - Risk register (top 3)
 - Critical path and buffer recommendations
 
-### 6. Export to Issue Trackers
+### 7. Export to Issue Trackers
 
 Export tasks to your preferred issue tracker:
 
@@ -278,7 +303,9 @@ All commands are located in `.claude/commands/sdp/`:
 |---------|-------------|
 | `/sdp:steering` | Generate project context (product, tech, structure) |
 | `/sdp:requirement <text-or-path>` | Refine and normalize requirements |
-| `/sdp:design <slug>` | Generate detailed design with alternatives and rationale |
+| `/sdp:pre-design <slug>` | Generate lightweight pre-design (2-4 design options) |
+| `/sdp:design <slug> [option-num]` | Generate detailed design from selected option |
+| `/sdp:design-legacy <slug>` | (Legacy) Generate pre-design and design in one step |
 | `/sdp:estimate <slug>` | Generate task breakdown with PERT estimates |
 | `/sdp:show-plan <slug>` | Create visual project plan with Gantt chart |
 | `/sdp:export-issues <slug>` | Export to GitHub Issues, Jira, Backlog, or local files |
@@ -367,7 +394,9 @@ SDP now supports GitHub Copilot in addition to Claude Code! Use the `--github-co
 |------------|----------------|-------------|
 | `/sdp:steering` | `/sdp-steering` | Generate project context |
 | `/sdp:requirement` | `/sdp-requirement` | Refine requirement specification |
+| `/sdp:pre-design` | `/sdp-pre-design` | Generate pre-design |
 | `/sdp:design` | `/sdp-design` | Generate detailed design |
+| `/sdp:design-legacy` | `/sdp-design-legacy` | (Legacy) Pre-design and design in one step |
 | `/sdp:estimate` | `/sdp-estimate` | Generate task breakdown |
 | `/sdp:show-plan` | `/sdp-show-plan` | Create visual project plan |
 | `/sdp:implement` | `/sdp-implement` | Execute implementation tasks |

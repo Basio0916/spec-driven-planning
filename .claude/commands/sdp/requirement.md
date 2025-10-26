@@ -58,6 +58,8 @@ Read these for context:
 Generate all content based on the configured language (`.sdp/config/language.yml`).
 
 After writing the file, print a summary in the same language as the content:
+
+For Japanese:
 ```
 【要件定義完了】
 📋 Slug: <slug>
@@ -66,7 +68,19 @@ After writing the file, print a summary in the same language as the content:
 
 💡 次のステップ:
   - 要件内容を確認し、修正が必要な場合は自然言語で指示してください
-  - 要件が確定したら /sdp:design <slug> で設計を行ってください
+  - 要件が確定したら /sdp:pre-design <slug> で設計案を評価してください
+```
+
+For English:
+```
+【Requirement Definition Completed】
+📋 Slug: <slug>
+📝 Title: <requirement title>
+📁 File: .sdp/specs/<slug>/requirement.md
+
+💡 Next Steps:
+  - Review the requirement and provide feedback if changes needed
+  - When requirement is finalized: Use /sdp:pre-design <slug> to evaluate design options
 ```
 
 ## Cross-Platform Compatibility

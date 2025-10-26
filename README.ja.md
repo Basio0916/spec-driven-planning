@@ -118,23 +118,48 @@ language: en  # または ja
 - 受け入れ基準付きの機能要件
 - 非機能要件
 
-### 3. 設計の作成
+### 3. 事前設計（設計案の評価）
 
-代替案を含む詳細設計を生成:
+設計案を比較検討（軽量・200-400行）:
 
 ```bash
+/sdp:pre-design add-user-authentication
+```
+
+以下の内容を含む `.sdp/specs/add-user-authentication/pre-design.md` が作成されます:
+- 設計案（2〜4つのアプローチと利点・欠点）
+- 比較マトリクス
+- 根拠を含む推奨ソリューション
+- 主要なトレードオフ
+
+**メリット**: 1000行超の大量ドキュメントではなく、軽量な比較で方向性を決定できます。
+
+### 4. 詳細設計の作成
+
+選択した設計案を実装可能レベルまで詳細化（500-800行）:
+
+```bash
+# 推奨案を採用する場合
 /sdp:design add-user-authentication
+
+# 別の設計案（例: 設計案2）を選択する場合
+/sdp:design add-user-authentication 2
 ```
 
 以下の内容を含む `.sdp/specs/add-user-authentication/design.md` が作成されます:
-- 設計の代替案（2〜4つのアプローチと利点・欠点）
-- 比較マトリクス
-- 根拠を含む推奨ソリューション
+- 採用した設計案の要約
 - 詳細設計（アーキテクチャ、データモデル、API）
+- セキュリティ対策
+- パフォーマンス最適化
 - トレードオフとリスク
 - 実装ガイドライン
+- ファイル構成と実装順序
 
-### 4. タスク分解の生成
+**メリット**: 選択した案のみ詳細化するため、不要な設計作業を削減できます。
+
+**/sdp:design-legacy コマンドについて**: 後方互換性のため、`/sdp:design-legacy` コマンドも引き続き使用できます（事前設計と詳細設計を一度に実行）。ただし、段階的な設計には新しい2段階フロー（pre-design → design）の使用を推奨します。
+
+### 5. タスク分解の生成
 
 PERT見積もり付きのタスク分解を作成:
 
@@ -148,7 +173,7 @@ PERT見積もり付きのタスク分解を作成:
 - クリティカルパス分析
 - ロールアップメトリクス（予想時間、標準偏差、信頼度）
 
-### 5. 計画の可視化
+### 6. 計画の可視化
 
 人間が読みやすいプロジェクト計画を生成:
 
@@ -162,7 +187,7 @@ PERT見積もり付きのタスク分解を作成:
 - リスク台帳（上位3つ）
 - クリティカルパスとバッファ推奨事項
 
-### 6. 課題トラッカーへのエクスポート
+### 7. 課題トラッカーへのエクスポート
 
 タスクをGitHub Issues、Jira、Backlog、またはローカルファイルにエクスポート:
 
@@ -277,7 +302,9 @@ PERT見積もり付きのタスク分解を作成:
 |---------|-------------|
 | `/sdp:steering` | プロジェクトコンテキストの生成（プロダクト、技術、構造） |
 | `/sdp:requirement <text-or-path>` | 要件の洗練化と正規化 |
-| `/sdp:design <slug>` | 代替案と根拠を含む詳細設計の生成 |
+| `/sdp:pre-design <slug>` | 軽量な事前設計の生成（2〜4つの設計案） |
+| `/sdp:design <slug> [option-num]` | 選択した設計案から詳細設計を生成 |
+| `/sdp:design-legacy <slug>` | （旧版）事前設計と詳細設計を一度に生成 |
 | `/sdp:estimate <slug>` | PERT見積もり付きのタスク分解の生成 |
 | `/sdp:show-plan <slug>` | ガントチャート付きのビジュアルプロジェクト計画の作成 |
 | `/sdp:export-issues <slug>` | GitHub Issues、Jira、Backlog、またはローカルファイルへのエクスポート |
@@ -366,7 +393,9 @@ SDPはClaude Codeに加えて、GitHub Copilotにも対応しました！初期�
 |------------|----------------|------|
 | `/sdp:steering` | `/sdp-steering` | プロジェクトコンテキストを生成 |
 | `/sdp:requirement` | `/sdp-requirement` | 要件仕様を洗練化 |
+| `/sdp:pre-design` | `/sdp-pre-design` | 事前設計を生成 |
 | `/sdp:design` | `/sdp-design` | 詳細設計を生成 |
+| `/sdp:design-legacy` | `/sdp-design-legacy` | （旧版）事前設計と詳細設計を一度に生成 |
 | `/sdp:estimate` | `/sdp-estimate` | タスク分解を生成 |
 | `/sdp:show-plan` | `/sdp-show-plan` | ビジュアルプロジェクト計画を作成 |
 | `/sdp:implement` | `/sdp-implement` | 実装タスクを実行 |
