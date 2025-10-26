@@ -303,7 +303,9 @@ All commands are located in `.claude/commands/sdp/`:
 |---------|-------------|
 | `/sdp:steering` | Generate project context (product, tech, structure) |
 | `/sdp:requirement <text-or-path>` | Refine and normalize requirements |
-| `/sdp:design <slug>` | Generate detailed design with alternatives and rationale |
+| `/sdp:design-alternatives <slug>` | Generate lightweight design alternatives (2-4 approaches) |
+| `/sdp:design-detail <slug> [alt-num]` | Generate detailed design from selected alternative |
+| `/sdp:design <slug>` | (Legacy) Generate detailed design with alternatives in one step |
 | `/sdp:estimate <slug>` | Generate task breakdown with PERT estimates |
 | `/sdp:show-plan <slug>` | Create visual project plan with Gantt chart |
 | `/sdp:export-issues <slug>` | Export to GitHub Issues, Jira, Backlog, or local files |
@@ -392,7 +394,9 @@ SDP now supports GitHub Copilot in addition to Claude Code! Use the `--github-co
 |------------|----------------|-------------|
 | `/sdp:steering` | `/sdp-steering` | Generate project context |
 | `/sdp:requirement` | `/sdp-requirement` | Refine requirement specification |
-| `/sdp:design` | `/sdp-design` | Generate detailed design |
+| `/sdp:design-alternatives` | `/sdp-design-alternatives` | Generate design alternatives |
+| `/sdp:design-detail` | `/sdp-design-detail` | Generate detailed design |
+| `/sdp:design` | `/sdp-design` | (Legacy) Generate design in one step |
 | `/sdp:estimate` | `/sdp-estimate` | Generate task breakdown |
 | `/sdp:show-plan` | `/sdp-show-plan` | Create visual project plan |
 | `/sdp:implement` | `/sdp-implement` | Execute implementation tasks |
