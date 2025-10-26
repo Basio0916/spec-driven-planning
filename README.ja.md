@@ -118,16 +118,16 @@ language: en  # または ja
 - 受け入れ基準付きの機能要件
 - 非機能要件
 
-### 3. 設計代替案の評価
+### 3. 設計案の評価
 
-設計の代替案を比較検討（軽量・200-400行）:
+設計案を比較検討（軽量・200-400行）:
 
 ```bash
 /sdp:design-alternatives add-user-authentication
 ```
 
 以下の内容を含む `.sdp/specs/add-user-authentication/design-alternatives.md` が作成されます:
-- 設計の代替案（2〜4つのアプローチと利点・欠点）
+- 設計案（2〜4つのアプローチと利点・欠点）
 - 比較マトリクス
 - 根拠を含む推奨ソリューション
 - 主要なトレードオフ
@@ -136,13 +136,13 @@ language: en  # または ja
 
 ### 4. 詳細設計の作成
 
-選択した代替案を実装可能レベルまで詳細化（500-800行）:
+選択した設計案を実装可能レベルまで詳細化（500-800行）:
 
 ```bash
 # 推奨案を採用する場合
 /sdp:design-detail add-user-authentication
 
-# 別の代替案（例: 代替案2）を選択する場合
+# 別の設計案（例: 設計案2）を選択する場合
 /sdp:design-detail add-user-authentication 2
 ```
 
@@ -157,7 +157,7 @@ language: en  # または ja
 
 **メリット**: 選択した案のみ詳細化するため、不要な設計作業を削減できます。
 
-**既存の /sdp:design コマンドについて**: 後方互換性のため、既存の `/sdp:design` コマンドも引き続き使用できます（代替案評価と詳細設計を一度に実行）。ただし、段階的な設計には新しい2段階フローの使用を推奨します。
+**既存の /sdp:design コマンドについて**: 後方互換性のため、既存の `/sdp:design` コマンドも引き続き使用できます（設計案評価と詳細設計を一度に実行）。ただし、段階的な設計には新しい2段階フローの使用を推奨します。
 
 ### 5. タスク分解の生成
 
@@ -302,9 +302,9 @@ PERT見積もり付きのタスク分解を作成:
 |---------|-------------|
 | `/sdp:steering` | プロジェクトコンテキストの生成（プロダクト、技術、構造） |
 | `/sdp:requirement <text-or-path>` | 要件の洗練化と正規化 |
-| `/sdp:design-alternatives <slug>` | 軽量な設計代替案の生成（2〜4つのアプローチ） |
-| `/sdp:design-detail <slug> [alt-num]` | 選択した代替案から詳細設計を生成 |
-| `/sdp:design <slug>` | （旧版）代替案と詳細設計を一度に生成 |
+| `/sdp:design-alternatives <slug>` | 軽量な設計案の生成（2〜4つのアプローチ） |
+| `/sdp:design-detail <slug> [alt-num]` | 選択した設計案から詳細設計を生成 |
+| `/sdp:design <slug>` | （旧版）設計案と詳細設計を一度に生成 |
 | `/sdp:estimate <slug>` | PERT見積もり付きのタスク分解の生成 |
 | `/sdp:show-plan <slug>` | ガントチャート付きのビジュアルプロジェクト計画の作成 |
 | `/sdp:export-issues <slug>` | GitHub Issues、Jira、Backlog、またはローカルファイルへのエクスポート |
@@ -393,7 +393,7 @@ SDPはClaude Codeに加えて、GitHub Copilotにも対応しました！初期�
 |------------|----------------|------|
 | `/sdp:steering` | `/sdp-steering` | プロジェクトコンテキストを生成 |
 | `/sdp:requirement` | `/sdp-requirement` | 要件仕様を洗練化 |
-| `/sdp:design-alternatives` | `/sdp-design-alternatives` | 設計代替案を生成 |
+| `/sdp:design-alternatives` | `/sdp-design-alternatives` | 設計案を生成 |
 | `/sdp:design-detail` | `/sdp-design-detail` | 詳細設計を生成 |
 | `/sdp:design` | `/sdp-design` | （旧版）設計を一度に生成 |
 | `/sdp:estimate` | `/sdp-estimate` | タスク分解を生成 |

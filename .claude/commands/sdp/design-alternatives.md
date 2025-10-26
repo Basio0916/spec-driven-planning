@@ -18,7 +18,6 @@ Read these for context:
 - `.sdp/tech.md` - Technical stack and constraints
 - `.sdp/structure.md` - Code structure and architecture
 - `.sdp/product.md` - Business context and goals
-- `.sdp/specs/<slug>/investigation.md` - Investigation results (if exists)
 
 ## Pre-Check
 
@@ -34,7 +33,6 @@ Claude Code will automatically check these conditions and report errors if requi
 - Read and analyze the requirement thoroughly
 - Extract key constraints from NFRs (security, performance, etc.)
 - Identify technical boundaries from `.sdp/tech.md`
-- Review investigation.md if it exists for existing code patterns
 
 ### 2. Generate 2-4 Design Alternatives
 
@@ -131,19 +129,19 @@ After writing the file, print a summary in the same language as the content:
 
 For Japanese:
 ```
-【設計代替案作成完了】
+【設計案作成完了】
 📐 Slug: <slug>
 📝 タイトル: <設計タイトル>
 📁 ファイル: .sdp/specs/<slug>/design-alternatives.md
 
-📊 評価した代替案: <数>件
+📊 評価した設計案: <数>件
 ✅ 推奨案: <推奨する設計名>
 📌 主要な選定理由: <1行要約>
 
 💡 次のステップ:
-  - 代替案を確認し、修正が必要な場合は自然言語で指示してください
+  - 設計案を確認し、修正が必要な場合は自然言語で指示してください
   - 推奨案で進める場合: /sdp:design-detail <slug>
-  - 別の案を選ぶ場合: /sdp:design-detail <slug> <代替案番号>
+  - 別の設計案を選ぶ場合: /sdp:design-detail <slug> <設計案番号>
 ```
 
 For English:
@@ -181,13 +179,13 @@ After generating the design alternatives:
 
 ### Make Comparisons Objective
 - Use concrete metrics when possible (e.g., "100ms response time" vs "fast")
-- Provide evidence from tech.md, product.md, or investigation.md
+- Provide evidence from tech.md or product.md
 - Acknowledge uncertainty when estimating
 
 ### Align with Project Context
 - Reference constraints from tech.md (stack, infrastructure, skills)
 - Reference goals from product.md (KPIs, user needs)
-- Reference existing patterns from structure.md or investigation.md
+- Reference existing patterns from structure.md
 - Consider team's current skill level and learning curve
 
 ### Be Honest About Trade-offs

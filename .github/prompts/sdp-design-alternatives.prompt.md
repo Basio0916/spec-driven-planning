@@ -134,19 +134,19 @@ After writing the file, print a summary in the same language as the content:
 
 For Japanese:
 ```
-【設計代替案作成完了】
+【設計案作成完了】
 📐 Slug: <slug>
 📝 タイトル: <設計タイトル>
 📁 ファイル: .sdp/specs/<slug>/design-alternatives.md
 
-📊 評価した代替案: <数>件
+📊 評価した設計案: <数>件
 ✅ 推奨案: <推奨する設計名>
 📌 主要な選定理由: <1行要約>
 
 💡 次のステップ:
-  - 代替案を確認し、修正が必要な場合は自然言語で指示してください
+  - 設計案を確認し、修正が必要な場合は自然言語で指示してください
   - 推奨案で進める場合: #sdp-design-detail を使用（slugを指定）
-  - 別の案を選ぶ場合: #sdp-design-detail を使用（slug と代替案番号を指定）
+  - 別の設計案を選ぶ場合: #sdp-design-detail を使用（slug と設計案番号を指定）
 ```
 
 For English:
