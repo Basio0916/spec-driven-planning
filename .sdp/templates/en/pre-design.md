@@ -153,16 +153,16 @@ Example:
 1. Review the alternatives and comparison matrix above
 2. If you agree with the recommended solution, proceed with:
    ```
-   /sdp:design-detail <slug>
+   /sdp:design <slug>
    ```
 3. If you prefer a different alternative, specify it:
    ```
-   /sdp:design-detail <slug> 2
+   /sdp:design <slug> 2
    ```
 4. If you want modifications to any alternative, provide feedback in natural language and the alternatives will be updated
 
 **What Happens Next:**
-- The `design-detail` command will create a comprehensive detailed design document
+- The `design` command will create a comprehensive detailed design document
 - This includes: architecture diagrams, data models, API specifications, security measures, implementation guidelines, and file structure
 - The detailed design will be based on your selected alternative
 

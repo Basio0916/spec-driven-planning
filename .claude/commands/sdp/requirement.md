@@ -68,7 +68,7 @@ For Japanese:
 
 💡 次のステップ:
   - 要件内容を確認し、修正が必要な場合は自然言語で指示してください
-  - 要件が確定したら /sdp:design-alternatives <slug> で設計案を評価してください
+  - 要件が確定したら /sdp:pre-design <slug> で設計案を評価してください
 ```
 
 For English:
@@ -80,7 +80,7 @@ For English:
 
 💡 Next Steps:
   - Review the requirement and provide feedback if changes needed
-  - When requirement is finalized: Use /sdp:design-alternatives <slug> to evaluate design options
+  - When requirement is finalized: Use /sdp:pre-design <slug> to evaluate design options
 ```
 
 ## Cross-Platform Compatibility

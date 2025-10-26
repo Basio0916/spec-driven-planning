@@ -120,15 +120,15 @@ Creates `.sdp/specs/add-user-authentication/requirement.md` with:
 - Functional Requirements with acceptance criteria
 - Non-Functional Requirements
 
-### 3. Evaluate Design Alternatives
+### 3. Pre-Design (Evaluate Design Options)
 
-Compare design alternatives (lightweight, 200-400 lines):
+Compare design options (lightweight, 200-400 lines):
 
 ```bash
-/sdp:design-alternatives add-user-authentication
+/sdp:pre-design add-user-authentication
 ```
 
-Creates `.sdp/specs/add-user-authentication/design-alternatives.md` with:
+Creates `.sdp/specs/add-user-authentication/pre-design.md` with:
 - Design Alternatives (2-4 approaches with pros/cons)
 - Comparison Matrix
 - Recommended Solution with rationale
@@ -136,16 +136,16 @@ Creates `.sdp/specs/add-user-authentication/design-alternatives.md` with:
 
 **Benefits**: Make direction decisions with lightweight comparisons instead of 1000+ line documents.
 
-### 4. Create Detailed Design
+### 4. Design (Create Detailed Design)
 
-Elaborate the selected alternative to implementation-ready level (500-800 lines):
+Elaborate the selected option to implementation-ready level (500-800 lines):
 
 ```bash
-# To proceed with recommended alternative
-/sdp:design-detail add-user-authentication
+# To proceed with recommended option
+/sdp:design add-user-authentication
 
-# To select a different alternative (e.g., Alternative 2)
-/sdp:design-detail add-user-authentication 2
+# To select a different option (e.g., Option 2)
+/sdp:design add-user-authentication 2
 ```
 
 Creates `.sdp/specs/add-user-authentication/design.md` with:
@@ -159,7 +159,7 @@ Creates `.sdp/specs/add-user-authentication/design.md` with:
 
 **Benefits**: Detail only the selected approach, avoiding unnecessary design work.
 
-**About existing /sdp:design command**: For backward compatibility, the existing `/sdp:design` command is still available (performs alternatives evaluation and detailed design in one step). However, the new two-stage flow is recommended for iterative design.
+**About /sdp:design-legacy command**: For backward compatibility, the `/sdp:design-legacy` command is still available (performs pre-design and detailed design in one step). However, the new two-stage flow (pre-design → design) is recommended for iterative design.
 
 ### 5. Generate Task Breakdown
 
@@ -303,9 +303,9 @@ All commands are located in `.claude/commands/sdp/`:
 |---------|-------------|
 | `/sdp:steering` | Generate project context (product, tech, structure) |
 | `/sdp:requirement <text-or-path>` | Refine and normalize requirements |
-| `/sdp:design-alternatives <slug>` | Generate lightweight design alternatives (2-4 approaches) |
-| `/sdp:design-detail <slug> [alt-num]` | Generate detailed design from selected alternative |
-| `/sdp:design <slug>` | (Legacy) Generate detailed design with alternatives in one step |
+| `/sdp:pre-design <slug>` | Generate lightweight pre-design (2-4 design options) |
+| `/sdp:design <slug> [option-num]` | Generate detailed design from selected option |
+| `/sdp:design-legacy <slug>` | (Legacy) Generate pre-design and design in one step |
 | `/sdp:estimate <slug>` | Generate task breakdown with PERT estimates |
 | `/sdp:show-plan <slug>` | Create visual project plan with Gantt chart |
 | `/sdp:export-issues <slug>` | Export to GitHub Issues, Jira, Backlog, or local files |
@@ -394,9 +394,9 @@ SDP now supports GitHub Copilot in addition to Claude Code! Use the `--github-co
 |------------|----------------|-------------|
 | `/sdp:steering` | `/sdp-steering` | Generate project context |
 | `/sdp:requirement` | `/sdp-requirement` | Refine requirement specification |
-| `/sdp:design-alternatives` | `/sdp-design-alternatives` | Generate design alternatives |
-| `/sdp:design-detail` | `/sdp-design-detail` | Generate detailed design |
-| `/sdp:design` | `/sdp-design` | (Legacy) Generate design in one step |
+| `/sdp:pre-design` | `/sdp-pre-design` | Generate pre-design |
+| `/sdp:design` | `/sdp-design` | Generate detailed design |
+| `/sdp:design-legacy` | `/sdp-design-legacy` | (Legacy) Pre-design and design in one step |
 | `/sdp:estimate` | `/sdp-estimate` | Generate task breakdown |
 | `/sdp:show-plan` | `/sdp-show-plan` | Create visual project plan |
 | `/sdp:implement` | `/sdp-implement` | Execute implementation tasks |

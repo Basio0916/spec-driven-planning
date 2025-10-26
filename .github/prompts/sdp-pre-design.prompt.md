@@ -1,8 +1,13 @@
-# /design-alternatives <slug>
-You are Claude Code. Generate a lightweight design alternatives document that compares 2-4 design approaches for a given requirement.
+---
+description: Generate lightweight pre-design document (2-4 design options) for requirement
+---
+
+# SDP: Pre-Design
+
+You are GitHub Copilot. Generate a lightweight pre-design document that compares 2-4 design approaches for a given requirement.
 
 ## Input
-- **slug**: An existing requirement folder at `.sdp/specs/<slug>/` containing `requirement.md`
+- **slug**: Provide the requirement slug (e.g., "add-user-authentication")
 
 ## Language Configuration
 
@@ -25,16 +30,16 @@ Before starting, verify that:
 - `.sdp/specs/<slug>/` directory exists
 - `.sdp/specs/<slug>/requirement.md` file exists
 
-Claude Code will automatically check these conditions and report errors if requirements are missing.
+Report errors if requirements are missing.
 
-## Design Alternatives Process
+## Pre-Design Process
 
 ### 1. Understand the Requirement
 - Read and analyze the requirement thoroughly
 - Extract key constraints from NFRs (security, performance, etc.)
 - Identify technical boundaries from `.sdp/tech.md`
 
-### 2. Generate 2-4 Design Alternatives
+### 2. Generate 2-4 Design Options
 
 **IMPORTANT**: Keep this lightweight and focused on comparison. **DO NOT** include detailed specifications in this document. Save detailed design for the next step.
 
@@ -106,9 +111,9 @@ Keep it concise:
 
 ## Deliverable
 
-Create `.sdp/specs/<slug>/design-alternatives.md` following `.sdp/templates/<lang>/design-alternatives.md` structure (use the language-specific template).
+Create `.sdp/specs/<slug>/pre-design.md` following `.sdp/templates/<lang>/pre-design.md` structure (use the language-specific template).
 
-## Design Alternatives Document Structure
+## Pre-Design Document Structure
 
 The output must include:
 
@@ -132,7 +137,7 @@ For Japanese:
 【設計案作成完了】
 📐 Slug: <slug>
 📝 タイトル: <設計タイトル>
-📁 ファイル: .sdp/specs/<slug>/design-alternatives.md
+📁 ファイル: .sdp/specs/<slug>/pre-design.md
 
 📊 評価した設計案: <数>件
 ✅ 推奨案: <推奨する設計名>
@@ -140,16 +145,16 @@ For Japanese:
 
 💡 次のステップ:
   - 設計案を確認し、修正が必要な場合は自然言語で指示してください
-  - 推奨案で進める場合: /sdp:design-detail <slug>
-  - 別の設計案を選ぶ場合: /sdp:design-detail <slug> <設計案番号>
+  - 推奨案で進める場合: #sdp-design を使用（slugを指定）
+  - 別の設計案を選ぶ場合: #sdp-design を使用（slug と設計案番号を指定）
 ```
 
 For English:
 ```
-【Design Alternatives Completed】
+【Pre-Design Completed】
 📐 Slug: <slug>
 📝 Title: <design title>
-📁 File: .sdp/specs/<slug>/design-alternatives.md
+📁 File: .sdp/specs/<slug>/pre-design.md
 
 📊 Alternatives Evaluated: <number>
 ✅ Recommended: <recommended design name>
@@ -157,13 +162,13 @@ For English:
 
 💡 Next Steps:
   - Review alternatives and provide feedback if changes needed
-  - To proceed with recommended: /sdp:design-detail <slug>
-  - To select different alternative: /sdp:design-detail <slug> <alternative-number>
+  - To proceed with recommended: Use #sdp-design (specify slug)
+  - To select different alternative: Use #sdp-design (specify slug and alternative number)
 ```
 
 ## User Iteration Support
 
-After generating the design alternatives:
+After generating the pre-design:
 - User can provide natural language feedback
 - Update the alternatives document based on feedback
 - Add new alternatives if requested
@@ -192,10 +197,3 @@ After generating the design alternatives:
 - Every design has trade-offs - make them explicit
 - Don't oversell the recommended solution
 - Acknowledge what you're NOT optimizing for
-
-## Cross-Platform Compatibility
-
-This command works on all platforms (Windows, macOS, Linux) as it uses Claude Code's native file operations instead of shell-specific commands.
-
-## Allowed Tools
-Read, Write, Edit, File Search, Grep only

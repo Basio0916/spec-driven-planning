@@ -4,26 +4,26 @@
 <Describe the overview of the design target in 2-3 sentences>
 
 Example:
-Detailed design of user authentication functionality. This document elaborates Alternative 1 (JWT + Passport.js) selected in design-alternatives.md to an implementation-ready level.
+Detailed design of user authentication functionality. This document elaborates Option 1 (JWT + Passport.js) selected in pre-design.md to an implementation-ready level.
 
 ## Selected Design
 
-### Design Approach: <Selected Design Alternative Name>
+### Design Approach: <Selected Design Option Name>
 
-**Alternatives Evaluation**
-This design adopts Alternative <N> evaluated in `design-alternatives.md`.
+**Pre-Design Evaluation**
+This design adopts Option <N> evaluated in `pre-design.md`.
 
 **Selection Rationale Summary**
-<Summarize the selection rationale from design-alternatives.md in 1-2 paragraphs>
+<Summarize the selection rationale from pre-design.md in 1-2 paragraphs>
 
 Example:
-Alternative 1 (JWT + Passport.js) was selected. The main reasons are:
+Option 1 (JWT + Passport.js) was selected. The main reasons are:
 1. **High Maintainability**: Simple module composition that all team members can easily understand and extend
 2. **Security Compliance**: Adheres to OAuth2.0 standards, minimizing vulnerability risks and meeting regulatory requirements
 3. **Existing System Compatibility**: Easy integration with current authentication infrastructure, resulting in low migration costs
 
 **Key Trade-offs**
-<Summarize the trade-offs identified in design-alternatives.md>
+<Summarize the trade-offs identified in pre-design.md>
 
 Example:
 - **Performance**: Response time is approximately 2x compared to session-based approach (50ms → 100ms), but it well satisfies the 200ms requirement, and the impact on user experience is minimal
