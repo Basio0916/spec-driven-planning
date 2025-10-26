@@ -22,10 +22,9 @@ Use templates from `.sdp/templates/<lang>/` directory based on the configured la
 Read these for context (in order of importance):
 1. `.sdp/specs/<slug>/design-alternatives.md` - The design alternatives (REQUIRED)
 2. `.sdp/specs/<slug>/requirement.md` - The requirement specification
-3. `.sdp/specs/<slug>/investigation.md` - Investigation results (if exists)
-4. `.sdp/tech.md` - Technical stack and constraints
-5. `.sdp/structure.md` - Code structure and architecture
-6. `.sdp/product.md` - Business context and goals
+3. `.sdp/tech.md` - Technical stack and constraints
+4. `.sdp/structure.md` - Code structure and architecture
+5. `.sdp/product.md` - Business context and goals
 
 ## Pre-Check
 
@@ -218,7 +217,6 @@ After generating the detailed design:
 ### Consistency with Context
 - **tech.md alignment**: Use stack and patterns from tech.md
 - **structure.md alignment**: Follow existing file organization patterns
-- **investigation.md alignment**: Reuse existing code patterns discovered
 - **requirement.md alignment**: Satisfy all functional and non-functional requirements
 
 ### Specificity

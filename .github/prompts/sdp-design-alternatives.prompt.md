@@ -23,7 +23,6 @@ Read these for context:
 - `.sdp/tech.md` - Technical stack and constraints
 - `.sdp/structure.md` - Code structure and architecture
 - `.sdp/product.md` - Business context and goals
-- `.sdp/specs/<slug>/investigation.md` - Investigation results (if exists)
 
 ## Pre-Check
 
@@ -39,7 +38,6 @@ Report errors if requirements are missing.
 - Read and analyze the requirement thoroughly
 - Extract key constraints from NFRs (security, performance, etc.)
 - Identify technical boundaries from `.sdp/tech.md`
-- Review investigation.md if it exists for existing code patterns
 
 ### 2. Generate 2-4 Design Alternatives
 
@@ -186,13 +184,13 @@ After generating the design alternatives:
 
 ### Make Comparisons Objective
 - Use concrete metrics when possible (e.g., "100ms response time" vs "fast")
-- Provide evidence from tech.md, product.md, or investigation.md
+- Provide evidence from tech.md or product.md
 - Acknowledge uncertainty when estimating
 
 ### Align with Project Context
 - Reference constraints from tech.md (stack, infrastructure, skills)
 - Reference goals from product.md (KPIs, user needs)
-- Reference existing patterns from structure.md or investigation.md
+- Reference existing patterns from structure.md
 - Consider team's current skill level and learning curve
 
 ### Be Honest About Trade-offs
