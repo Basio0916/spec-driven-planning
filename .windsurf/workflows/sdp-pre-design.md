@@ -1,8 +1,13 @@
-# /pre-design <slug>
-You are Claude Code. Generate a lightweight pre-design document that compares 2-4 design approaches for a given requirement.
+---
+description: Generate lightweight pre-design document (2-4 design options) for requirement
+---
+
+# SDP: Pre-Design
+
+You are Windsurf. Generate a lightweight pre-design document that compares 2-4 design approaches for a given requirement.
 
 ## Input
-- **slug**: An existing requirement folder at `.sdp/specs/<slug>/` containing `requirement.md`
+- **slug**: Provide the requirement slug (e.g., "add-user-authentication")
 
 ## Language Configuration
 
@@ -25,7 +30,7 @@ Before starting, verify that:
 - `.sdp/specs/<slug>/` directory exists
 - `.sdp/specs/<slug>/requirement.md` file exists
 
-Claude Code will automatically check these conditions and report errors if requirements are missing.
+Report errors if requirements are missing.
 
 ## Pre-Design Process
 
@@ -33,14 +38,14 @@ Claude Code will automatically check these conditions and report errors if requi
 - Read and analyze the requirement thoroughly
 - Extract key constraints from NFRs (security, performance, etc.)
 - Identify technical boundaries from `.sdp/tech.md`
-- Inspect `.sdp/structure.md` and existing source directories to infer the prevailing architecture style (e.g., Clean Architecture, Hexagonal, Layered, Microservices, Event-Driven, Serverless)
+- Inspect `.sdp/structure.md` and relevant source directories to infer the prevailing architecture style (Clean, Hexagonal, Layered, Microservices, Event-Driven, Serverless, etc.)
 - Capture explicit architecture signals:
-  - **Clean / Onion / Hexagonal**: presence of `domain/`, `usecase/`, `application/`, `adapter/`, `interface/`
-  - **Layered (MVC, MVVM, etc.)**: directories such as `controllers/`, `views/`, `services/`
-  - **Microservices / Modular Monolith**: multiple service directories, independent deployment manifests
-  - **Event-Driven**: `events/`, `subscribers/`, `queues/`
-  - **CQRS / DDD**: `aggregates/`, `read-model/`, `write-model/`
-- Record any architecture-specific rules that must be honored (e.g., "domain layer must remain free of framework dependencies")
+  - **Clean / Onion / Hexagonal**: `domain/`, `usecase/`, `application/`, `adapter/`, `interface/`
+  - **Layered (MVC, MVVM, etc.)**: `controllers/`, `views/`, `services/`
+  - **Microservices / Modular Monolith**: multiple service modules, independent deployment manifests
+  - **Event-Driven / CQRS**: `events/`, `subscribers/`, `queues/`, separate read/write models
+  - **Serverless**: function directories, infrastructure-as-code for FaaS
+- Record architecture guardrails that must be respected (e.g., "domain layer must remain framework-agnostic")
 
 ### 2. Generate 2-4 Design Options
 
@@ -54,42 +59,37 @@ For each alternative (2-4 alternatives):
 
 **Architecture** (Simple text diagram or brief description)
 - Show key components and data flow
-- Highlight the flow of control between layers/modules
+- Keep it simple - use ASCII diagrams or brief bullet points
 - **NO** detailed class diagrams, **NO** detailed sequence diagrams
 
 **Architecture Alignment & Best Practices**
-- Explain how the alternative respects the inferred architecture style (e.g., keeps domain logic inside `domain/`, isolates adapters)
-- Note required layering rules (e.g., "presentation layer references application services only")
-- Mention any deviations and remediation measures
+- Explain how the approach respects the inferred architecture style and layering
+- Call out where dependency inversion or abstractions are required
+- Highlight deviations and mitigation or migration plans
 
 **Domain Logic Placement**
 - Describe where core business rules reside
-- For Clean / Hexagonal architectures: ensure use cases and entities stay framework-agnostic, adapters remain thin
-- For Layered architectures: clarify service/business layer responsibilities vs. controllers/views
-- For Microservices: outline bounded context boundaries and data ownership
+- Ensure domain/use case layers remain decoupled from infrastructure concerns
+- Note impacts on aggregates, bounded contexts, or module ownership
 
 **Pros** (3-5 bullet points)
-- Key advantages (link to NFRs, architecture goals, business KPIs when possible)
-- Cite maintainability/security/performance impacts with concrete evidence
+- Key advantages (tie to NFRs, architecture goals, business KPIs when possible)
 
 **Cons** (3-5 bullet points)
-- Drawbacks and limitations
-- Be honest about trade-offs and any architecture rule violations
+- Drawbacks and limitations; be honest about trade-offs
 
 **Implementation Complexity**: Low / Med / High
-- Brief justification (1 sentence)
-- Reference migration effort if refactoring existing layers/modules is required
+- Include a brief justification (1 sentence) and mention migration effort if refactoring is needed
 
 **Primary Risks** (1-2 sentences)
-- Main technical risks associated with this approach
-- Include architecture integrity risks (e.g., "risk of domain leakage into adapter layer")
+- Main technical or architecture integrity risks for this approach
 
 ### 3. Comparative Analysis
 
 Create a comparison table with criteria such as:
 - Implementation effort (person-days estimate)
-- Architecture fit / Cleanliness (High/Med/Low) — how well the option respects existing layering boundaries
-- Domain model impact (Strong/Neutral/Weak) — clarity of domain ownership, aggregate boundaries, invariants
+- Architecture fit / cleanliness (High/Med/Low)
+- Domain integrity impact (Strong/Neutral/Weak)
 - Maintainability (High/Med/Low)
 - Performance characteristics (concrete metrics when possible)
 - Scalability (High/Med/Low)
@@ -112,7 +112,7 @@ Create a comparison table with criteria such as:
 **Key Trade-offs** (2-4 bullet points)
 - What we're sacrificing and why it's acceptable
 - Be explicit about what we're NOT optimizing for
-- Call out any architecture rule exceptions and planned mitigation (e.g., temporary coupling, transitional adapters)
+- Call out any architecture guardrail exceptions and planned mitigation
 
 ## Document Length Guidelines
 
@@ -143,8 +143,7 @@ The output must include:
 3. **Alternative 2**: Second design approach
 4. **Alternative 3**: Third design approach (optional but recommended)
 5. **Alternative 4**: Fourth design approach (optional)
-  - Each alternative must include: Overview, Architecture outline, Architecture Alignment & Best Practices, Domain Logic Placement, Pros/Cons, Complexity, Risks
-6. **Comparison Matrix**: Side-by-side comparison table emphasizing architecture/domain fit
+6. **Comparison Matrix**: Side-by-side comparison table
 7. **Recommended Solution**: Selected design with rationale and trade-offs
 8. **Next Steps**: Instructions for proceeding to detailed design
 
@@ -190,7 +189,7 @@ For English:
 
 ## User Iteration Support
 
-After generating the design alternatives:
+After generating the pre-design:
 - User can provide natural language feedback
 - Update the alternatives document based on feedback
 - Add new alternatives if requested
@@ -216,27 +215,11 @@ After generating the design alternatives:
 - Consider team's current skill level and learning curve
 
 ### Architecture-Aware Heuristics
-- **Clean / Onion / Hexagonal Architecture**
-  - Keep domain entities and use cases pure (no framework dependencies)
-  - Push IO, persistence, and external integrations to adapter layers
-  - Prefer dependency inversion (interfaces in domain/application layers)
-  - Highlight boundary tests and contract enforcement between layers
-- **Layered (MVC, MVVM, 3-tier)**
-  - Ensure controllers remain thin; business logic resides in service/domain layer
-  - Validate DTO ↔ domain conversions and mapping responsibilities
-  - Consider caching, validation, and transaction boundaries at appropriate layers
-- **Microservices / Modular Monolith**
-  - Define bounded contexts, data ownership, and integration patterns (sync/async)
-  - Address cross-cutting concerns (observability, auth) consistently across services
-  - Evaluate deployment, API versioning, and rollback strategies per service
-- **Event-Driven / CQRS**
-  - Separate write/read models when justified; ensure eventual consistency patterns are explicit
-  - Document event contracts, delivery guarantees, and failure handling
-  - Ensure domain events remain ubiquitous language artifacts, not infrastructure leaks
-- **Serverless / FaaS**
-  - Clarify function boundaries, stateless requirements, and cold-start mitigations
-  - Plan shared service layers (auth, data access) that prevent logic duplication
-  - Highlight observability, idempotency, and retry strategies
+- **Clean / Onion / Hexagonal**: Keep domain entities and use cases free from framework dependencies; push IO/persistence to adapters; favor dependency inversion with interfaces in domain/application layers
+- **Layered (MVC, MVVM, 3-tier)**: Maintain thin controllers; keep business rules in service/domain layers; manage DTO ↔ domain conversions and transaction boundaries consciously
+- **Microservices / Modular Monolith**: Define bounded contexts, data ownership, and integration modes (sync vs async); plan observability, auth, and versioning consistently per service
+- **Event-Driven / CQRS**: Separate write/read models only when justified; articulate event contracts, delivery guarantees, and failure handling; keep domain events aligned with ubiquitous language without leaking infrastructure concerns
+- **Serverless / FaaS**: Clarify function boundaries, statelessness, and cold-start mitigation; design shared service layers that prevent logic duplication; emphasize observability, idempotency, and retry strategies
 
 ### Be Honest About Trade-offs
 - Every design has trade-offs - make them explicit
@@ -245,7 +228,7 @@ After generating the design alternatives:
 
 ## Cross-Platform Compatibility
 
-This command works on all platforms (Windows, macOS, Linux) as it uses Claude Code's native file operations instead of shell-specific commands.
+This prompt works on all platforms (Windows, macOS, Linux) because it relies on Windsurf's native file operations rather than shell-specific commands.
 
 ## Allowed Tools
 Read, Write, Edit, File Search, Grep only
