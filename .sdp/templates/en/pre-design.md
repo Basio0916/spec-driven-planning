@@ -22,6 +22,16 @@ Client → API Gateway → Auth Service → Token Validation
                     User Database
 ```
 
+**Architecture Alignment & Best Practices**
+- <How this alternative respects existing architecture layers/modules>
+- <Dependencies that must remain inverted or abstracted>
+- <Any deviations and mitigation plans>
+
+**Domain Logic Placement**
+- <Where core business rules live>
+- <How the domain layer stays decoupled from infrastructure>
+- <Impacts on aggregates/bounded contexts>
+
 **Pros**
 - ✅ Pro 1: <Specific advantage>
 - ✅ Pro 2: <Specific advantage>
@@ -52,6 +62,16 @@ Client → API Gateway → Auth Service → Token Validation
 ```
 <Simple diagram showing key components and data flow>
 ```
+
+**Architecture Alignment & Best Practices**
+- <How this alternative respects existing architecture layers/modules>
+- <Dependencies that must remain inverted or abstracted>
+- <Any deviations and mitigation plans>
+
+**Domain Logic Placement**
+- <Where core business rules live>
+- <How the domain layer stays decoupled from infrastructure>
+- <Impacts on aggregates/bounded contexts>
 
 **Pros**
 - ✅ Pro 1: <Specific advantage>
@@ -84,6 +104,16 @@ Client → API Gateway → Auth Service → Token Validation
 <Simple diagram showing key components and data flow>
 ```
 
+**Architecture Alignment & Best Practices**
+- <How this alternative respects existing architecture layers/modules>
+- <Dependencies that must remain inverted or abstracted>
+- <Any deviations and mitigation plans>
+
+**Domain Logic Placement**
+- <Where core business rules live>
+- <How the domain layer stays decoupled from infrastructure>
+- <Impacts on aggregates/bounded contexts>
+
 **Pros**
 - ✅ Pro 1: <Specific advantage>
 - ✅ Pro 2: <Specific advantage>
@@ -110,6 +140,8 @@ Client → API Gateway → Auth Service → Token Validation
 | Criteria | Alternative 1: <Name> | Alternative 2: <Name> | Alternative 3: <Name> |
 |----------|----------------------|----------------------|----------------------|
 | **Implementation Effort** | 5 person-days | 8 person-days | 3 person-days |
+| **Architecture Fit** | High / Med / Low | High / Med / Low | High / Med / Low |
+| **Domain Integrity** | Strong / Neutral / Weak | Strong / Neutral / Weak | Strong / Neutral / Weak |
 | **Maintainability** | High / Med / Low | High / Med / Low | High / Med / Low |
 | **Performance** | 100ms / High / Good | 50ms / Very High | 200ms / Medium |
 | **Scalability** | High / Med / Low | High / Med / Low | High / Med / Low |
@@ -117,6 +149,7 @@ Client → API Gateway → Auth Service → Token Validation
 | **Technical Debt** | Low / Med / High | Low / Med / High | Low / Med / High |
 | **Security** | High / Med / Low | High / Med / Low | High / Med / Low |
 | **Cost** | Low / Med / High | Low / Med / High | Low / Med / High |
+| **Operational Complexity** | Low / Med / High | Low / Med / High | Low / Med / High |
 
 *Note: Adjust criteria based on project requirements*
 
@@ -139,6 +172,7 @@ Alternative 2 offers superior performance, but has high implementation complexit
 
 **Key Trade-offs**
 <Describe what we're sacrificing and why it's acceptable - 2-4 bullet points>
+- <Call out architecture rule exceptions and mitigation plan if any>
 
 Example:
 - **Performance**: Response time is approximately 2x compared to Alternative 2 (50ms → 100ms), but it still well satisfies the 200ms requirement, and the impact on user experience is minimal
@@ -151,15 +185,16 @@ Example:
 
 **User Action Required:**
 1. Review the alternatives and comparison matrix above
-2. If you agree with the recommended solution, proceed with:
+2. Validate that the recommended solution aligns with the current architecture guardrails
+3. If you agree with the recommended solution, proceed with:
    ```
    /sdp:design <slug>
    ```
-3. If you prefer a different alternative, specify it:
+4. If you prefer a different alternative, specify it:
    ```
    /sdp:design <slug> 2
    ```
-4. If you want modifications to any alternative, provide feedback in natural language and the alternatives will be updated
+5. If you want modifications to any alternative, provide feedback in natural language and the alternatives will be updated
 
 **What Happens Next:**
 - The `design` command will create a comprehensive detailed design document
