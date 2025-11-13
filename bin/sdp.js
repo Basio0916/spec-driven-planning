@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const VERSION = '1.8.0';
+const VERSION = '1.9.0';
 
 // ANSI color codes
 const colors = {
@@ -65,7 +65,8 @@ function showHelp() {
   log('Options:', colors.bright);
   log('  --lang <en|ja>        Set output language (default: en)');
   log('  --github-copilot      Setup for GitHub Copilot instead of Claude Code');
-  log('  --windsurf            Setup for Windsurf instead of Claude Code\n');
+  log('  --windsurf            Setup for Windsurf instead of Claude Code');
+  log('  --codex               Setup for Codex instead of Claude Code\n');
 }
 
 function showVersion() {
@@ -103,17 +104,19 @@ function main() {
       }
     }
 
-    // Parse GitHub Copilot and Windsurf options
+    // Parse GitHub Copilot, Windsurf, and Codex options
     const isGitHubCopilot = args.includes('--github-copilot');
     const isWindsurf = args.includes('--windsurf');
+    const isCodex = args.includes('--codex');
 
     // Check for conflicting options
-    if (isGitHubCopilot && isWindsurf) {
-      error('Cannot use both --github-copilot and --windsurf options together');
+    const optionCount = [isGitHubCopilot, isWindsurf, isCodex].filter(Boolean).length;
+    if (optionCount > 1) {
+      error('Cannot use multiple platform options together (--github-copilot, --windsurf, --codex)');
       process.exit(1);
     }
 
-    const targetType = isGitHubCopilot ? 'GitHub Copilot' : (isWindsurf ? 'Windsurf' : 'Claude Code');
+    const targetType = isGitHubCopilot ? 'GitHub Copilot' : (isWindsurf ? 'Windsurf' : (isCodex ? 'Codex' : 'Claude Code'));
 
     log('\n╔═══════════════════════════════════════════════════════════╗', colors.bright + colors.cyan);
     log('║                                                           ║', colors.bright + colors.cyan);
@@ -130,11 +133,13 @@ function main() {
       ? path.join(targetDir, '.github', 'prompts')
       : isWindsurf
         ? path.join(targetDir, '.windsurf', 'workflows')
-        : path.join(targetDir, '.claude', 'commands', 'sdp');
+        : isCodex
+          ? path.join(targetDir, '.codex', 'prompts')
+          : path.join(targetDir, '.claude', 'commands', 'sdp');
 
     // Check if commands directory already exists
     if (fs.existsSync(commandsDir)) {
-      const dirName = isGitHubCopilot ? '.github/prompts/' : (isWindsurf ? '.windsurf/workflows/' : '.claude/commands/sdp/');
+      const dirName = isGitHubCopilot ? '.github/prompts/' : (isWindsurf ? '.windsurf/workflows/' : (isCodex ? '.codex/prompts/' : '.claude/commands/sdp/'));
       warn(`${dirName} directory already exists.`);
       const readline = require('readline').createInterface({
         input: process.stdin,
@@ -147,14 +152,14 @@ function main() {
         if (answer.toLowerCase() === 'y' || answer.toLowerCase() === 'yes') {
           info(`Removing existing ${dirName} directory...`);
           fs.rmSync(commandsDir, { recursive: true, force: true });
-          setupSDP(targetDir, lang, isGitHubCopilot, isWindsurf);
+          setupSDP(targetDir, lang, isGitHubCopilot, isWindsurf, isCodex);
         } else {
           info('Setup cancelled. No changes were made.');
           process.exit(0);
         }
       });
     } else {
-      setupSDP(targetDir, lang, isGitHubCopilot, isWindsurf);
+      setupSDP(targetDir, lang, isGitHubCopilot, isWindsurf, isCodex);
     }
   } else {
     error(`Unknown command: ${command}`);
@@ -163,7 +168,7 @@ function main() {
   }
 }
 
-function setupSDP(targetDir, lang = 'en', isGitHubCopilot = false, isWindsurf = false) {
+function setupSDP(targetDir, lang = 'en', isGitHubCopilot = false, isWindsurf = false, isCodex = false) {
   const sourceDir = path.join(__dirname, '..');
   const sdpSourceDir = path.join(sourceDir, '.sdp');
   const sdpTargetDir = path.join(targetDir, '.sdp');
@@ -186,6 +191,13 @@ function setupSDP(targetDir, lang = 'en', isGitHubCopilot = false, isWindsurf = 
       info('📁 Copying .windsurf/workflows/ directory...');
       copyRecursive(windsurfWorkflowsSource, windsurfWorkflowsTarget);
       success('.windsurf/workflows/ directory created');
+    } else if (isCodex) {
+      // Copy Codex prompt files
+      const codexPromptsSource = path.join(sourceDir, '.codex', 'prompts');
+      const codexPromptsTarget = path.join(targetDir, '.codex', 'prompts');
+      info('📁 Copying .codex/prompts/ directory...');
+      copyRecursive(codexPromptsSource, codexPromptsTarget);
+      success('.codex/prompts/ directory created');
     } else {
       // Copy Claude Code commands
       const claudeCommandsSdpSource = path.join(sourceDir, '.claude', 'commands', 'sdp');
@@ -237,6 +249,8 @@ language: ${lang}
       log('   .github/prompts/         - GitHub Copilot prompt files');
     } else if (isWindsurf) {
       log('   .windsurf/workflows/     - Windsurf workflow files');
+    } else if (isCodex) {
+      log('   .codex/prompts/          - Codex prompt files');
     } else {
       log('   .claude/commands/sdp/    - Custom slash commands');
     }
@@ -253,12 +267,16 @@ language: ${lang}
       log('⚙️  Windsurf Setup:', colors.bright + colors.cyan);
       log('   1. Restart Windsurf to activate workflow files');
       log('   2. Access workflows via the Windsurf Cascade interface\n');
+    } else if (isCodex) {
+      log('⚙️  Codex Setup:', colors.bright + colors.cyan);
+      log('   1. Restart Codex to activate prompt files');
+      log('   2. Access prompts via the Codex interface\n');
     }
 
     log('🚀 Next Steps:', colors.bright + colors.cyan);
     log('   1. Review and customize .sdp/config/*.yml files');
     log('   2. Update repository settings in .sdp/config/export.yml');
-    if (isGitHubCopilot || isWindsurf) {
+    if (isGitHubCopilot || isWindsurf || isCodex) {
       log('   3. Run: /sdp-steering to initialize project context');
       log('   4. Start with: /sdp-requirement "Your requirement description"');
       log('   5. Generate tasks with: /sdp-estimate <slug>');
@@ -275,7 +293,7 @@ language: ${lang}
     }
 
     log('📖 Available Commands:', colors.bright + colors.cyan);
-    if (isGitHubCopilot || isWindsurf) {
+    if (isGitHubCopilot || isWindsurf || isCodex) {
       log('   /sdp-steering              - Generate project context');
       log('   /sdp-requirement <text>    - Refine requirement specification');
       log('   /sdp-design <slug>         - Generate detailed design with alternatives');

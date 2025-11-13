@@ -25,6 +25,12 @@ npx spec-driven-planning init
 # Initialize for GitHub Copilot
 npx spec-driven-planning init --github-copilot
 
+# Initialize for Windsurf
+npx spec-driven-planning init --windsurf
+
+# Initialize for Codex
+npx spec-driven-planning init --codex
+
 # Initialize with Japanese
 npx spec-driven-planning init --lang ja
 
@@ -35,6 +41,8 @@ npx spec-driven-planning init --github-copilot --lang ja
 This will create:
 - `.claude/commands/sdp/` - Custom slash commands (Claude Code)
 - `.github/prompts/` - Prompt files (GitHub Copilot)
+- `.windsurf/workflows/` - Workflow files (Windsurf)
+- `.codex/prompts/` - Prompt files (Codex)
 - `.sdp/config/` - Configuration files (including language settings)
 - `.sdp/templates/en/` - English document templates
 - `.sdp/templates/ja/` - Japanese document templates
@@ -329,7 +337,16 @@ Each template includes detailed examples and guidance.
 
 ```
 .claude/
-└── commands/sdp/       # Custom slash commands
+└── commands/sdp/       # Custom slash commands (Claude Code)
+
+.github/
+└── prompts/            # Prompt files (GitHub Copilot)
+
+.windsurf/
+└── workflows/          # Workflow files (Windsurf)
+
+.codex/
+└── prompts/            # Prompt files (Codex)
 
 .sdp/                   # SDP working directory (gitignored)
 ├── config/             # Configuration files
@@ -370,28 +387,56 @@ language: ja  # Change to 'en' for English or 'ja' for Japanese
 
 All subsequent commands will generate content in the specified language.
 
-## GitHub Copilot Support
+## Multi-Platform Support
 
-SDP now supports GitHub Copilot in addition to Claude Code! Use the `--github-copilot` flag during initialization to set up prompt files for GitHub Copilot.
+SDP supports multiple AI coding assistants! Use the platform-specific flag during initialization.
 
-### Setup for GitHub Copilot
+### Supported Platforms
 
-1. **Initialize with GitHub Copilot support:**
-   ```bash
-   npx spec-driven-planning init --github-copilot
-   ```
+#### Claude Code (Default)
+```bash
+npx spec-driven-planning init
+```
+Custom slash commands in `.claude/commands/sdp/`
 
-2. **Enable prompt files in VS Code:**
-   - Open VS Code Settings (Cmd+, or Ctrl+,)
-   - Search for `chat.promptFiles`
-   - Enable the setting
+#### GitHub Copilot
+```bash
+npx spec-driven-planning init --github-copilot
+```
 
-3. **Reload VS Code** to activate the prompt files
+Setup steps:
+1. Enable prompt files in VS Code Settings (Cmd+, or Ctrl+,)
+2. Search for `chat.promptFiles` and enable it
+3. Reload VS Code to activate the prompt files
+
+Prompt files in `.github/prompts/`
+
+#### Windsurf
+```bash
+npx spec-driven-planning init --windsurf
+```
+
+Setup steps:
+1. Restart Windsurf to activate workflow files
+2. Access workflows via the Windsurf Cascade interface
+
+Workflow files in `.windsurf/workflows/`
+
+#### Codex
+```bash
+npx spec-driven-planning init --codex
+```
+
+Setup steps:
+1. Restart Codex to activate prompt files
+2. Access prompts via the Codex interface
+
+Prompt files in `.codex/prompts/`
 
 ### Command Differences
 
-| Claude Code | GitHub Copilot | Description |
-|------------|----------------|-------------|
+| Claude Code | GitHub Copilot / Windsurf / Codex | Description |
+|------------|-----------------------------------|-------------|
 | `/sdp:steering` | `/sdp-steering` | Generate project context |
 | `/sdp:requirement` | `/sdp-requirement` | Refine requirement specification |
 | `/sdp:pre-design` | `/sdp-pre-design` | Generate pre-design |
@@ -402,14 +447,14 @@ SDP now supports GitHub Copilot in addition to Claude Code! Use the `--github-co
 | `/sdp:implement` | `/sdp-implement` | Execute implementation tasks |
 | `/sdp:export-issues` | `/sdp-export-issues` | Export to issue trackers |
 
-### Using Prompt Files in GitHub Copilot
+### Using Prompt Files
 
-In the GitHub Copilot Chat view:
+In GitHub Copilot / Windsurf / Codex:
 1. Type `/` followed by the command name
 2. Add arguments as needed (e.g., `/sdp-requirement Add user authentication`)
 3. Press Enter to execute
 
-GitHub Copilot will use the prompt file and generate the same structured outputs as Claude Code!
+All platforms generate the same structured outputs!
 
 ## Requirements
 
@@ -417,6 +462,8 @@ GitHub Copilot will use the prompt file and generate the same structured outputs
 - **AI Assistant**: One of the following:
   - **Claude Code**: For `.claude/commands/sdp/` custom commands
   - **GitHub Copilot**: For `.github/prompts/` prompt files (requires VS Code with `chat.promptFiles` setting enabled)
+  - **Windsurf**: For `.windsurf/workflows/` workflow files
+  - **Codex**: For `.codex/prompts/` prompt files
 
 ### Optional (for issue export)
 
