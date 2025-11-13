@@ -23,6 +23,12 @@ npx spec-driven-planning init
 # GitHub Copilot用に初期化
 npx spec-driven-planning init --github-copilot
 
+# Windsurf用に初期化
+npx spec-driven-planning init --windsurf
+
+# Codex用に初期化
+npx spec-driven-planning init --codex
+
 # 日本語で初期化
 npx spec-driven-planning init --lang ja
 
@@ -33,6 +39,8 @@ npx spec-driven-planning init --github-copilot --lang ja
 以下のファイル・ディレクトリが作成されます:
 - `.claude/commands/sdp/` - カスタムスラッシュコマンド（Claude Code）
 - `.github/prompts/` - プロンプトファイル（GitHub Copilot）
+- `.windsurf/workflows/` - ワークフローファイル（Windsurf）
+- `.codex/prompts/` - プロンプトファイル（Codex）
 - `.sdp/config/` - 設定ファイル（言語設定を含む）
 - `.sdp/templates/en/` - 英語ドキュメントテンプレート
 - `.sdp/templates/ja/` - 日本語ドキュメントテンプレート
@@ -328,7 +336,16 @@ PERT見積もり付きのタスク分解を作成:
 
 ```
 .claude/
-└── commands/sdp/       # カスタムスラッシュコマンド
+└── commands/sdp/       # カスタムスラッシュコマンド（Claude Code）
+
+.github/
+└── prompts/            # プロンプトファイル（GitHub Copilot）
+
+.windsurf/
+└── workflows/          # ワークフローファイル（Windsurf）
+
+.codex/
+└── prompts/            # プロンプトファイル（Codex）
 
 .sdp/                   # SDP作業ディレクトリ（gitignore対象）
 ├── config/             # 設定ファイル
@@ -369,28 +386,56 @@ language: ja  # 英語の場合は 'en'、日本語の場合は 'ja' に変更
 
 その後のすべてのコマンドは指定された言語でコンテンツを生成します。
 
-## GitHub Copilotサポート
+## マルチプラットフォームサポート
 
-SDPはClaude Codeに加えて、GitHub Copilotにも対応しました！初期化時に`--github-copilot`フラグを使用することで、GitHub Copilot用のプロンプトファイルをセットアップできます。
+SDPは複数のAIコーディングアシスタントをサポートしています！初期化時にプラットフォーム固有のフラグを使用してください。
 
-### GitHub Copilotのセットアップ
+### サポートされているプラットフォーム
 
-1. **GitHub Copilotサポートで初期化:**
-   ```bash
-   npx spec-driven-planning init --github-copilot
-   ```
+#### Claude Code（デフォルト）
+```bash
+npx spec-driven-planning init
+```
+`.claude/commands/sdp/`にカスタムスラッシュコマンドを配置
 
-2. **VS Codeでプロンプトファイルを有効化:**
-   - VS Code設定を開く（Cmd+, または Ctrl+,）
-   - `chat.promptFiles`を検索
-   - 設定を有効化
+#### GitHub Copilot
+```bash
+npx spec-driven-planning init --github-copilot
+```
 
-3. **VS Codeをリロード**してプロンプトファイルを有効化
+セットアップ手順:
+1. VS Code設定でプロンプトファイルを有効化（Cmd+, または Ctrl+,）
+2. `chat.promptFiles`を検索して有効化
+3. VS Codeをリロードしてプロンプトファイルを有効化
+
+`.github/prompts/`にプロンプトファイルを配置
+
+#### Windsurf
+```bash
+npx spec-driven-planning init --windsurf
+```
+
+セットアップ手順:
+1. Windsurfを再起動してワークフローファイルを有効化
+2. Windsurf Cascadeインターフェースからワークフローにアクセス
+
+`.windsurf/workflows/`にワークフローファイルを配置
+
+#### Codex
+```bash
+npx spec-driven-planning init --codex
+```
+
+セットアップ手順:
+1. Codexを再起動してプロンプトファイルを有効化
+2. Codexインターフェースからプロンプトにアクセス
+
+`.codex/prompts/`にプロンプトファイルを配置
 
 ### コマンドの違い
 
-| Claude Code | GitHub Copilot | 説明 |
-|------------|----------------|------|
+| Claude Code | GitHub Copilot / Windsurf / Codex | 説明 |
+|------------|-----------------------------------|------|
 | `/sdp:steering` | `/sdp-steering` | プロジェクトコンテキストを生成 |
 | `/sdp:requirement` | `/sdp-requirement` | 要件仕様を洗練化 |
 | `/sdp:pre-design` | `/sdp-pre-design` | 事前設計を生成 |
@@ -401,14 +446,14 @@ SDPはClaude Codeに加えて、GitHub Copilotにも対応しました！初期�
 | `/sdp:implement` | `/sdp-implement` | 実装タスクを実行 |
 | `/sdp:export-issues` | `/sdp-export-issues` | Issue Trackerへエクスポート |
 
-### GitHub Copilotでのプロンプトファイル使用方法
+### プロンプトファイルの使用方法
 
-GitHub Copilot Chatビューで:
+GitHub Copilot / Windsurf / Codexで:
 1. `/`に続けてコマンド名を入力
 2. 必要に応じて引数を追加（例: `/sdp-requirement ユーザー認証を追加`）
 3. Enterキーを押して実行
 
-GitHub Copilotはプロンプトファイルを使用し、Claude Codeと同じ構造化された出力を生成します！
+すべてのプラットフォームで同じ構造化された出力を生成します！
 
 ## 必要要件
 
@@ -416,6 +461,8 @@ GitHub Copilotはプロンプトファイルを使用し、Claude Codeと同じ�
 - **AIアシスタント**: 以下のいずれか:
   - **Claude Code**: `.claude/commands/sdp/`カスタムコマンド用
   - **GitHub Copilot**: `.github/prompts/`プロンプトファイル用（VS Codeで`chat.promptFiles`設定を有効化する必要があります）
+  - **Windsurf**: `.windsurf/workflows/`ワークフローファイル用
+  - **Codex**: `.codex/prompts/`プロンプトファイル用
 
 ### オプション要件（エクスポート先に応じて）
 

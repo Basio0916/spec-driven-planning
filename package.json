@@ -1,7 +1,7 @@
 {
   "name": "spec-driven-planning",
   "version": "1.8.0",
-  "description": "Spec-Driven Planning (SDP) CLI tool for Claude Code, GitHub Copilot, and Windsurf",
+  "description": "Spec-Driven Planning (SDP) CLI tool for Claude Code, GitHub Copilot, Windsurf, and Codex",
   "bin": {
     "sdp": "./bin/sdp.js"
   },
@@ -10,6 +10,7 @@
     ".claude/",
     ".github/",
     ".windsurf/",
+    ".codex/",
     ".sdp/",
     "README.md"
   ],
@@ -20,6 +21,7 @@
     "claude-code",
     "github-copilot",
     "windsurf",
+    "codex",
     "spec-driven-planning",
     "sdp",
     "requirements",
